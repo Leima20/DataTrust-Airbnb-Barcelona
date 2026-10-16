@@ -348,6 +348,37 @@ qué).
    que ganar, cualquier resultado (mejora, empeora, casi no cambia) es válido y se
    reporta.
 
+### El hilo conductor entre los dos impactos (texto para el informe)
+
+No son dos hallazgos distintos, es **el mismo hallazgo de calidad de datos
+aplicado a dos tipos de decisión distintos**. El hilo es:
+
+1. **La auditoría encuentra el problema** (notebooks 01-04): `estimated_revenue_l365d = 0`
+   muchas veces no es un ingreso real de cero, es un fallo de cálculo de la
+   fórmula de Inside Airbnb (sin reseñas en el último año + estancia mínima
+   larga).
+2. **La gobernanza decide qué hacer una sola vez** (notebook 04 → notebook 05):
+   se marca como `revenue_no_estimable` — una decisión, documentada y
+   justificada una sola vez, no repetida.
+3. **Esa misma decisión se aplica en dos sitios con dos propósitos distintos**:
+
+   | | Impacto en negocio | Impacto en el modelo |
+   |---|---|---|
+   | Qué es | Comparar el promedio de ingresos entre dos grupos (profesional vs. particular) | Entrenar un algoritmo que prediga ingresos anuncio por anuncio |
+   | Quién decide con eso | Una persona comparando dos grupos para una decisión de negocio | Un sistema automatizado que aprende de los datos |
+   | Cómo usa `revenue_no_estimable` | Excluye esos anuncios del promedio → el gap baja de 39,7% a 23,1% | Excluye esos anuncios del entrenamiento → cambia el MAE/RMSE/R² del modelo |
+   | Resultado | 149.958 €/año de diferencia en una decisión de portafolio de 50 propiedades (cifra hipotética, aplicada a una media calculada sobre 3.399 anuncios profesionales y el resto de particulares del inventario completo de Barcelona) | El modelo tratado se evalúa de forma más honesta (sin los ceros fáciles que inflaban la precisión aparente del crudo) |
+
+`host_profesional` (`calculated_host_listings_count > 50`) conecta igual de
+bien los dos impactos: define los dos grupos en el caso de negocio, y es una
+de las ~10 variables predictoras del modelo — la misma corrección mejora los
+dos análisis a la vez, no uno aparte del otro.
+
+**La idea que debe quedar explícita en el informe**: dos tipos de decisión muy
+distintos (una comparación humana de grupos, y el entrenamiento de un sistema
+automatizado) cambian cuando se audita el mismo dato de origen. Eso es lo que
+sostiene la pregunta central del proyecto, no dos casos sueltos.
+
 ## Cronograma (6 semanas, ~1,5 meses)
 
 - Semana 1: formalizar la auditoría ya hecha en notebook + tabla de recomendaciones
