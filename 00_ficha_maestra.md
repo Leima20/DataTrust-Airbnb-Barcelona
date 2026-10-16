@@ -188,14 +188,34 @@ alquiler turístico en Barcelona?
 - 9.917 reseñas con menos de 5 caracteres.
 
 **License (caso estrella de gobernanza, no es el target)**
-- 46,9% con número HUTB reconocible, 25,7% exento declarado, 19,9% sin dato, 7,6%
-  texto no clasificable.
-- 5.429 registros con DOS números HUTB concatenados en el mismo campo, con etiquetas
-  HTML (`<br />`) sin limpiar.
-- Los anfitriones profesionales (>50 propiedades) están sobrerrepresentados en la
-  categoría "no clasificable" (54,9%) frente al resto (16-29%).
+- 47,0% con número HUTB (registro catalán), 25,7% exento declarado, 19,9% sin
+  dato, 6,2% con número NRUA (nuevo registro estatal, vigente desde julio de
+  2025), 1,2% texto genuinamente no clasificable.
+- 5.470 registros con DOS números HUTB concatenados en el mismo campo, con
+  etiquetas HTML (`<br />`) sin limpiar.
+- Los anfitriones profesionales (>50 anuncios en Barcelona) están
+  sobrerrepresentados en el **nuevo registro NRUA** (65,7%) frente al resto de
+  categorías (18-25%) — adoptan el nuevo requisito regulatorio más rápido que
+  los particulares. El residuo genuino de "no clasificable" es 100%
+  particular, 0% profesional.
 - Importante: un campo `license` mal formado NO equivale a "sin licencia real". Se
   audita como problema de calidad/formato, no se afirma incumplimiento legal.
+- **Corrección metodológica (tercera corrección del proyecto, misma lógica que
+  las otras dos — ver más abajo)**: una versión anterior de la función
+  `clasifica_licencia` solo reconocía el formato HUTB (catalán) en mayúscula
+  exacta y no existía todavía el nuevo registro estatal NRUA (vigente desde
+  julio de 2025, posterior a cuando se escribió la función original). Bajo esa
+  versión: el 82,4% de lo que aparecía como "no clasificable" (955 de 1.159
+  casos) eran en realidad números NRUA válidos sin detectar, y otro 2,3% (27
+  casos) eran HUTB válidos en minúscula que el patrón, sensible a mayúsculas,
+  no reconocía. Verificado contra el texto real del campo `license` (ej.
+  *"Spain - National registration number\<br /\>ESFCNT0000..."*) y contra guías
+  externas sobre el Real Decreto 1312/2024 que crea el registro único estatal.
+  Tras la corrección, el residuo genuino de "no clasificable" es solo 184
+  casos (1,2% del total), y la conclusión cambia de dirección: no son los
+  profesionales quienes tienen licencias más turbias, son los primeros en
+  adoptar el nuevo registro obligatorio — el residuo no clasificable es 100%
+  particular.
 
 ## Traducción a impacto monetario (caso estrella de negocio)
 
@@ -351,7 +371,7 @@ del proyecto:
 - **Zillow** cerró su división Zillow Offers (pérdidas de $300M+) tras decisiones
   basadas en un modelo cuyos supuestos dejaron de representar la realidad del mercado.
 
-Y el hallazgo propio del proyecto: **53,4% del inventario de Airbnb Barcelona tiene
+Y el hallazgo propio del proyecto: **51,4% del inventario de Airbnb Barcelona tiene
 al menos una incidencia de calidad** dentro de las reglas auditadas. El mismo patrón
 se repite en sectores distintos (movilidad, marketing, inmobiliario), lo que sostiene
 que el framework generaliza, no es una afirmación gratuita.
@@ -701,6 +721,14 @@ que se usa aquí, para no dar por hecho que la audiencia los conoce:
 - **Licencia "no clasificable"**: no significa "sin licencia" ni "ilegal", significa
   que el texto del campo no se pudo interpretar con las reglas definidas (puede ser
   una licencia real mal formateada). Distinción importante para no sobreafirmar.
+  Solo el 1,2% de los anuncios cae en esta categoría tras la corrección
+  metodológica (ver "Traducción a impacto monetario"); la mayoría de lo que
+  antes parecía "no clasificable" era en realidad el nuevo registro NRUA sin
+  reconocer.
+- **NRUA**: número de registro del nuevo registro único estatal de alquileres
+  de corta duración, creado por el Real Decreto 1312/2024 y obligatorio desde
+  julio de 2025. Sustituye progresivamente al HUTB catalán como identificador
+  de licencia en los anuncios.
 - **Valor atípico / extremo / sospechoso / imposible**: un valor fuera de lo común
   (ej. precio muy alto) no es automáticamente un error. Se distingue entre extremo
   (posiblemente válido, requiere contexto), sospechoso (requiere investigación) e
@@ -824,7 +852,7 @@ más adelante, aunque algún punto no se use en la versión final.
   clave a mano, practicar por la tarde, grabarse y escucharse.
 - **Empezar fuerte**: historia personal, pregunta directa, estadística
   sorprendente, objeto de utilería o video. Ya hay un candidato natural: el
-  53,4% de incidencias de calidad, o la pregunta "¿podemos confiar en los
+  51,4% de incidencias de calidad, o la pregunta "¿podemos confiar en los
   datos con los que se toman decisiones de alquiler turístico?" (ya está en
   la estructura de apertura más abajo).
 - Observar a la audiencia durante la exposición y ajustar sobre la marcha si

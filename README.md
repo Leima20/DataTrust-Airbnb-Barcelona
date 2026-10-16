@@ -68,7 +68,7 @@ mucho más ligero) sí están incluidos en `data/powerbi/`.
 
 ## Hallazgo de apertura
 
-**El 53,4% de los alojamientos presenta al menos una incidencia de calidad**
+**El 51,4% de los alojamientos presenta al menos una incidencia de calidad**
 dentro de las dimensiones auditadas (licencia no verificable, precio ausente,
 datos estructurales incompletos, o sin ninguna valoración). No es un problema
 marginal, afecta a más de la mitad del inventario analizado.
