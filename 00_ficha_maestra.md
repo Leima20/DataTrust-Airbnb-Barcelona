@@ -38,7 +38,7 @@ páginas, estructura de entregables), prevalece lo de aquí.
      implicaciones de los resultados; se pueden plantear nuevas hipótesis o
      sugerir áreas de investigación futura. **Debe quedar explícito qué
      aportación se hace para la toma de decisiones empresariales** (en este
-     proyecto: el caso de los 124.605 €/año de diferencia entre decidir con
+     proyecto: el caso de los 149.958 €/año de diferencia entre decidir con
      datos crudos o auditados debe estar nombrado aquí sin ambigüedad).
    - **Conclusión**: resume los hallazgos principales y su importancia,
      destacando cómo contribuyen al campo de estudio; puede incluir
@@ -204,29 +204,55 @@ pregunta de negocio sobre anfitriones profesionales vs. particulares, ya no solo
 como correlación sino como una decisión real que cambia de resultado según se
 audite o no el dato.
 
+**Corrección metodológica (aplicada tras una revisión a fondo, no en el cálculo
+original)**: se corrigieron dos variables en este análisis, ambas verificadas
+contra el diccionario de datos oficial de Inside Airbnb antes de aplicarlas:
+
+1. **"Anfitrión profesional" se mide con `calculated_host_listings_count`**
+   (no `host_listings_count`). Según el diccionario oficial, `host_listings_count`
+   es *"el número de anuncios que tiene el anfitrión, según los cálculos de
+   Airbnb"* — un conteo **global de toda la plataforma**, no limitado a
+   Barcelona. `calculated_host_listings_count` es *"el número de anuncios que
+   tiene el anfitrión en el scrape actual, en la geografía de la ciudad/región"*
+   — sin nulos (87 en la otra columna) y calculado directamente sobre este
+   snapshot de Barcelona. Para un estudio específico de esta ciudad, es la
+   columna correcta. Impacto del cambio: 478 anuncios (3,1%) cambian de
+   clasificación, siempre en la misma dirección (anfitriones con muchos
+   anuncios fuera de Barcelona dejan de contar como "profesional" aquí).
+2. **"No estimable" se mide con `number_of_reviews_ltm`** (no
+   `number_of_reviews`). El target (`estimated_revenue_l365d`) es una métrica
+   de 1 año; la variable de control debe usar la misma ventana temporal
+   (reseñas del **último año**, no el histórico completo del anuncio) para no
+   comparar dos periodos distintos. Impacto del cambio: se capturan 791
+   anuncios más como "no estimable" (2.686 en vez de 1.895, un 42% más).
+
+**Ninguna de las dos correcciones debilita el hallazgo — lo fortalece** (ver
+cifras abajo). Detalle completo de cómo se encontraron estas correcciones y la
+comparación con la fuente oficial de Inside Airbnb: notebook 05, sección 1.2 y 1.6.
+
 - **Conclusión con datos crudos (solo quitando nulos, sin investigar)**: los
-  anfitriones profesionales (>50 propiedades) rinden un 37,4% peor por anuncio que
-  los particulares (24.473 € vs. 15.321 €/año de media).
-- **Causa raíz encontrada**: el 51,4% de los anuncios profesionales tienen
-  `estimated_revenue_l365d = 0`. Se confirma que esto es 100% mecánico: `revenue = 0`
-  coincide siempre con `number_of_reviews_ltm = 0` (la fórmula de Inside Airbnb se
-  basa en reseñas del último año). De esos ceros, el 80,3% no tiene ninguna reseña
-  histórica y el 62,2% tiene estancia mínima ≥28 noches (frente a 24,5% en los
-  profesionales con ingreso activo) — un huésped de estancia larga deja como mucho
-  una reseña al año, así que la fórmula no puede estimar ingresos ahí aunque el
-  alojamiento esté ocupado. Coincide con estancias de 31+ noches, que en Barcelona
-  quedan fuera del régimen de licencia turística de corta estancia (conecta con el
+  anfitriones profesionales (>50 anuncios en Barcelona) rinden un **39,7%** peor
+  por anuncio que los particulares (24.338 € vs. 14.678 €/año de media).
+- **Causa raíz encontrada**: el 54,2% de los anuncios profesionales tienen
+  `estimated_revenue_l365d = 0`. Se confirma que esto es 100% mecánico: de esos
+  ceros, el 100% tiene cero reseñas en el último año (`number_of_reviews_ltm = 0`;
+  la fórmula de Inside Airbnb se basa exactamente en esas reseñas), y el 62,2%
+  tiene estancia mínima ≥28 noches (frente a 26,1% en los profesionales con
+  ingreso activo) — un huésped de estancia larga deja como mucho una reseña al
+  año, así que la fórmula no puede estimar ingresos ahí aunque el alojamiento
+  esté ocupado. Coincide con estancias de 31+ noches, que en Barcelona quedan
+  fuera del régimen de licencia turística de corta estancia (conecta con el
   hallazgo de licencias de más arriba).
-- **Decisión de gobernanza**: tratar como "no estimable" (no como ingreso real cero)
-  solo los anuncios con esa doble evidencia (sin ninguna reseña histórica + estancia
-  mínima ≥28 noches, un 14,2% de los que tienen dato), no todos los ceros — para no
-  sobrecorregir excluyendo anuncios que de verdad rinden mal.
-- **Conclusión con datos auditados**: el gap baja de 37,4% a 24,5% (6.660 €/año).
-  No desaparece del todo, pero se reduce en un tercio.
+- **Decisión de gobernanza**: tratar como "no estimable" (no como ingreso real
+  cero) solo los anuncios con esa doble evidencia (sin reseñas en el último año +
+  estancia mínima ≥28 noches, un **20,1%** de los que tienen dato), no todos los
+  ceros — para no sobrecorregir excluyendo anuncios que de verdad rinden mal.
+- **Conclusión con datos auditados**: el gap baja de 39,7% a **23,1%**
+  (6.661 €/año). No desaparece del todo, pero se reduce en más de un tercio.
 - **Traducción a dinero**: para la decisión de escalar a un portafolio de 50
-  propiedades, la "penalización" estimada por operar en grande pasa de 457.598 €/año
-  (dato crudo) a 332.993 €/año (dato auditado) — una diferencia de **124.605 €/año**
-  entre decidir con datos sin auditar o auditados.
+  propiedades, la "penalización" estimada por operar en grande pasa de
+  483.000 €/año (dato crudo) a 333.042 €/año (dato auditado) — una diferencia
+  de **149.958 €/año** entre decidir con datos sin auditar o auditados.
 
 ## Preguntas de negocio
 
@@ -249,7 +275,14 @@ audite o no el dato.
   calidad, no se oculta.
 - **Predictoras permitidas (sin fuga)**: `room_type`, `property_type`,
   `accommodates`, `bedrooms`, `bathrooms`, `beds`, `neighbourhood_cleansed`,
-  `amenities`, `host_listings_count`, `host_is_superhost`.
+  `amenities`, `host_listings_count`, `calculated_host_listings_count`,
+  `host_is_superhost`. Se incluyen las dos variables de conteo de anuncios
+  por anfitrión porque no son redundantes (correlación 0,93, no 1,0; 478
+  anuncios divergen entre ambas — ver "Corrección metodológica" más abajo):
+  `calculated_host_listings_count` capta la escala del anfitrión en
+  Barcelona, `host_listings_count` su escala global. Se deja que el modelo
+  muestre con la importancia de variables cuál aporta más señal, en vez de
+  elegir una de antemano.
 - **Excluidas por fuga de información**: `price`, `estimated_occupancy_l365d`,
   `number_of_reviews` (y variantes), `minimum_nights` (todas forman parte de la
   fórmula con la que se calcula el target).
@@ -277,7 +310,7 @@ vez de por capacidad. Se genera una segunda versión del dataset curado con
 este criterio (criterio B), y en el notebook 06 el modelo se entrena tres
 veces: datos crudos, curados con criterio A (capacidad, notebook 05), y
 curados con criterio B (barrio). Se comprueba si la conclusión final (el gap
-de negocio de 124.605 €/año, las métricas MAE/RMSE/R² del modelo) se
+de negocio de 149.958 €/año, las métricas MAE/RMSE/R² del modelo) se
 mantiene estable o
 cambia mucho entre ambos criterios. Si se mantiene estable con más de un
 criterio de limpieza razonable, es evidencia de que la curación no es
@@ -644,10 +677,13 @@ Términos propios del proyecto que no son de uso general, con la definición exa
 que se usa aquí, para no dar por hecho que la audiencia los conoce:
 
 - **Anfitrión profesional / particular**: distinción propia del proyecto, no de
-  Airbnb. Profesional = cuenta de anfitrión asociada a más de 50 anuncios
-  (`host_listings_count > 50`). Mide gestión en la plataforma, no propiedad, un
-  anfitrión con muchos anuncios probablemente es una agencia gestora, no alguien
-  dueño de 50 viviendas.
+  Airbnb. Profesional = cuenta de anfitrión asociada a más de 50 anuncios **en
+  Barcelona** (`calculated_host_listings_count > 50` — no `host_listings_count`,
+  que es un conteo global de toda la plataforma, no específico de esta ciudad;
+  ver "Corrección metodológica" en la sección de impacto monetario). Mide
+  gestión en la plataforma dentro de este mercado, no propiedad, un anfitrión
+  con muchos anuncios probablemente es una agencia gestora, no alguien dueño de
+  50 viviendas.
 - **Fuga de información (data leakage)**: usar como variable predictora un dato que
   en realidad ya contiene, matemáticamente, la respuesta que se quiere predecir. En
   este proyecto: precio, ocupación y nº de reseñas se excluyen del modelo porque
@@ -685,13 +721,13 @@ Durante la discusión sobre la guía de presentaciones de Visme (más abajo), se
 consideraron estas alternativas, sin decidir ninguna todavía — quedan aquí
 anotadas para retomar la decisión más adelante:
 
-- `DataTrust: 124.605 €/año, el coste real de no auditar tus datos (caso
+- `DataTrust: 149.958 €/año, el coste real de no auditar tus datos (caso
   Airbnb Barcelona)` — descartada: mete la cifra en el título, lo que
   equivale a revelar la conclusión antes de tiempo, y reduce el proyecto a
   solo dinero cuando también mide gobernanza y calidad de decisión.
 - `¿Puedes confiar en tus datos? Auditoría de calidad en Airbnb Barcelona` —
   título en forma de pregunta provocadora.
-- `El precio de los datos sucios: cómo 124.605 €/año dependen de auditar bien
+- `El precio de los datos sucios: cómo 149.958 €/año dependen de auditar bien
   tus datos` — descartada por la misma razón que la primera (cifra en el
   título).
 - `DataTrust: ¿qué te cuesta no auditar tus datos? (caso Airbnb Barcelona)` —

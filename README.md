@@ -76,13 +76,32 @@ marginal, afecta a más de la mitad del inventario analizado.
 ## Resultado del modelo
 
 El mismo modelo de regresión (RandomForest) entrenado con datos crudos vs.
-tratados da un R² prácticamente idéntico (0,461 vs. 0,460), pero el MAE del
-modelo tratado es algo mayor — no porque el tratamiento empeore el modelo,
-sino porque excluye 1.895 anuncios con ingreso "0 €" artificial que inflaban
-la precisión aparente del modelo crudo. Un chequeo de sensibilidad (probando
-un criterio de imputación alternativo) confirma que la conclusión es estable
-y no depende de esa decisión concreta de curación. Detalle completo en
-`notebooks/06_modelo_ml.ipynb`.
+tratados da un R² y un MAE **peores** en la versión tratada (R² 0,439 vs.
+0,470; MAE 15.216 € vs. 13.310 €) — no porque el tratamiento empeore el
+modelo, sino porque excluye 2.686 anuncios con ingreso "0 €" artificial que
+inflaban la precisión aparente del modelo crudo. Un chequeo de sensibilidad
+(probando un criterio de imputación alternativo) confirma que la conclusión
+es estable y no depende de esa decisión concreta de curación (diferencia
+menor al 0,1%). Detalle completo en `notebooks/06_modelo_ml.ipynb`.
+
+## Corrección metodológica aplicada
+
+Tras una revisión a fondo del proyecto, se corrigieron dos variables usadas
+en el caso de negocio y en el modelo, verificadas contra el diccionario de
+datos oficial de Inside Airbnb:
+
+- **"Anfitrión profesional" se mide con `calculated_host_listings_count`**
+  (escala del anfitrión específicamente en Barcelona), no con
+  `host_listings_count` (conteo global de toda la plataforma).
+- **"Ingreso no estimable" se mide con `number_of_reviews_ltm`** (reseñas del
+  último año, la misma ventana temporal que el target), no con
+  `number_of_reviews` (histórico completo).
+
+Ninguna corrección debilitó el hallazgo central del proyecto: el impacto de
+auditar la decisión de escalar un portafolio de 50 propiedades pasó de
+124.605 €/año a **149.958 €/año**. Detalle completo en
+`notebooks/05_tratamiento_curacion.ipynb` (sección 1.2 y 1.6) y en la ficha
+maestra.
 
 ## Autora
 

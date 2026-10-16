@@ -2,7 +2,7 @@ import pandas as pd
 
 listings = pd.read_csv("data/airbnb_bcn/listings.csv", low_memory=False)
 
-listings["profesional"] = listings["host_listings_count"].fillna(0) > 50
+listings["profesional"] = listings["calculated_host_listings_count"] > 50
 tiene_revenue = listings["estimated_revenue_l365d"].notna()
 
 # ---------- Conclusion NAIVE: comparar rendimiento por anuncio sin auditar los datos ----------
@@ -27,7 +27,7 @@ print("\n" + "=" * 70)
 print("DIAGNOSTICO: anuncios profesionales con revenue = 0")
 print("=" * 70)
 print(f"% de profesionales en 0 EUR: {es_cero[tiene_revenue & listings['profesional']].mean() * 100:.1f}%")
-print(f"  de ellos, sin ninguna reseña historica: {(zero_pro['number_of_reviews'] == 0).mean() * 100:.1f}%")
+print(f"  de ellos, sin ninguna reseña en el ultimo año: {(zero_pro['number_of_reviews_ltm'] == 0).mean() * 100:.1f}%")
 print(f"  de ellos, con estancia minima >= 28 noches: {(zero_pro['minimum_nights'] >= 28).mean() * 100:.1f}%")
 print(f"  (vs. en los profesionales SI activos: "
       f"{(activo_pro['minimum_nights'] >= 28).mean() * 100:.1f}% con estancia larga)")
@@ -37,7 +37,7 @@ print("una reseña al año, asi que la formula no puede estimar ingresos ahi, au
 print("el alojamiento este ocupado. No es ingreso real cero, es 'no estimable'.")
 
 # ---------- Conclusion CORREGIDA: excluir el bucle no-estimable en vez de contarlo como 0 real ----------
-no_estimable = tiene_revenue & es_cero & (listings["number_of_reviews"] == 0) & (listings["minimum_nights"] >= 28)
+no_estimable = tiene_revenue & es_cero & (listings["number_of_reviews_ltm"] == 0) & (listings["minimum_nights"] >= 28)
 print(f"\nAnuncios marcados como 'no estimable' en todo el dataset: {no_estimable.sum()} "
       f"({no_estimable.sum() / tiene_revenue.sum() * 100:.1f}% de los que tienen dato)")
 
