@@ -254,6 +254,38 @@ audite o no el dato.
   `number_of_reviews` (y variantes), `minimum_nights` (todas forman parte de la
   fórmula con la que se calcula el target).
 
+## Limitaciones metodológicas (declarar explícitamente en el informe)
+
+**Las decisiones de curación están justificadas, pero no validadas contra un
+valor real conocido.** El proyecto compara "datos crudos" vs. "una versión
+concreta de datos auditados" (la decidida en el notebook 04-05), pero no
+puede probar que esa curación sea "la correcta", solo que es razonada,
+documentada y verificada mecánicamente (las consultas SQL antes/después
+confirman que el código hizo lo que decía que iba a hacer, no que el criterio
+de imputación elegido sea el único válido). Esto es inherente a cualquier
+proceso de imputación: si se conociera el valor real que falta, no habría
+nada que imputar. Mismo espíritu que ya se aplica a `estimated_revenue_l365d`
+(estimación de terceros, no ingreso real) y a no asumir de antemano que el
+modelo tratado tiene que ganar — se declara la limitación en vez de
+ocultarla.
+
+**Mitigación parcial planeada: chequeo de sensibilidad en el notebook 06.**
+En vez de imputar `bedrooms`/`bathrooms`/`beds` de una única forma (mediana
+por `accommodates`, ya hecho en el notebook 05), se prueba un criterio
+alternativo decidido: **mediana por `neighbourhood_cleansed`** (barrio) en
+vez de por capacidad. Se genera una segunda versión del dataset curado con
+este criterio (criterio B), y en el notebook 06 el modelo se entrena tres
+veces: datos crudos, curados con criterio A (capacidad, notebook 05), y
+curados con criterio B (barrio). Se comprueba si la conclusión final (el gap
+de negocio de 124.605 €/año, las métricas MAE/RMSE/R² del modelo) se
+mantiene estable o
+cambia mucho entre ambos criterios. Si se mantiene estable con más de un
+criterio de limpieza razonable, es evidencia de que la curación no es
+arbitraria/frágil — no prueba que sea "la verdad", pero sí que no depende de
+una elección caprichosa. Se reporta el resultado tal cual salga, igual que el
+resto del proyecto (si cambia mucho, también se documenta y se discute por
+qué).
+
 ## Los dos impactos a medir
 
 1. **Impacto en negocio**: conclusiones (ej. qué características explican mejor
