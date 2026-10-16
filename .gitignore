@@ -1,0 +1,23 @@
+# Datos crudos y curados en CSV: demasiado grandes para GitHub (1.3 GB en
+# total), se regeneran siguiendo las instrucciones del README (descarga de
+# Inside Airbnb + notebooks 01-05). Los datasets usados en Power BI SÍ se
+# incluyen en el repo, pero como Parquet en data/powerbi/ (ver más abajo,
+# esa carpeta no está excluida).
+data/airbnb_bcn/
+data/airbnb_bcn_curado/
+
+# Base de datos SQLite: 1.1 GB, se regenera con database/construir_base_datos.py
+# + el notebook 05 (tablas *_curado).
+database/*.db
+
+# Checkpoints de Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+
+# Sistema
+.DS_Store
+Thumbs.db
