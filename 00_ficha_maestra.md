@@ -848,6 +848,14 @@ Visualización → comunicar resultados.
 Términos propios del proyecto que no son de uso general, con la definición exacta
 que se usa aquí, para no dar por hecho que la audiencia los conoce:
 
+- **Nomenclatura L1-L8, R1-R4, C1-C2**: etiquetas propias del proyecto (notebook
+  04) para identificar cada uno de los 14 hallazgos de calidad sin repetir su
+  descripción completa cada vez. La letra indica la tabla (**L** = `Listings`,
+  **R** = `Reviews`, **C** = `Calendar`), el número es el orden en que se
+  encontró/documentó dentro de esa tabla. No es una nomenclatura oficial de
+  Airbnb ni de ciencia de datos, es solo una convención práctica de este
+  proyecto — conviene explicarla la primera vez que aparece en el informe o
+  la presentación, antes de usarla sin más contexto.
 - **Anfitrión profesional / particular**: distinción propia del proyecto, no de
   Airbnb. Profesional = cuenta de anfitrión asociada a más de 50 anuncios **en
   Barcelona** (`calculated_host_listings_count > 50` — no `host_listings_count`,
