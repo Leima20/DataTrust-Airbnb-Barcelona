@@ -8,6 +8,127 @@ scripts de exploración de datasets descartados (`explore_olist.py`,
 `explore_accidents_bcn.py`) se eliminaron de la carpeta tras cerrar
 definitivamente el tema del proyecto en Airbnb Barcelona.
 
+## Resumen completo del proyecto (guía de repaso para explicarlo)
+
+Escrito para repasar antes de reuniones con la mentora o la defensa — si en
+algún momento se pierde el hilo del proyecto, empezar a leer por aquí.
+
+### La idea en una frase
+
+*"Audité la calidad de los datos de Airbnb Barcelona, y demostré que las
+decisiones que se toman con esos datos — tanto decisiones humanas de negocio
+como un modelo predictivo automatizado — cambian de forma medible si usas el
+dato tal cual viene o si lo auditas primero."*
+
+### El proceso completo, paso por paso
+
+**Paso 0 — Elegir el tema**: se compararon varios datasets (Olist, accidentes
+de tráfico de Barcelona, varios de Kaggle) y se eligió Airbnb Barcelona (Inside
+Airbnb) por ser real, local, y con problemas de calidad genuinos que auditar.
+
+**Paso 1 — Auditoría (notebooks 01, 02, 03)**. Herramientas: Python + pandas,
+y SQL (SQLite) para una parte.
+- Notebook 01 (`listings`, 15.293 filas): con pandas, nulos, duplicados, y el
+  campo `license` (con expresiones regulares para detectar formato válido).
+- Notebook 02 (`reviews`, 1.033.523 filas): con pandas para duplicados y
+  patrones sospechosos, y con SQL (`LEFT JOIN` contra una base SQLite) para
+  comprobar integridad referencial (reseñas huérfanas).
+- Notebook 03 (`calendar`, 5.623.190 filas): solo SQL, no pandas, porque el
+  volumen es demasiado grande para cargarlo cómodo en memoria.
+- Resultado: 14 problemas de calidad encontrados y cuantificados con código
+  real (detalle completo más abajo).
+
+**Paso 2 — Gobernanza (notebook 04)**. Herramienta: pandas, pero aquí se
+organizan decisiones, no se analizan datos nuevos. Para cada uno de los 14
+hallazgos: riesgo si se deja sin tratar, prioridad (alta/media/baja), decisión
+propuesta, y justificación. Es el puente entre "encontré problemas" y "ahora
+los arreglo".
+
+**Paso 3 — Tratamiento (notebook 05)**. Herramienta: pandas para ejecutar, SQL
+para verificar. Se ejecutan las decisiones del paso 2: eliminar columnas
+vacías, imputar nulos (mediana por grupo), limpiar `license`, excluir
+registros huérfanos. La decisión más importante: marcar los anuncios con
+"0 € de ingreso" que en realidad son un fallo de cálculo, no un ingreso real
+de cero (`revenue_no_estimable`). Al final, se repiten las mismas consultas
+SQL del paso 1 para comprobar que la limpieza funcionó (huérfanos pasan a 0).
+
+**Paso 4 — El caso de negocio** (`check_impacto_negocio_profesional.py`).
+Herramienta: pandas, una comparación de promedios. Ingreso promedio de
+anfitriones profesionales vs. particulares, antes y después de corregir los
+ceros falsos. El gap pasa de un 39,7% aparente a un 23,1% real — traducido a
+una decisión de escalar un portafolio de 50 propiedades, la diferencia entre
+decidir con datos sin auditar o auditados es de **149.958 €/año**.
+
+**Paso 5 — El modelo predictivo (notebook 06)**. Herramienta: scikit-learn
+(`RandomForestRegressor`). El mismo algoritmo entrenado tres veces: con datos
+crudos, con datos curados (dos formas de imputar, para comprobar que la forma
+de limpiar no es arbitraria), comparando MAE, RMSE y R².
+
+**Paso 6 — Verificación y corrección**. Se encontraron y corrigieron 3
+errores reales revisando todo con más cuidado (dos variables con la columna
+equivocada, una función de clasificación de licencias desactualizada),
+verificados contra la documentación oficial de Inside Airbnb y contra noticias
+reales sobre la regulación de Barcelona. El hallazgo de negocio se hizo más
+fuerte (de 124.605 € a 149.958 €), no más débil.
+
+**Paso 7 — El repositorio (GitHub)**. Git + Git LFS (archivos grandes) +
+Parquet (formato comprimido para los datasets usados en Power BI).
+
+### Herramientas usadas, resumen
+
+| Herramienta | Para qué |
+|---|---|
+| Pandas (Python) | Limpieza, transformación, análisis exploratorio |
+| SQL (SQLite) | Integridad referencial (huérfanos) y la tabla más grande (calendar) |
+| Jupyter Notebooks | Documentar cada paso con código real + explicación |
+| scikit-learn | El modelo de regresión (RandomForestRegressor) |
+| Git / GitHub / Git LFS | Control de versiones y repositorio del proyecto |
+| Parquet | Formato comprimido para los datasets usados en Power BI |
+| Power BI (pendiente) | El dashboard final |
+
+### Los 14 hallazgos de calidad, en detalle
+
+**Listings (8)**
+- **L1** — 12 columnas 100% vacías (`host_since`, `host_response_rate`,
+  `host_verifications`, `instant_bookable`, `neighborhood_overview`, entre
+  otras). Probable pérdida de fuente sin documentar.
+- **L2** — Nulos parciales: `price` 12,7%, `bedrooms` 16,8%, `bathrooms`
+  23,3%, `beds` 16,0%, `host_about` 31,8%, `host_location` 20,3%. Importa
+  porque varias son predictoras del modelo.
+- **L3** — Campo `license` no verificable (sin dato + no clasificable):
+  21,1%.
+- **L4** — Licencias con 2 números concatenados + HTML sin limpiar: 5.470
+  registros. Problema de formato, no de validez.
+- **L5** — `minimum_nights` > 365 días: 3 alojamientos (hasta 900 días).
+  Revisado manualmente, no corregido automáticamente.
+- **L6** — Profesionales sobrerrepresentados en el nuevo registro NRUA
+  (65,7% vs. 18-25%) — adoptan el trámite regulatorio más rápido que los
+  particulares.
+- **L7** — El problema de licencia varía por distrito: 16,1% (Eixample) a
+  33,1% (Nou Barris).
+- **L8** — Completitud de perfil desigual: particulares con más nulos en
+  `host_about` (38,3% vs. 10,3%) y `host_location` (25,1% vs. 4,4%) que los
+  profesionales — contraintuitivo.
+
+**Reviews (4)**
+- **R1** — 48.302 comentarios duplicados exactos. No prueba manipulación por
+  sí solo.
+- **R2** — 6.592 reseñas huérfanas (mencionan un `listing_id` que ya no
+  existe). Detectado con SQL.
+- **R3** — 512 casos de mismo `reviewer_id` con texto idéntico en
+  alojamientos distintos (452 combinaciones).
+- **R4** — 9.917 reseñas con menos de 5 caracteres ("Ok", "Top", "👍").
+
+**Calendar (2)**
+- **C1** — 41.245 filas huérfanas (113 alojamientos que ya no existen).
+  Detectado con SQL.
+- **C2** — 746 filas con `minimum_nights` > `maximum_nights` (rango
+  imposible), concentradas en 6 alojamientos.
+
+**Para recordar rápido**: 8 en listings + 4 en reviews + 2 en calendar = 14
+en total. Cada uno tiene su fila en la tabla de gobernanza del notebook 04
+(riesgo → prioridad → decisión → justificación).
+
 ## Especificaciones oficiales del Sprint 13 / Proyecto Final (fuente prioritaria)
 
 Traducido del catalán, texto original de la plataforma del curso (Tasca S13.01.
