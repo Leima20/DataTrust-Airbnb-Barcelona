@@ -1,0 +1,53 @@
+{
+  "fuente": "check_impacto_negocio_profesional.py, ejecutado en vivo",
+  "target": "estimated_revenue_l365d",
+  "no_estimable": {
+    "cantidad": 2686,
+    "pct_de_los_que_tienen_dato": 20.1,
+    "definicion": "0 reseñas en el ultimo anio (number_of_reviews_ltm) Y estancia minima >= 28 noches -- patron compatible con que la formula de Inside Airbnb no tenga con que estimar ingresos ahi; no es evidencia de que sea ingreso real cero."
+  },
+  "gap_naive": {
+    "descripcion": "Conclusion ingenua: solo dropna, sin investigar los ceros",
+    "particular_media": 24338.0, "particular_mediana": 11558.0, "particular_n": 9956,
+    "profesional_media": 14678.0, "profesional_mediana": 0.0, "profesional_n": 3399,
+    "gap_eur": 9660, "gap_pct": 39.7
+  },
+  "gap_corregido": {
+    "descripcion": "Conclusion corregida: excluyendo los 2.686 anuncios estructuralmente no estimables",
+    "particular_media": 28794.0, "particular_mediana": 17616.0, "particular_n": 8415,
+    "profesional_media": 22134.0, "profesional_mediana": 9230.0, "profesional_n": 2254,
+    "gap_eur": 6661, "gap_pct": 23.1
+  },
+  "traduccion_dinero": {
+    "nota": "Grupo ilustrativo de 50 anuncios -- ayuda de intuicion, no una decision individual real. Escalado desde el gap medio de las dos poblaciones de anfitriones que ya existen hoy en el dataset.",
+    "crudo_eur_anio": 483000,
+    "auditado_eur_anio": 333042,
+    "diferencia_eur_anio": 149958
+  },
+  "experimento_decision": {
+    "escenario": "Alguien usa estimated_revenue_l365d para filtrar oportunidades y descarta automaticamente cualquier anuncio con ingreso estimado = 0.",
+    "aviso_evidencia": "No se ha encontrado evidencia de que inversores reales usen Inside Airbnb de esta manera para decidir -- es un escenario hipotetico aplicado a datos 100% reales, no un caso de negocio documentado.",
+    "universo_n": 13355,
+    "universo_nota": "de 15.293 anuncios totales; 1.938 sin dato en esa columna.",
+    "regla_original": {"descartados_n": 4181, "descartados_pct": 31.3},
+    "regla_auditada": {
+      "revision_n": 2686, "revision_pct": 20.1,
+      "siguen_descartados_n": 1495, "siguen_descartados_pct": 11.2
+    },
+    "cambian_clasificacion_pct_de_descartados": 64.2,
+    "desglose_siguen_descartados": {
+      "solo_sin_resenas_estancia_corta": 1495,
+      "estancia_larga_con_resenas": 0,
+      "ninguna_condicion": 0,
+      "nota": "tienen 0 reseñas recientes Y estancia corta (<28 noches) -- no entran en el patron metodologico identificado, su revenue=0 no tiene la misma explicacion."
+    },
+    "caracteristicas": {
+      "revision": {"room_type_entire_pct": 59.3, "room_type_private_pct": 40.5, "price_mediana_eur": 78.6, "accommodates_mediana": 2.0},
+      "siguen_descartados": {"room_type_entire_pct": 71.4, "room_type_private_pct": 26.6, "price_mediana_eur": 250.0, "accommodates_mediana": 4.0},
+      "universo_price_mediana_eur": 177.7,
+      "nota": "Los anuncios que pasan a revision tienden a ser mas pequenos, mas baratos y con mas peso de habitacion privada que los que siguen descartados -- un patron descriptivo compatible con alojamientos de estancia larga, no una prueba de que esten ocupados o generen ingresos reales."
+    },
+    "limites": "No se afirma que los anuncios en revision sean rentables ni que generen ingresos reales -- no hay datos de reservas/ingresos reales en este dataset. Esto es un cambio de CLASIFICACION cuantificado, no una decision de inversion real observada ni una perdida/ganancia economica medida. La 'regla auditada' es una alternativa mas prudente para este patron observado, no una regla universalmente correcta ni validada de forma definitiva -- identifica casos potencialmente no estimables, no casos confirmados de ingresos reales no registrados.",
+    "fuente": "check_experimento_decision_inversor.py, ejecutado en vivo contra data/airbnb_bcn/listings.csv"
+  }
+}
