@@ -1,0 +1,74 @@
+{
+  "tablas": {
+    "listings": {"filas": 15293, "columnas_raw": 90, "columnas_curado": 91, "fuente": "notebook 06, celda m04load; notebooks/01"},
+    "reviews": {"filas": 1033523, "columnas_raw": 6, "columnas_curado": 6, "fuente": "notebook 02 / 00_ficha_maestra.md linea 33; verificado en vivo contra data/airbnb_bcn(_curado)/reviews.csv"},
+    "calendar": {"filas": 5623190, "columnas_raw": 5, "columnas_curado": 6, "fuente": "notebook 03 / 00_ficha_maestra.md linea 36; verificado en vivo contra data/airbnb_bcn(_curado)/calendar.csv -- el curado suma `rango_noches_incoherente` (C2)"}
+  },
+  "columnas_100_nulas": {
+    "cantidad": 12,
+    "nombres": ["neighborhood_overview", "host_since", "host_response_time", "host_response_rate",
+      "host_acceptance_rate", "host_thumbnail_url", "host_neighbourhood", "host_total_listings_count",
+      "host_verifications", "neighbourhood", "calendar_updated", "instant_bookable"],
+    "fuente": "verificado en vivo contra data/airbnb_bcn/listings.csv"
+  },
+  "nulos_parciales_L2": [
+    {"columna": "price", "pct_nulo": 12.7},
+    {"columna": "bedrooms", "pct_nulo": 16.8},
+    {"columna": "bathrooms", "pct_nulo": 23.3},
+    {"columna": "beds", "pct_nulo": 16.0},
+    {"columna": "host_about", "pct_nulo": 31.8},
+    {"columna": "host_location", "pct_nulo": 20.3}
+  ],
+  "licencia": {
+    "categorias": [
+      {"nombre": "Con numero HUTB (registro catalan)", "pct": 47.04},
+      {"nombre": "Exento (declarado)", "pct": 25.66},
+      {"nombre": "Sin dato", "pct": 19.90},
+      {"nombre": "Con numero NRUA (registro estatal, desde jul. 2025)", "pct": 6.20},
+      {"nombre": "Otro / no clasificable", "pct": 1.20}
+    ],
+    "fuente": "verificado en vivo contra data/airbnb_bcn_curado/listings.csv, columna license_categoria",
+    "no_verificable_L3_pct": 21.1,
+    "nota_L3": "L3 = 'sin dato' (19.9%) + una fraccion de 'no clasificable' -> 21.1% no verificable en total, segun 00_ficha_maestra.md"
+  },
+  "hallazgos_14": {
+    "listings": [
+      {"id": "L1", "resumen": "12 columnas 100% vacias", "detalle": "host_since, host_response_rate, host_verifications, instant_bookable, neighborhood_overview, entre otras. Probable perdida de fuente sin documentar."},
+      {"id": "L2", "resumen": "Nulos parciales en 6 columnas predictoras", "detalle": "price 12,7%, bedrooms 16,8%, bathrooms 23,3%, beds 16,0%, host_about 31,8%, host_location 20,3%."},
+      {"id": "L3", "resumen": "Campo license no verificable: 21,1%", "detalle": "Sin dato + texto no clasificable."},
+      {"id": "L4", "resumen": "Licencias con formato roto: 5.470 registros", "detalle": "Dos numeros HUTB concatenados + HTML sin limpiar. Problema de formato, no de validez."},
+      {"id": "L5", "resumen": "minimum_nights > 365 dias: 3 alojamientos", "detalle": "Hasta 900 dias. Revisado manualmente, no corregido automaticamente."},
+      {"id": "L6", "resumen": "Profesionales sobrerrepresentados en NRUA", "detalle": "65,7% vs. 18-25% del resto de categorias -- adoptan el tramite regulatorio mas rapido."},
+      {"id": "L7", "resumen": "El problema de licencia varia por distrito", "detalle": "16,1% (Eixample) a 33,1% (Nou Barris)."},
+      {"id": "L8", "resumen": "Completitud de perfil desigual", "detalle": "Particulares con mas nulos en host_about (38,3% vs. 10,3%) y host_location (25,1% vs. 4,4%) que profesionales -- contraintuitivo."}
+    ],
+    "reviews": [
+      {"id": "R1", "resumen": "48.302 comentarios duplicados exactos", "detalle": "No prueba manipulacion por si solo."},
+      {"id": "R2", "resumen": "6.592 reseñas huérfanas", "detalle": "Mencionan un listing_id que ya no existe. Detectado con SQL."},
+      {"id": "R3", "resumen": "512 casos de mismo reviewer_id con texto identico", "detalle": "En alojamientos distintos (452 combinaciones)."},
+      {"id": "R4", "resumen": "9.917 reseñas con menos de 5 caracteres", "detalle": "Ej. 'Ok', 'Top', emoji."}
+    ],
+    "calendar": [
+      {"id": "C1", "resumen": "41.245 filas huérfanas", "detalle": "Mencionan un listing_id que ya no existe (113 alojamientos distintos). Detectado con SQL."},
+      {"id": "C2", "resumen": "746 filas con minimum_nights > maximum_nights", "detalle": "Rango imposible, concentradas en 6 alojamientos."}
+    ]
+  },
+  "decisiones_tratamiento": {
+    "ejecutadas_con_cambio": ["L1", "L2", "L4", "R2", "C1", "revenue_no_estimable (target)"],
+    "ejecutadas_como_bandera": ["L5", "C2"],
+    "mantener_sin_tratamiento": ["L3", "L6", "L7", "L8", "R1", "R3", "R4"],
+    "fuente": "notebooks/05_tratamiento_curacion.ipynb, celda t38resumen"
+  },
+  "prioridad_gobernanza": {
+    "conteo": {"Alta": 5, "Media": 2, "Baja": 7},
+    "por_id": {
+      "L1": "Alta", "L2": "Media", "L3": "Alta", "L4": "Media", "L5": "Baja",
+      "L6": "Baja", "L7": "Baja", "L8": "Baja",
+      "R1": "Baja", "R2": "Alta", "R3": "Baja", "R4": "Baja",
+      "C1": "Alta", "C2": "Alta"
+    },
+    "patron": "3 de los 5 de prioridad Alta son problemas de integridad referencial o estructura (L1, R2, C1); los otros 2 son contradicciones lógicas internas (L3, C2). Los patrones de negocio derivados (L6, L7, L8) son consistentemente Baja en tratamiento de datos, aunque eso no reduce su relevancia narrativa para el informe.",
+    "nota_metodologica": "La prioridad no es una puntuación estadística, es una clasificación cualitativa (Alta/Media/Baja) basada en el tipo de problema y la consecuencia descrita en el riesgo -- mide urgencia de tratamiento de datos, no relevancia narrativa.",
+    "fuente": "notebooks/04_recomendaciones_gobernanza.ipynb, tabla de prioridades y resumen cuantificado"
+  }
+}

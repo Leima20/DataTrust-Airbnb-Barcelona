@@ -1,0 +1,58 @@
+{
+  "caso_zillow": {
+    "titulo": "Zillow Offers: cuando un algoritmo deja de representar la realidad",
+    "quien_es_zillow": "Zillow es la plataforma inmobiliaria mas grande de EE.UU. (anuncios de compra, venta y alquiler de vivienda). Zillow Offers era su division de \"iBuying\": compraba casas directamente a los vendedores usando un algoritmo para fijar el precio, las remodelaba, y las revendia con margen.",
+    "resumen": "En noviembre de 2021, Zillow cerro Zillow Offers -- esa division de compra-venta automatizada de vivienda basada en un algoritmo de prediccion de precios -- y recorto cerca del 25% de su plantilla.",
+    "perdida_anual_usd": 881000000,
+    "writedown_usd": 304000000,
+    "nota": "El algoritmo sobreestimo el valor de reventa de muchas de las viviendas compradas, lo que forzo un ajuste contable de inventario de unos 304 millones de USD. La perdida total atribuida a la division en 2021 fue de 881 millones de USD.",
+    "cita_ceo": "\"La imprevisibilidad al pronosticar precios de vivienda superó ampliamente lo que anticipamos.\" -- CEO de Zillow, anunciando el cierre.",
+    "fuentes": [
+      {"nombre": "Daily Hive", "url": "https://dailyhive.com/seattle/zillow-offers-shutting-down"},
+      {"nombre": "Bisnow", "url": "https://www.bisnow.com/national/news/other/zillow-ditches-its-tech-enabled-home-flipping-operation-saying-prices-too-unpredictable-110761"}
+    ]
+  },
+  "autoria": {
+    "nombre": "Leidy Pimentel",
+    "programa": "",
+    "institucion": "IT Academy · Barcelona Activa"
+  },
+  "objetivos": [
+    {"n": 1, "texto": "Auditar la calidad de los datos (listings, calendar, reviews).", "pagina": "Auditoría de calidad"},
+    {"n": 2, "texto": "Identificar y priorizar los problemas encontrados según su impacto.", "pagina": "Auditoría de calidad"},
+    {"n": 3, "texto": "Aplicar un proceso de curación documentado y justificado (no 'limpiar por limpiar').", "pagina": "Diseño experimental / Metodología"},
+    {"n": 4, "texto": "Comparar las conclusiones de negocio antes y después del tratamiento.", "pagina": "El hallazgo crítico / Conclusiones y recomendaciones"},
+    {"n": 5, "texto": "Comparar el rendimiento de un modelo predictivo antes y después del tratamiento.", "pagina": "Comparación de modelos / Resultados y robustez"}
+  ],
+  "fuentes": [
+    {"nombre": "listings.csv", "descripcion": "Un anuncio por fila, con sus caracteristicas, precio, anfitrion y licencia."},
+    {"nombre": "reviews.csv", "descripcion": "Una reseña por fila, con fecha, huésped y comentario."},
+    {"nombre": "calendar.csv", "descripcion": "Un dia por anuncio, con disponibilidad y condiciones de reserva."}
+  ],
+  "fuente_origen": "Inside Airbnb Barcelona (snapshot 24 de junio de 2026)",
+  "flujo": ["Auditoría", "Gobernanza", "Tratamiento", "Comparación negocio", "Comparación modelo"],
+  "ejemplo_valores_ausentes": {
+    "titulo": "Ejemplo 1 — Tratamiento de valores ausentes (L2)",
+    "intro": "Que problema se detecto, que regla se aplico, y como quedo el dato.",
+    "filas": [
+      {"id": 49968, "campo": "price", "original": "Nulo", "curado": "216,67 €", "interpretacion": "Valor imputado (estimado, no el precio real)"},
+      {"id": 190348, "campo": "bedrooms", "original": "Nulo", "curado": "1", "interpretacion": "Valor imputado (estimado, no el dato real)"},
+      {"id": 18674, "campo": "price", "original": "409 €", "curado": "409 €", "interpretacion": "Sin cambios -- el dato original ya estaba completo"}
+    ],
+    "regla_price": "price: mediana del grupo (barrio, tipo de habitacion); si el grupo no tiene suficiente dato, mediana global. 12,7% de los 15.293 anuncios (1.938) tenian price nulo.",
+    "regla_bedrooms": "bedrooms/bathrooms/beds: mediana por accommodates (capacidad del alojamiento), con mediana global de respaldo. 16,8% de los anuncios (2.562) tenian bedrooms nulo.",
+    "justificacion": "Se eligio la mediana (no la media) por ser menos sensible a valores extremos, y agrupada por las variables mas relacionadas con cada campo (zona/tipo para price, capacidad para bedrooms) en vez de una mediana global unica. Se verifico que un criterio alternativo (mediana por barrio para bedrooms) no cambia las conclusiones del modelo -- ver pagina 'Comparacion de modelos'.",
+    "nota_imputacion": "Un valor imputado es una ESTIMACION para completar el campo, no una recuperacion del dato verdadero -- por eso se marca explicitamente como tal, y nunca se usa como si fuera un precio real observado."
+  },
+  "ejemplo_licencia": {
+    "titulo": "Ejemplo 2 — Normalizacion de licencias (L4)",
+    "intro": "Un mismo registro puede contener informacion util mezclada con etiquetas HTML y varios numeros de licencia.",
+    "id": 18674,
+    "license_crudo": "Spain - National registration number<br />ESFCTU000008058000039706000000000000000HUTB-002062349<br /><br />Barcelona - Regional registration number<br />HUTB-002062",
+    "license_limpio": "Spain - National registration number | ESFCTU000008058000039706000000000000000HUTB-002062349 | Barcelona - Regional registration number | HUTB-002062",
+    "license_hutb_codigos": "HUTB-002062349;HUTB-002062",
+    "license_categoria": "Con numero HUTB (registro catalan)",
+    "regla": "Se separa el texto legible (reemplazando <br /> por un separador), se extraen los codigos HUTB con una expresion regular, y se clasifica la categoria de licencia -- aplicado a los 15.293 anuncios.",
+    "justificacion": "El dato original se conserva intacto en la columna license (no se sobrescribe) para permitir la trazabilidad del tratamiento -- las columnas derivadas se añaden aparte."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "fuente": "data/airbnb_bcn_curado/listings.csv, recalculado en vivo (license_problema por neighbourhood_group_cleansed), consistente con L7 de 00_ficha_maestra.md (16,1% Eixample a 33,1% Nou Barris)",
+  "metrica": "pct_license_problema",
+  "descripcion": "% de anuncios con license_problema=True (licencia sin dato o no clasificable), por distrito",
+  "distritos": [
+    {
+      "distrito": "Eixample",
+      "pct_problema": 16.1,
+      "n_anuncios": 5835
+    },
+    {
+      "distrito": "Les Corts",
+      "pct_problema": 17.1,
+      "n_anuncios": 327
+    },
+    {
+      "distrito": "Sarrià-Sant Gervasi",
+      "pct_problema": 17.6,
+      "n_anuncios": 888
+    },
+    {
+      "distrito": "Sants-Montjuïc",
+      "pct_problema": 21.2,
+      "n_anuncios": 1448
+    },
+    {
+      "distrito": "Gràcia",
+      "pct_problema": 23.9,
+      "n_anuncios": 1366
+    },
+    {
+      "distrito": "Sant Martí",
+      "pct_problema": 25.8,
+      "n_anuncios": 1436
+    },
+    {
+      "distrito": "Ciutat Vella",
+      "pct_problema": 26.0,
+      "n_anuncios": 3247
+    },
+    {
+      "distrito": "Sant Andreu",
+      "pct_problema": 29.8,
+      "n_anuncios": 225
+    },
+    {
+      "distrito": "Horta-Guinardó",
+      "pct_problema": 30.2,
+      "n_anuncios": 358
+    },
+    {
+      "distrito": "Nou Barris",
+      "pct_problema": 33.1,
+      "n_anuncios": 163
+    }
+  ]
+}

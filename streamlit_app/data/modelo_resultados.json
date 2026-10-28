@@ -1,0 +1,123 @@
+{
+  "fuente": "notebooks/06_modelo_ml.ipynb (57 celdas, sin errores de ejecucion en la revision mas reciente), todos los numeros leidos directamente de las salidas de celda guardadas",
+  "algoritmo": {
+    "nombre": "RandomForestRegressor (scikit-learn)",
+    "n_estimators": 200,
+    "random_state": 42,
+    "n_jobs": -1,
+    "split": "train_test_split, test_size=0.2, random_state=42",
+    "metricas": ["MAE", "RMSE", "R2"],
+    "baseline": "Prediccion constante = mediana del target en el set de entrenamiento (para confirmar que el modelo aporta algo mas que una regla trivial)"
+  },
+  "target": {
+    "nombre": "estimated_revenue_l365d",
+    "excluidas_por_fuga": ["price", "estimated_occupancy_l365d", "number_of_reviews (y variantes)", "minimum_nights"],
+    "nota_fuga": "Forman parte de la formula con la que Inside Airbnb calcula el target -- usarlas seria hacer trampa al modelo."
+  },
+  "predictoras": ["room_type", "property_type", "neighbourhood_cleansed", "accommodates", "bedrooms",
+    "bathrooms", "beds", "host_listings_count", "calculated_host_listings_count", "host_is_superhost", "amenities_count"],
+  "nota_amenities": "amenities_count es un proxy burdo (longitud de texto) en CRUDO/A, y un parseo real de la lista JSON de amenities en las versiones TRATADO/D/B -- es la variable mas importante del modelo en las tres versiones.",
+  "versiones": {
+    "A_crudo": {
+      "nombre_display": "A — CRUDO",
+      "descripcion": "data/airbnb_bcn/listings.csv sin las decisiones de gobernanza del notebook 05. Nulos de bedrooms/bathrooms/beds rellenados con -1 (centinela arbitrario). Target: solo se descartan filas sin dato, los 2.686 casos 'no estimable' se tratan como ingreso real 0 EUR.",
+      "n": 13355, "n_features": 125, "mae": 13309.7, "rmse": 20908.6, "r2": 0.470,
+      "baseline_mae": 19609.3, "baseline_r2": -0.200,
+      "n_test_propio": 2671
+    },
+    "D_variables_tratadas_poblacion_cruda": {
+      "nombre_display": "D — variables tratadas, poblacion cruda",
+      "descripcion": "Misma poblacion completa que A (incluye los 2.686 'no estimable'), pero con amenities_count real y bedrooms/bathrooms/beds imputados por mediana en vez de -1. Aisla el efecto de la construccion de variables.",
+      "n": 13355, "n_features": 125, "mae": 13399.7, "rmse": 21023.8, "r2": 0.464,
+      "baseline_mae": 19609.3, "baseline_r2": -0.200,
+      "n_test_propio": 2671
+    },
+    "B_tratado_criterio_A": {
+      "nombre_display": "B — TRATADO (criterio A: imputacion por capacidad)",
+      "descripcion": "data/airbnb_bcn_curado/listings.csv, el dataset curado del notebook 05 (bedrooms/bathrooms/beds imputados por mediana de accommodates). Excluye los 2.686 anuncios revenue_no_estimable.",
+      "n": 10669, "n_features": 122, "mae": 15215.9, "rmse": 23056.6, "r2": 0.439,
+      "baseline_mae": 22373.3, "baseline_r2": -0.132,
+      "n_test_propio": 2134
+    },
+    "TRATADO_criterio_B_barrio": {
+      "nombre_display": "Chequeo de sensibilidad — criterio B (imputacion por barrio)",
+      "descripcion": "Mismas 10.669 filas que B, pero bedrooms/bathrooms/beds reimputados por mediana de neighbourhood_cleansed en vez de por accommodates. Sirve solo para comprobar si la conclusion depende del criterio de imputacion exacto.",
+      "n": 10669, "n_features": 122, "mae": 15205.4, "rmse": 23036.9, "r2": 0.440,
+      "baseline_mae": 22373.3, "baseline_r2": -0.132,
+      "diferencia_vs_A": {"mae_eur": 10.5, "mae_pct": 0.07, "rmse_eur": 19.7, "r2": -0.001}
+    }
+  },
+  "comparacion_A_vs_B_propia_poblacion": {
+    "nota": "Cada modelo evaluado sobre su propia poblacion -- NO son comparables entre si de forma directa, ver seccion de fuga de datos.",
+    "mae_diferencia": -1906.2, "rmse_diferencia": -2148.0, "r2_diferencia": -0.031,
+    "interpretacion": "TRATADO-A (B) tiene MAE peor y R2 algo mas bajo que CRUDO (A) EN APARIENCIA, pero A se beneficia de 2.686 casos de ingreso '0 EUR' artificial que son faciles de predecir (sin reseñas recientes -> predecir 0). Eso infla el R2 aparente de A. No significa que el tratamiento sea peor."
+  },
+  "poblacion_limpia_experimento": {
+    "nota": "Evaluar A (entrenado con toda su poblacion) SOLO sobre la poblacion limpia (sin los 2.686 casos), para separar el efecto de poblacion del efecto de que tan bien aprendio el modelo.",
+    "A_toda_poblacion": {"n_test": 2671, "mae": 13309.7, "r2": 0.470},
+    "A_solo_poblacion_limpia": {"n_test": 2131, "mae": 14844.4, "r2": 0.434},
+    "D_solo_poblacion_limpia": {"n_test": 2131, "mae": 14957.3, "r2": 0.428},
+    "B_propia_poblacion_limpia": {"n_test": 2134, "mae": 15215.9, "r2": 0.439},
+    "conclusion": "Al evaluar A solo sobre la poblacion limpia, su R2 (0.434) se acerca mucho al de B (0.439) -- mucho mas que al R2 original de A sobre toda su poblacion (0.470). La mayor parte de la diferencia original viene de QUE poblacion se evalua, no de que el modelo haya aprendido peor por entrenar con datos sucios."
+  },
+  "aislar_variables_vs_poblacion": {
+    "nota": "Comparacion A vs D (misma poblacion completa, solo cambian las variables) vs. cambiar solo la poblacion (A vs. A-en-poblacion-limpia).",
+    "A_vs_D_r2_diferencia": 0.006,
+    "A_vs_D_mae_diferencia_eur": 90.0,
+    "cambio_poblacion_r2_diferencia_rango": [0.036, 0.04],
+    "conclusion": "Cambiar como se construyen las variables (amenities real, imputacion por mediana) casi no mueve el resultado (0.006 en R2) cuando la poblacion es la misma. Cambiar la poblacion tiene un efecto 6-7 veces mayor (0.036-0.04). El factor dominante es la poblacion evaluada, no la construccion de variables."
+  },
+  "fuga_de_datos_detectada_y_corregida": {
+    "descripcion": "Un primer intento de comparar A y D directamente contra el conjunto de test de B dio un R2 de ~0.82 (sospechosamente alto). Se descubrio que el 80% de las filas de test de B (1.708 de 2.134) ya formaban parte del entrenamiento de A y D, porque A/D y B parten de poblaciones de origen distintas (13.355 vs. 10.669 filas) con particiones independientes.",
+    "pct_filas_contaminadas": 80.0,
+    "n_contaminadas": 1708,
+    "n_test_B_total": 2134,
+    "correccion": "Se uso solo la interseccion segura: filas en el test de A/D Y en el test de B, Y fuera del entrenamiento de los tres modelos. Esto redujo la muestra a 426 filas -- la unica comparacion sin fuga disponible con este diseno."
+  },
+  "muestra_comun_426": {
+    "n": 426,
+    "nota": "Las 426 filas son un subconjunto verificado de las 2.131 filas 'limpias' ya usadas en el experimento de poblacion limpia -- no es un experimento con una poblacion distinta, solo mas pequeno (porque ademas tiene que pertenecer al test independiente de B).",
+    "representatividad": "Comprobada en 3 caracteristicas: mediana de precio, capacidad media y mezcla de room_type son practicamente iguales entre las 426 filas y el universo de 2.131. Es una comprobacion util de composicion, no una prueba de que no exista sesgo en otras variables no revisadas.",
+    "resultados": {
+      "A_crudo": {"mae": 15153.0, "rmse": 22699.5, "r2": 0.348},
+      "D_variables_tratadas_poblacion_cruda": {"mae": 14862.1, "rmse": 21983.5, "r2": 0.388},
+      "B_tratado_criterio_A": {"mae": 14315.7, "rmse": 20888.2, "r2": 0.448}
+    },
+    "progresion": "A (0,348) < D (0,388) < B (0,448) en R2 -- mejora en cada paso (primero solo variables, luego tambien poblacion)."
+  },
+  "discrepancia_426_vs_2131": {
+    "descripcion": "En la muestra grande (2.131 filas), A vs D difiere solo 0,006 en R2. En la muestra pequena (426 filas), A vs D difiere 0,04 -- varias veces mayor, con el mismo signo de A por delante invertido (D mejor que A). Se investigo a fondo antes de aceptar cualquiera de las dos cifras."
+  },
+  "simulacion_5000_submuestras": {
+    "n_simulaciones": 5000,
+    "tamano_submuestra": 426,
+    "universo": 2131,
+    "metodo": "5.000 submuestras aleatorias SIN reemplazo de 426 filas del universo de 2.131, reutilizando las predicciones ya calculadas de A y D (no se reentrena el modelo en cada repeticion -- mide sensibilidad a que filas se evaluan, no incertidumbre de reentrenamiento).",
+    "r2_diferencia_media": 0.0060,
+    "r2_diferencia_std": 0.0213,
+    "rango_central_95": [-0.0349, 0.0491],
+    "diferencia_real_observada_426": -0.0405,
+    "percentil_del_resultado_real": 1.2,
+    "conclusion": "La diferencia real observada en las 426 filas cae en el extremo de la distribucion simulada (percentil ~1,2, aprox. 1 de cada 80 submuestras aleatorias del mismo tamano produce algo igual de extremo) -- es un resultado poco frecuente bajo este esquema de remuestreo. La variabilidad de la muestra es una explicacion posible y la mejor respaldada con la informacion disponible, pero no se ha demostrado como causa unica de la discrepancia."
+  },
+  "bootstrap_intervalos_confianza": {
+    "n_bootstrap": 5000,
+    "metodo": "Bootstrap emparejado: en cada una de las 5.000 repeticiones se remuestrea una sola vez (con reemplazo) y se aplica igual a A, D y B -- las tres evaluadas sobre las mismas filas remuestreadas en cada iteracion.",
+    "comparaciones": [
+      {"nombre": "A - D (solo variables, 426 filas)", "diferencia_media": -0.0408, "ic_95": [-0.0878, 0.0063], "incluye_cero": true},
+      {"nombre": "D - B (solo poblacion, variables ya igualadas)", "diferencia_media": -0.0602, "ic_95": [-0.1930, 0.0234], "incluye_cero": true},
+      {"nombre": "A - B (efecto combinado, hallazgo principal)", "diferencia_media": -0.1010, "ic_95": [-0.2478, -0.0043], "incluye_cero": false}
+    ],
+    "conclusion": "Solo A-B (el efecto combinado de poblacion + variables) es estadisticamente distinguible de cero, incluso con una muestra de solo 426 filas -- B predice mejor que A. Los efectos parciales (A-D por separado, D-B por separado) son, individualmente, demasiado pequenos para distinguirse del ruido de muestreo en esta muestra: no se puede repartir con precision cuanto de la mejora viene de la poblacion y cuanto de la construccion de variables."
+  },
+  "conclusion_final": {
+    "observado": "En la unica comparacion sin fuga de datos, sobre 426 observaciones que no formaron parte del entrenamiento de ninguno de los tres modelos y que se utilizaron para evaluarlos sobre una base comun, el modelo tratado (B) predice mejor que el crudo (A) -- con un intervalo de confianza que respalda que la diferencia no es casualidad.",
+    "interpretacion_razonable": "La mejora combinada de B frente a A probablemente viene tanto de la poblacion evaluada (menos casos triviales de 0 EUR) como de la construccion de variables (amenities real, imputacion por mediana) -- ambas van en la misma direccion -- pero los datos actuales no permiten decir en que proporcion exacta contribuye cada una.",
+    "sin_resolver": "El reparto preciso entre efecto de poblacion y efecto de construccion de variables queda como limitacion abierta. Resolverlo exigiria una muestra comun mucho mayor que las 426 filas disponibles.",
+    "leccion_metodologica": "La fuga de datos detectada no vino de la calidad de los datos que se estaba auditando -- vino del diseno del propio experimento al intentar hacer la comparacion 'mas controlada'. Se documenta el error y la correccion, no solo el resultado final."
+  },
+  "importancia_variables": {
+    "nota": "Las mismas 8 variables dominan en las tres versiones (A, B, TRATADO-B): amenities_count, host_listings_count, calculated_host_listings_count, host_is_superhost, accommodates, beds, bathrooms, bedrooms. Ninguna variable geografica especifica (room_type, property_type, neighbourhood_cleansed dummies) entra en el top 8. host_listings_count (escala global del anfitrion) es mas importante que calculated_host_listings_count (escala en Barcelona) en las tres versiones.",
+    "caveat": "La importancia de una variable en un Random Forest no demuestra que esa variable CAUSE el resultado -- es una contribucion predictiva dentro del modelo, no un efecto causal verificado."
+  }
+}
