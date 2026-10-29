@@ -67,7 +67,7 @@
       "R1": "Baja", "R2": "Alta", "R3": "Baja", "R4": "Baja",
       "C1": "Alta", "C2": "Alta"
     },
-    "patron": "3 de los 5 de prioridad Alta son problemas de integridad referencial o estructura (L1, R2, C1); los otros 2 son contradicciones lógicas internas (L3, C2). Los patrones de negocio derivados (L6, L7, L8) son consistentemente Baja en tratamiento de datos, aunque eso no reduce su relevancia narrativa para el informe.",
+    "patron": "- **Alta** (5): 3 son problemas de integridad referencial o estructura (`L1`, `R2`, `C1`); los otros 2, contradicciones lógicas internas (`L3`, `C2`).\n- **Media** (2): `L2` (imputación de nulos) y `L4` (normalización de licencias) -- los dos ejemplos de tratamiento que se muestran justo debajo.\n- **Baja** (7): incluye los patrones de negocio derivados (`L6`, `L7`, `L8`) -- baja prioridad en tratamiento de datos, no en relevancia narrativa para el informe.",
     "nota_metodologica": "La prioridad no es una puntuación estadística, es una clasificación cualitativa (Alta/Media/Baja) basada en el tipo de problema y la consecuencia descrita en el riesgo -- mide urgencia de tratamiento de datos, no relevancia narrativa.",
     "fuente": "notebooks/04_recomendaciones_gobernanza.ipynb, tabla de prioridades y resumen cuantificado"
   }

@@ -33,7 +33,7 @@
   "flujo": ["Auditoría", "Gobernanza", "Tratamiento", "Comparación negocio", "Comparación modelo"],
   "ejemplo_valores_ausentes": {
     "titulo": "Ejemplo 1 — Tratamiento de valores ausentes (L2)",
-    "intro": "Que problema se detecto, que regla se aplico, y como quedo el dato.",
+    "intro": "Dos valores nulos imputados, más un caso de control (`price` ya completo) que no cambia.",
     "filas": [
       {"id": 49968, "campo": "price", "original": "Nulo", "curado": "216,67 €", "interpretacion": "Valor imputado (estimado, no el precio real)"},
       {"id": 190348, "campo": "bedrooms", "original": "Nulo", "curado": "1", "interpretacion": "Valor imputado (estimado, no el dato real)"},
@@ -41,18 +41,19 @@
     ],
     "regla_price": "price: mediana del grupo (barrio, tipo de habitacion); si el grupo no tiene suficiente dato, mediana global. 12,7% de los 15.293 anuncios (1.938) tenian price nulo.",
     "regla_bedrooms": "bedrooms/bathrooms/beds: mediana por accommodates (capacidad del alojamiento), con mediana global de respaldo. 16,8% de los anuncios (2.562) tenian bedrooms nulo.",
-    "justificacion": "Se eligio la mediana (no la media) por ser menos sensible a valores extremos, y agrupada por las variables mas relacionadas con cada campo (zona/tipo para price, capacidad para bedrooms) en vez de una mediana global unica. Se verifico que un criterio alternativo (mediana por barrio para bedrooms) no cambia las conclusiones del modelo -- ver pagina 'Comparacion de modelos'.",
-    "nota_imputacion": "Un valor imputado es una ESTIMACION para completar el campo, no una recuperacion del dato verdadero -- por eso se marca explicitamente como tal, y nunca se usa como si fuera un precio real observado."
+    "justificacion": "Se eligió la **mediana (no la media)** por ser menos sensible a valores extremos, y agrupada por las variables más relacionadas con cada campo (zona/tipo para price, capacidad para bedrooms) en vez de una mediana global única. Se verificó que un criterio alternativo (mediana por barrio para bedrooms) no cambia las conclusiones del modelo -- ver página 'Comparación de modelos'.",
+    "nota_imputacion": "Un valor imputado es una **estimación**, no una recuperación del dato verdadero -- por eso se marca explícitamente como tal, y **nunca se usa como si fuera un precio real observado**.",
+    "limitacion_room_type": "**Limitación conocida**: la mediana de `bedrooms`/`bathrooms`/`beds` se agrupa solo por `accommodates`, sin distinguir `room_type` -- mezcla pisos enteros con habitaciones privadas/compartidas de la misma capacidad. Efecto medido: en `bedrooms`, 151 de los 2.562 valores imputados (5,9%) habrían recibido un valor distinto agrupando también por `room_type`, en promedio 1,07 habitaciones por encima de lo que correspondería (afecta sobre todo a `Private room`). En `bathrooms` (28 de 3.565, 0,8%) y `beds` (18 de 2.447, 0,7%) el efecto es marginal. No se corrigió: ~1% del dataset total no justifica rehacer el pipeline completo (notebook 05 → 06) a esta altura del proyecto -- queda documentado como limitación conocida, no como un olvido."
   },
   "ejemplo_licencia": {
-    "titulo": "Ejemplo 2 — Normalizacion de licencias (L4)",
-    "intro": "Un mismo registro puede contener informacion util mezclada con etiquetas HTML y varios numeros de licencia.",
+    "titulo": "Ejemplo 2 — Normalización de licencias (L4)",
+    "intro": "Un mismo registro puede contener información útil mezclada con etiquetas HTML y varios números de licencia.",
     "id": 18674,
     "license_crudo": "Spain - National registration number<br />ESFCTU000008058000039706000000000000000HUTB-002062349<br /><br />Barcelona - Regional registration number<br />HUTB-002062",
     "license_limpio": "Spain - National registration number | ESFCTU000008058000039706000000000000000HUTB-002062349 | Barcelona - Regional registration number | HUTB-002062",
     "license_hutb_codigos": "HUTB-002062349;HUTB-002062",
     "license_categoria": "Con numero HUTB (registro catalan)",
-    "regla": "Se separa el texto legible (reemplazando <br /> por un separador), se extraen los codigos HUTB con una expresion regular, y se clasifica la categoria de licencia -- aplicado a los 15.293 anuncios.",
+    "regla": "- Se separa el texto legible (reemplazando `<br />` por un separador).\n- Se extraen los **códigos HUTB** con una **expresión regular**.\n- Se clasifica la **categoría de licencia**.",
     "justificacion": "El dato original se conserva intacto en la columna license (no se sobrescribe) para permitir la trazabilidad del tratamiento -- las columnas derivadas se añaden aparte."
   }
 }

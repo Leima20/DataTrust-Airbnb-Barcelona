@@ -1,8 +1,10 @@
+import html
+
 import pandas as pd
 import streamlit as st
 
 from src.data_loader import cargar_calidad, cargar_contexto, cargar_geografia_distrito, cargar_geojson_barrios
-from src.styles import kicker, fmt_num, AZUL_OSCURO, TURQUESA, AZUL_PIZARRA, ROJO_ALERTA, AMBAR_PENDIENTE, GRIS_TEXTO
+from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, TURQUESA, AZUL_PIZARRA, ROJO_ALERTA, AMBAR_PENDIENTE, VERDE_OK, GRIS_TEXTO
 from src.charts import completitud_por_columna, licencia_categorias, mapa_licencia_distrito, hallazgos_por_tabla, huerfanas_por_tabla
 
 calidad = cargar_calidad()
@@ -330,67 +332,109 @@ with tab4:
         _stat_prioridad("Media", conteo.get("Media", 0), AMBAR_PENDIENTE, cod_media)
     with p3:
         _stat_prioridad("Baja", conteo.get("Baja", 0), GRIS_TEXTO, cod_baja)
-    st.caption(prioridad.get("patron", ""))
+    st.markdown("<div style='margin-top:0.3rem;'></div>", unsafe_allow_html=True)
+    st.markdown(prioridad.get("patron", ""))
 
     st.markdown("---")
     st.markdown("#### Tratamiento: la ejecución")
     st.caption(
-        "La gobernanza decide, el tratamiento ejecuta -- esto es lo que pasó de verdad con los datos "
-        "clasificados como 'cambio de datos'. Dos ejemplos reales: qué problema se detectó, qué regla se "
-        "aplicó, y cómo quedó el dato."
+        "La gobernanza decide, el tratamiento ejecuta — esto es lo que pasó de verdad con los datos "
+        "clasificados como 'cambio de datos'."
     )
 
+    # --- Ejemplo 1 en Desplegable ---
     ej1 = contexto.get("ejemplo_valores_ausentes", {})
     if ej1:
-        st.markdown(f"**{ej1.get('titulo', '')}**")
+        titulo_ej1 = ej1.get("titulo", "Tratamiento de valores ausentes (L2)")
+        with st.expander(titulo_ej1, expanded=False):
+            st.caption(ej1.get("intro", ""))
 
-        def _regla_corta(fila):
-            if fila["campo"] == "price":
-                if fila["original"] == "Nulo":
-                    return "Mediana del grupo (barrio, tipo de habitación); si falta dato, mediana global."
-                return "No aplica -- el dato original ya estaba completo."
-            return "Mediana por capacidad (`accommodates`), con mediana global de respaldo."
+            def _regla_corta(fila):
+                if fila["campo"] == "price":
+                    if fila["original"] == "Nulo":
+                        return "Mediana del grupo (barrio, tipo de habitación); si falta dato, mediana global."
+                    return "No aplica -- el dato original ya estaba completo."
+                return "Mediana por capacidad (`accommodates`), con mediana global de respaldo."
 
-        filas_ej1 = ej1.get("filas", [])
-        for fila in filas_ej1:
-            fila["Regla aplicada"] = _regla_corta(fila)
-        df_ej1 = pd.DataFrame(filas_ej1)
-        df_ej1 = df_ej1.rename(columns={
-            "id": "id", "campo": "Campo", "original": "Original",
-            "curado": "Curado", "interpretacion": "Interpretación",
-        })
-        df_ej1 = df_ej1[["id", "Campo", "Original", "Curado", "Regla aplicada", "Interpretación"]]
-        st.dataframe(df_ej1, width="stretch", hide_index=True)
-        st.info(ej1.get("nota_imputacion", ""))
-        with st.expander("Ver criterio completo de imputación"):
-            st.caption(
-                f"`price`: {ej1.get('regla_price', '')} `bedrooms`/`bathrooms`/`beds`: {ej1.get('regla_bedrooms', '')}"
-            )
-            st.caption(ej1.get("justificacion", ""))
-
+            filas_ej1 = ej1.get("filas", [])
+            for fila in filas_ej1:
+                fila["Regla aplicada"] = _regla_corta(fila)
+            df_ej1 = pd.DataFrame(filas_ej1)
+            df_ej1 = df_ej1.rename(columns={
+                "id": "id", "campo": "Campo", "original": "Original",
+                "curado": "Curado", "interpretacion": "Interpretación",
+            })
+            df_ej1 = df_ej1[["id", "Campo", "Original", "Curado", "Regla aplicada", "Interpretación"]]
+            st.dataframe(df_ej1, width="stretch", hide_index=True)
+            st.info(ej1.get("nota_imputacion", ""))
+            
+            with st.expander("Ver criterio completo de imputación y limitaciones metodológicas"):
+                st.markdown(f"**`price`**: {ej1.get('regla_price', '')}")
+                st.markdown(f"**`bedrooms`/`bathrooms`/`beds`**: {ej1.get('regla_bedrooms', '')}")
+                st.markdown("---")
+                st.caption(ej1.get("justificacion", ""))
+                st.caption(ej1.get("limitacion_room_type", ""))
+    # --- Ejemplo 2 en Desplegable (Sin estrellitas, con diseño limpio) ---
     ej2 = contexto.get("ejemplo_licencia", {})
     if ej2:
-        st.markdown(f"**{ej2.get('titulo', '')}**")
-        st.caption(ej2.get("intro", ""))
-        col_x, col_y = st.columns(2)
-        with col_x:
-            st.markdown(f"Antes -- `license` cruda (id {ej2.get('id', '')}):")
-            st.code(ej2.get("license_crudo", ""), language="text")
-        with col_y:
-            st.markdown("Después -- columnas derivadas (`L4`):")
-            st.markdown(
-                f"""
-                <div style="background-color:#F7F8FA; border:1px solid #D7DEE5; border-radius:6px;
-                            padding:0.8rem 1rem; font-family:monospace; font-size:0.82rem;">
-                <b>license_limpio</b><br>{ej2.get('license_limpio', '')}<br><br>
-                <b>license_hutb_codigos</b><br>{ej2.get('license_hutb_codigos', '')}<br><br>
-                <b>license_categoria</b><br>{ej2.get('license_categoria', '')}
-                </div>
-                """,
-                unsafe_allow_html=True,
+        with st.expander(ej2.get("titulo", "Ejemplo 2"), expanded=False):
+            st.caption(ej2.get("intro", ""))
+            col_x, col_y = st.columns(2)
+            
+            caja_antes = (
+                "<div style='background-color:#FDF8F2; border:1px solid #E6D5C3; border-left:5px solid #D9822B; border-radius:6px; "
+                "padding:0.9rem 1rem; font-family:monospace; font-size:0.82rem; height:100%; color:#333;'>{valor}</div>"
             )
-        st.markdown(f"- **Regla**: {ej2.get('regla', '')}")
-        with st.expander("Ver nota sobre los códigos HUTB detectados"):
+            caja_despues = (
+                "<div style='background-color:#F0F7F4; border:1px solid #C2E0D1; border-left:5px solid #2ECC71; border-radius:6px; "
+                "padding:0.9rem 1rem; font-family:monospace; font-size:0.82rem; height:100%; color:#333;'>{valor}</div>"
+            )
+
+            with col_x:
+                st.markdown(f"**Antes** — `license` cruda (id {ej2.get('id', '')}):")
+                st.markdown(
+                    caja_antes.format(valor=html.escape(ej2.get("license_crudo", ""))),
+                    unsafe_allow_html=True,
+                )
+            with col_y:
+                st.markdown("**Después** — texto limpio (`license_limpio`):")
+                st.markdown(
+                    caja_despues.format(valor=ej2.get("license_limpio", "")),
+                    unsafe_allow_html=True,
+                )
+            
+            st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+            st.markdown("De ese texto limpio se extraen dos campos nuevos (`L4`):")
+            col_a, col_b = st.columns(2)
+            campo_extraido = (
+                "<div style='background-color:white; border:1px solid #E0E0E0; border-top:4px solid {color}; border-radius:8px; "
+                "padding:0.8rem 1rem; height:100%;'>"
+                "<span style='font-size:0.78rem; color:#555; text-transform:uppercase; font-weight:600;'>{etiqueta}</span><br>"
+                "<span style='font-family:monospace; font-size:0.88rem; color:{gris};'>{valor}</span>"
+                "</div>"
+            )
+            with col_a:
+                st.markdown(
+                    campo_extraido.format(
+                        color=AZUL_PETROLEO, gris=GRIS_TEXTO, etiqueta="license_hutb_codigos",
+                        valor=ej2.get("license_hutb_codigos", ""),
+                    ),
+                    unsafe_allow_html=True,
+                )
+            with col_b:
+                st.markdown(
+                    campo_extraido.format(
+                        color=AZUL_PETROLEO, gris=GRIS_TEXTO, etiqueta="license_categoria",
+                        valor=ej2.get("license_categoria", ""),
+                    ),
+                    unsafe_allow_html=True,
+                )
+            
+            st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+            st.markdown("**Regla** (aplicada a los 15.293 anuncios):")
+            st.markdown(ej2.get("regla", ""))
+            
+            st.markdown("**Nota sobre los códigos HUTB detectados:**")
             st.caption(
                 "`license_hutb_codigos` lista los códigos HUTB detectados en el texto original -- no implica "
                 "que ambos sean licencias vigentes o válidas, solo que el campo `license` contenía dos códigos "
