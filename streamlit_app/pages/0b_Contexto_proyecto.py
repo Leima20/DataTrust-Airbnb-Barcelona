@@ -1,9 +1,13 @@
 """DataTrust -- pagina de contexto: objetivos, fuentes, flujo y herramientas."""
+from pathlib import Path
+
 import streamlit as st
 
 from src.data_loader import cargar_calidad, cargar_contexto, cargar_geografia_distrito, cargar_geojson_barrios
 from src.styles import kicker, fmt_num
 from src.charts import mapa_anuncios_distrito
+
+ICONS_DIR = Path(__file__).resolve().parent.parent / "assets" / "icons"
 
 COLOR_TABLA = {
     "listings": "#0B3954",
@@ -131,7 +135,7 @@ with tab_herr:
     cols_herr = st.columns(len(iconos_herramientas))
     for col, (nombre, slug) in zip(cols_herr, iconos_herramientas.items()):
         with col:
-            st.image(f"assets/icons/{slug}.svg", width=36)
+            st.image(str(ICONS_DIR / f"{slug}.svg"), width=36)
             st.caption(f"**{nombre}**")
             st.caption(usos_cortos.get(nombre, ""))
 
