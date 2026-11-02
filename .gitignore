@@ -21,3 +21,12 @@ __pycache__/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Material de estudio privado para la defensa (preguntas del tribunal ya
+# respondidas) -- nunca debe aparecer en el repo publico, el publico elige
+# sus propias preguntas, no se muestran preescritas.
+faq_defensa_tribunal.md
+
+# ZIP temporal usado para pasar el codigo del Streamlit a ChatGPT, no es
+# parte del proyecto.
+streamlit_app_para_chatgpt.zip

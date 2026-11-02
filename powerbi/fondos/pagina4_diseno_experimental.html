@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 720px; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background: #F7F8FA; position: relative; }
+  .header { position: absolute; top: 0; left: 0; width: 1280px; height: 84px; background: #0B3954; }
+  .kicker { position: absolute; top: 14px; left: 40px; color: #1B998B; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; }
+  .title { position: absolute; top: 32px; left: 40px; color: #ffffff; font-weight: 800; font-size: 26px; }
+  .intro { position: absolute; top: 100px; left: 40px; width: 1200px; font-size: 14px; color: #444; line-height: 1.4; }
+
+  .card { position: absolute; width: 580px; height: 168px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px 18px; }
+  .card .nombre { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .card .desc { font-size: 12.5px; color: #555; line-height: 1.4; margin-bottom: 8px; }
+  .card .n { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
+  .card .nval { font-size: 15px; font-weight: 700; color: #31333F; }
+
+  .footer { position: absolute; bottom: 14px; right: 40px; color: #A0A8B4; font-size: 11px; }
+
+  .matriz { position: absolute; top: 534px; left: 40px; width: 420px; }
+  .matriz table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .matriz th, .matriz td { border: 1px solid #C6DBEA; padding: 6px 8px; text-align: center; }
+  .matriz th { background: #EAF2F8; color: #14506B; font-weight: 700; }
+  .matriz td.letra { font-weight: 800; font-size: 14px; }
+  .nota2 { position: absolute; top: 534px; left: 480px; width: 760px; background: #EAF2F8; border: 1px solid #C6DBEA; border-radius: 10px; padding: 12px 18px; font-size: 12.5px; color: #14506B; line-height: 1.4; }
+</style></head>
+<body>
+  <div class="header"></div>
+  <div class="kicker">DataTrust &middot; p&aacute;gina 4</div>
+  <div class="title">Dise&ntilde;o experimental: 4 versiones, 3 comparaciones</div>
+  <div class="intro">Se entren&oacute; el mismo Random Forest bajo 4 versiones de los datos, para separar el efecto de qu&eacute; poblaci&oacute;n se usa del efecto de c&oacute;mo se construyen las variables.</div>
+
+  <div class="card" style="top:150px; left:40px; border-top:4px solid #D03B3B;">
+    <div class="nombre">A &mdash; Crudo</div>
+    <div class="desc">Sin auditar. Nulos con centinela (-1). Los 2.686 casos no estimables cuentan como ingreso real 0&euro;.</div>
+    <div class="n">n filas</div><div class="nval">13.355</div>
+  </div>
+  <div class="card" style="top:150px; left:660px; border-top:4px solid #5C7A99;">
+    <div class="nombre">D &mdash; Variables tratadas</div>
+    <div class="desc">Misma poblaci&oacute;n completa que A (13.355), pero con amenities real e imputaci&oacute;n por mediana. Aisla el efecto de las variables.</div>
+    <div class="n">n filas</div><div class="nval">13.355</div>
+  </div>
+  <div class="card" style="top:340px; left:40px; border-top:4px solid #0CA30C;">
+    <div class="nombre">B &mdash; Tratado (criterio principal)</div>
+    <div class="desc">Excluye los 2.686 casos revenue_no_estimable. Imputa bedrooms/bathrooms/beds por mediana de accommodates.</div>
+    <div class="n">n filas</div><div class="nval">10.669</div>
+  </div>
+  <div class="card" style="top:340px; left:660px; border-top:4px solid #C98A1B;">
+    <div class="nombre">Chequeo de sensibilidad</div>
+    <div class="desc">Mismas 10.669 filas de B, pero imputando por barrio (neighbourhood_cleansed) en vez de por capacidad.</div>
+    <div class="n">n filas</div><div class="nval">10.669</div>
+  </div>
+
+  <div class="matriz">
+    <table>
+      <tr><th></th><th>Variables crudas</th><th>Variables tratadas</th></tr>
+      <tr><th>Poblaci&oacute;n cruda (13.355)</th><td class="letra" style="color:#D03B3B;">A</td><td class="letra" style="color:#5C7A99;">D</td></tr>
+      <tr><th>Poblaci&oacute;n tratada (10.669)</th><td style="color:#999;">&mdash;</td><td class="letra" style="color:#0CA30C;">B</td></tr>
+    </table>
+  </div>
+  <div class="nota2">
+    <b>Las 3 comparaciones:</b> A vs. D aisla el efecto de las variables (misma poblaci&oacute;n) &middot; A vs. B combina poblaci&oacute;n + variables &middot; la <b>muestra com&uacute;n de 426 filas</b> es la &uacute;nica comparaci&oacute;n sin fuga de datos &mdash; p&aacute;gina siguiente.<br><br>
+    El <b>chequeo de sensibilidad no es un quinto escenario formal</b>: es B con un criterio de imputaci&oacute;n alternativo (por barrio en vez de por capacidad), solo para comprobar que la conclusi&oacute;n no depende de esa elecci&oacute;n.
+  </div>
+
+  <div class="footer">DataTrust &middot; Leidy Pimentel &middot; IT Academy &middot; Barcelona Activa</div>
+</body></html>

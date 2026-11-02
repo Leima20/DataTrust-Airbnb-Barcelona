@@ -295,3 +295,86 @@ def kpi_comparativo_eur(nombres, valores, titulo):
     fig.update_layout(title=titulo, yaxis_title="EUR/anio", template="plotly_white",
                        showlegend=False, height=380, margin=dict(t=60, b=40))
     return fig
+
+
+def ingreso_particular_profesional(particular_antes, particular_despues, profesional_antes, profesional_despues,
+                                    titulo="Ingreso medio: antes vs. después de auditar los ceros"):
+    categorias = ["Particular", "Profesional"]
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=categorias, y=[particular_antes, profesional_antes], name="Antes (sin investigar los ceros)",
+        marker_color=ROJO_ALERTA,
+        text=[f"{fmt_num(v)} €" for v in [particular_antes, profesional_antes]], textposition="outside",
+    ))
+    fig.add_trace(go.Bar(
+        x=categorias, y=[particular_despues, profesional_despues], name="Después (auditado)",
+        marker_color=VERDE_OK,
+        text=[f"{fmt_num(v)} €" for v in [particular_despues, profesional_despues]], textposition="outside",
+    ))
+    fig.update_layout(
+        title=titulo, barmode="group", template="plotly_white", height=420,
+        yaxis_title="Ingreso medio (EUR/año)", margin=dict(t=60, b=40),
+        font=FONT_BASE, title_font=FONT_TITULO,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+    return fig
+
+
+def perfil_tipo_habitacion(rev_entera, rev_privada, desc_entera, desc_privada,
+                            titulo="Tipo de alojamiento"):
+    grupos = ["Pasan a revisión", "Siguen descartados"]
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=grupos, y=[rev_entera, desc_entera], name="Habitación entera", marker_color=AZUL_PETROLEO,
+        text=[f"{fmt_num(v, 1)}%" for v in [rev_entera, desc_entera]], textposition="inside",
+    ))
+    fig.add_trace(go.Bar(
+        x=grupos, y=[rev_privada, desc_privada], name="Habitación privada", marker_color=TURQUESA,
+        text=[f"{fmt_num(v, 1)}%" for v in [rev_privada, desc_privada]], textposition="inside",
+    ))
+    fig.update_layout(
+        title=titulo, barmode="stack", template="plotly_white", height=320,
+        yaxis_title="% de anuncios del grupo", margin=dict(t=60, b=40),
+        font=FONT_BASE, title_font=FONT_TITULO,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+    return fig
+
+
+def perfil_precio_mediana(rev_precio, desc_precio, titulo="Precio mediana (€/noche)"):
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=["Pasan a revisión"], y=[rev_precio], name="Pasan a revisión", marker_color=AMBAR_PENDIENTE,
+        text=[f"{fmt_num(rev_precio, 1)} €"], textposition="outside",
+    ))
+    fig.add_trace(go.Bar(
+        x=["Siguen descartados"], y=[desc_precio], name="Siguen descartados", marker_color=ROJO_ALERTA,
+        text=[f"{fmt_num(desc_precio, 1)} €"], textposition="outside",
+    ))
+    fig.update_layout(
+        title=titulo, template="plotly_white", showlegend=False, height=320,
+        yaxis_title="Precio mediana (€/noche)", margin=dict(t=60, b=40),
+        font=FONT_BASE, title_font=FONT_TITULO,
+    )
+    return fig
+
+
+def r2_muestra_comun(nombres, valores, colores, titulo="R² sobre los mismos 426 casos"):
+    orden = sorted(zip(nombres, valores, colores), key=lambda x: x[1])
+    nombres_o = [n for n, _, _ in orden]
+    valores_o = [v for _, v, _ in orden]
+    colores_o = [c for _, _, c in orden]
+    fig = go.Figure(
+        go.Bar(
+            x=valores_o, y=nombres_o, orientation="h", marker_color=colores_o,
+            text=[fmt_num(v, 3) for v in valores_o], textposition="outside",
+            hovertemplate="%{y}<br>R² = %{x:.3f}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title=titulo, xaxis_title="R² (mayor = más capacidad explicativa en esta evaluación)",
+        template="plotly_white", showlegend=False, height=280,
+        margin=dict(t=60, b=40, l=10), font=FONT_BASE, title_font=FONT_TITULO,
+    )
+    fig.update_xaxes(range=[0, max(valores_o) * 1.3])
+    return fig

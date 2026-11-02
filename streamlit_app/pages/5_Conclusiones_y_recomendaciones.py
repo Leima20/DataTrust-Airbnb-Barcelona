@@ -1,8 +1,7 @@
-import pandas as pd
 import streamlit as st
 
 from src.data_loader import cargar_contexto, cargar_impacto_negocio, cargar_modelo
-from src.styles import kicker, fmt_num
+from src.styles import kicker, fmt_num, caja_alerta, ROJO_ALERTA, VERDE_OK, AMBAR_PENDIENTE, AZUL_PETROLEO
 
 impacto = cargar_impacto_negocio()
 modelo = cargar_modelo()
@@ -20,36 +19,78 @@ tab1, tab2, tab3, tab4 = st.tabs(["Hallazgos demostrados", "Interpretaciones raz
 
 with tab1:
     st.subheader("Resultados que se desprenden directamente de las auditorías y experimentos verificados")
+
+    def _tarjeta_hallazgo(icono, titulo, texto, chip_html=""):
+        st.markdown(
+            f'<div style="background-color:#fff; border:1px solid #e3e6ea; border-top:4px solid {AZUL_PETROLEO}; '
+            f'border-radius:10px; padding:1rem 1.1rem; height:100%; margin-bottom:0.9rem;">'
+            f'<div style="font-size:1.3rem; margin-bottom:0.3rem;">{icono}</div>'
+            f'<div style="font-weight:700; font-size:0.98rem; color:#31333F; margin-bottom:0.4rem; line-height:1.3;">{titulo}</div>'
+            f'<div style="font-size:0.88rem; color:#555; line-height:1.45; margin-bottom:0.7rem;">{texto}</div>'
+            f'{chip_html}'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    def _chip_antes_despues(antes, despues, etiqueta=""):
+        return (
+            f'<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">'
+            f'<span style="background-color:#FDECEC; color:{ROJO_ALERTA}; padding:0.15rem 0.55rem; '
+            f'border-radius:4px; font-size:0.82rem; font-weight:700;">{antes}</span>'
+            f'<span style="color:#999; font-weight:700;">&rarr;</span>'
+            f'<span style="background-color:#E7F6E7; color:{VERDE_OK}; padding:0.15rem 0.55rem; '
+            f'border-radius:4px; font-size:0.82rem; font-weight:700;">{despues}</span>'
+            f'<span style="font-size:0.78rem; color:#888;">{etiqueta}</span>'
+            f'</div>'
+        )
+
     naive = impacto.get("gap_naive", {})
     corregido = impacto.get("gap_corregido", {})
-    if naive and corregido:
-        st.markdown(
-            f"- Al investigar los 2.686 casos de ingreso estimado '0€' no reales, la brecha media "
-            f"particular-profesional cambia de **{fmt_num(naive.get('gap_pct', 0), 1)}%** a "
-            f"**{fmt_num(corregido.get('gap_pct', 0), 1)}%** "
-            f"-- un cambio de conclusión medible, no cosmético (ver 'El hallazgo crítico')."
-        )
     muestra = modelo.get("muestra_comun_426", {}).get("resultados", {})
-    if muestra:
-        st.markdown(
-            f"- En una comparación sin fuga de datos, sobre 426 observaciones que no formaron parte del "
-            f"entrenamiento de ninguno de los tres modelos y que se utilizaron para evaluarlos sobre una "
-            f"base común: el modelo tratado obtiene un R² mejor que el crudo "
-            f"(**{fmt_num(muestra['A_crudo']['r2'], 3)}** → **{fmt_num(muestra['B_tratado_criterio_A']['r2'], 3)}**), con "
-            f"un intervalo de confianza que no incluye el cero -- aunque el diseño no permite repartir con "
-            f"precisión cuánto de esa mejora viene de la población evaluada y cuánto de la construcción de "
-            f"variables (ver pestaña 'Interpretaciones razonables')."
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if naive and corregido:
+            _tarjeta_hallazgo(
+                "💶",
+                "La brecha de ingresos cambia al investigar los ceros",
+                "Al investigar los 2.686 casos de ingreso estimado '0€' no reales, la brecha media "
+                "particular-profesional cambia de forma medible -- un cambio de conclusión, no cosmético "
+                "(ver 'El hallazgo crítico').",
+                _chip_antes_despues(
+                    f"{fmt_num(naive.get('gap_pct', 0), 1)}%", f"{fmt_num(corregido.get('gap_pct', 0), 1)}%",
+                    "brecha particular-profesional",
+                ),
+            )
+        _tarjeta_hallazgo(
+            "🧭",
+            "La curación no depende del criterio de imputación elegido",
+            "El tratamiento de curación (bedrooms/bathrooms/beds imputados) no depende de cuál de dos "
+            "criterios razonables se use: imputar por capacidad o por barrio.",
+            f'<span style="background-color:#E7F6E7; color:{VERDE_OK}; padding:0.15rem 0.55rem; '
+            f'border-radius:4px; font-size:0.82rem; font-weight:700;">Δ &lt; 0,1% en MAE</span>',
         )
-    st.markdown(
-        "- El tratamiento de curación (bedrooms/bathrooms/beds imputados) **no depende** de cuál de dos "
-        "criterios razonables se use: la diferencia entre imputar por capacidad o por barrio es menor al "
-        "0,1% en MAE."
-    )
-    st.markdown(
-        "- Se detectó y corrigió una fuga de datos real en el propio diseño del experimento (el 80% de "
-        "una muestra de validación ya había sido vista en entrenamiento) — documentada como parte del "
-        "proceso, no ocultada."
-    )
+    with col_b:
+        if muestra:
+            _tarjeta_hallazgo(
+                "📊",
+                "El modelo tratado predice mejor, sin fuga de datos",
+                "Sobre 426 observaciones que no formaron parte del entrenamiento de ninguno de los tres "
+                "modelos, el tratado obtiene mejor R² que el crudo, con un intervalo de confianza que no "
+                "incluye el cero -- el diseño no permite repartir con precisión cuánto viene de la "
+                "población y cuánto de las variables (ver 'Interpretaciones razonables').",
+                _chip_antes_despues(
+                    fmt_num(muestra['A_crudo']['r2'], 3), fmt_num(muestra['B_tratado_criterio_A']['r2'], 3),
+                    "R² (A → B, sin fuga)",
+                ),
+            )
+        _tarjeta_hallazgo(
+            "🔍",
+            "Se detectó y corrigió una fuga de datos real",
+            "En el propio diseño del experimento: una muestra de validación ya había sido vista en "
+            "entrenamiento. Documentada como parte del proceso, no ocultada.",
+            _chip_antes_despues("80% contaminación", "426 filas seguras", "muestra de validación"),
+        )
 
 with tab2:
     st.subheader("Explicaciones compatibles con los resultados, pero no demostradas completamente")
@@ -120,21 +161,48 @@ st.markdown(
 )
 exp = impacto.get("experimento_decision", {})
 auditada = exp.get("regla_auditada", {})
-niveles = pd.DataFrame([
-    {"Nivel": "Hallazgo observado", "Qué se puede defender": "La interpretación de los ingresos estimados cambia al investigar los ceros (2.686 casos, gap de 39,7% a 23,1%)."},
-    {"Nivel": "Resultado del experimento", "Qué se puede defender": "Las métricas del modelo varían según la población evaluada y el tratamiento (R² de 0,348 a 0,448 sin fuga de datos)."},
-    {"Nivel": "Cambio de clasificación (simulado)", "Qué se puede defender": (
+
+def _fila_certeza(color, bg, numero, titulo, texto):
+    st.markdown(
+        f'<div style="background-color:{bg}; border-left:5px solid {color}; border-radius:8px; '
+        f'padding:0.8rem 1.1rem 0.8rem 1rem; margin-bottom:0.7rem;">'
+        f'<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem;">'
+        f'<span style="background-color:{color}; color:white; border-radius:50%; width:1.6rem; height:1.6rem; '
+        f'min-width:1.6rem; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem; '
+        f'font-weight:700;">{numero}</span>'
+        f'<span style="font-weight:700; font-size:0.95rem; color:#31333F;">{titulo}</span>'
+        f'</div>'
+        f'<div style="font-size:0.88rem; color:#555; line-height:1.45; padding-left:2.2rem;">{texto}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+_fila_certeza(
+    VERDE_OK, "#E7F6E7", "1", "Hallazgo observado",
+    "La interpretación de los ingresos estimados cambia al investigar los ceros (2.686 casos, gap de 39,7% a 23,1%).",
+)
+_fila_certeza(
+    AZUL_PETROLEO, "#EAF2F8", "2", "Resultado del experimento",
+    "Las métricas del modelo varían según la población evaluada y el tratamiento (R² de 0,348 a 0,448 sin fuga de datos).",
+)
+_fila_certeza(
+    AMBAR_PENDIENTE, "#FFF8EC", "3", "Cambio de clasificación (simulado)",
+    (
         f"Bajo una regla de decisión simple que descarta ingreso=0, {fmt_num(auditada.get('revision_n', 0))} "
         f"de los anuncios descartados ({fmt_num(exp.get('cambian_clasificacion_pct_de_descartados', 0), 1)}%) "
         "pasarían a 'revisión' en vez de descartarse -- medido con datos reales, ver 'El hallazgo crítico'."
-    ) if exp else "ver 'El hallazgo crítico'."},
-    {"Nivel": "Impacto económico real", "Qué se puede defender": "No observado -- no hay datos de ingresos/reservas reales ni un caso de inversión documentado que lo mida. No se ha encontrado evidencia de que inversores reales usen Inside Airbnb para decidir así."},
-])
-st.dataframe(niveles, width="stretch", hide_index=True)
-st.warning(
+    ) if exp else "ver 'El hallazgo crítico'.",
+)
+_fila_certeza(
+    "#999999", "#ffffff", "4", "Impacto económico real",
+    "No observado -- no hay datos de ingresos/reservas reales ni un caso de inversión documentado que lo "
+    "mida. No se ha encontrado evidencia de que inversores reales usen Inside Airbnb para decidir así.",
+)
+
+caja_alerta(
     "**No se afirma que se haya probado una decisión empresarial equivocada.** La conclusión se formula "
     "en términos de **riesgo analítico**: tomar decisiones sobre datos sin auditar es arriesgado y "
-    "medible en este caso — no que ya se haya demostrado un error concreto de Airbnb o de un anfitrión."
+    "medible en este caso -- no que ya se haya demostrado un error concreto de Airbnb o de un anfitrión."
 )
 st.markdown(
     "> *La calidad de los datos no se reduce al porcentaje de valores nulos — y una diferencia en las "

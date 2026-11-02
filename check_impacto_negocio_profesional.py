@@ -53,17 +53,20 @@ gap_corr = media_particular_corr - media_profesional_corr
 print(f"\nGap particular vs profesional: {gap_corr:.0f} EUR/anio "
       f"({gap_corr / media_particular_corr * 100:.1f}% peor el profesional)")
 
-# ---------- Traduccion a dinero: decision de escalar un portafolio de N propiedades ----------
-n_portafolio = 50
-impacto_naive = gap_naive * n_portafolio
-impacto_corregido = gap_corr * n_portafolio
+# ---------- Traduccion a dinero: comparacion entre grupos existentes, escalada a N anuncios ----------
+# Profesional vs. particular son dos poblaciones de anfitriones que ya existen hoy en los
+# datos, no una persona decidiendo escalar su negocio. El x50 es solo una ayuda de intuicion
+# para convertir un gap "EUR/anio/anuncio" en una cifra mas tangible.
+n_grupo = 50
+impacto_naive = gap_naive * n_grupo
+impacto_corregido = gap_corr * n_grupo
 
 print("\n" + "=" * 70)
-print(f"TRADUCCION A DINERO: decidir si escalar a un portafolio de {n_portafolio} propiedades")
+print(f"TRADUCCION A DINERO: grupo ilustrativo de {n_grupo} anuncios (ayuda de intuicion, no una decision individual)")
 print("=" * 70)
-print(f"Con datos crudos, la 'penalizacion' estimada por operar en grande: "
+print(f"Con datos crudos, la penalizacion estimada para el grupo profesional: "
       f"{impacto_naive:,.0f} EUR/anio".replace(",", "."))
 print(f"Con datos auditados, la penalizacion real es de: "
       f"{impacto_corregido:,.0f} EUR/anio".replace(",", "."))
-print(f"Diferencia entre decidir con datos crudos vs. auditados: "
+print(f"Diferencia entre medir con datos crudos vs. auditados: "
       f"{impacto_naive - impacto_corregido:,.0f} EUR/anio".replace(",", "."))

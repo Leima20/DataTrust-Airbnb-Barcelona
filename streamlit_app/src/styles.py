@@ -37,6 +37,7 @@ def inyectar_css():
         <style>
         .stApp {{ background-color: {GRIS_FONDO}; }}
         h1, h2, h3 {{ color: {AZUL_OSCURO}; }}
+        .stApp p, .stApp li, .stMarkdown {{ font-size: 1.05rem; line-height: 1.55; }}
         .dt-kicker {{
             color: {TURQUESA}; font-weight: 600; letter-spacing: 0.08em;
             text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.2rem;

@@ -50,7 +50,7 @@ with tab_zillow:
                 st.caption(f"Fuentes: {enlaces}")
 
         with col_texto:
-            st.markdown("### ¿Qué falló en Zillow?")
+            st.markdown('### ¿Qué falló en <span style="color:#D03B3B;">Zillow</span>?', unsafe_allow_html=True)
             st.caption(zillow.get("quien_es_zillow", ""))
             writedown_fmt = fmt_num(zillow.get('writedown_usd', 0) / 1_000_000)
             st.error(

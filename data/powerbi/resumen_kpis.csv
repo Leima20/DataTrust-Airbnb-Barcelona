@@ -1,0 +1,28 @@
+seccion,etiqueta,valor,nota
+auditoria,anuncios_auditados,15293,listings.csv total
+auditoria,hallazgos_totales,14,8 listings + 4 reviews + 2 calendar
+auditoria,tablas_auditadas,3,listings/reviews/calendar
+auditoria,hallazgos_completitud,2,L1 L2
+auditoria,hallazgos_integridad,2,R2 C1
+auditoria,hallazgos_plausibilidad,10,L3-L8 R1 R3 R4 C2
+negocio,gap_sin_auditar_pct,39.7,excluye solo nulos
+negocio,gap_auditado_pct,23.1,excluye 2686 no_estimable
+negocio,particular_sin_auditar_eur,24338,media anual
+negocio,profesional_sin_auditar_eur,14678,media anual
+negocio,particular_auditado_eur,28794,media anual
+negocio,profesional_auditado_eur,22134,media anual
+negocio,diferencia_anual_grupo50_eur,149958,grupo ilustrativo 50 anuncios
+negocio,casos_no_estimables,2686,20.1% de los que tienen dato
+modelo,r2_a_crudo,0.348,muestra comun 426 sin fuga
+modelo,r2_d_variables,0.388,muestra comun 426 sin fuga
+modelo,r2_b_tratado,0.448,muestra comun 426 sin fuga
+modelo,mae_a_crudo_eur,15153.0,muestra comun 426
+modelo,mae_d_variables_eur,14862.1,muestra comun 426
+modelo,mae_b_tratado_eur,14315.7,muestra comun 426
+modelo,muestra_comun_n,426,sin fuga de datos
+fuga,pct_contaminacion,80.0,filas de test de B ya vistas en entrenamiento de A/D
+fuga,n_contaminadas,1708,de 2134 filas de test de B
+fuga,n_test_b_total,2134,total test de B
+fuga,percentil_resultado_real,1.2,de 5000 submuestras simuladas
+fuga,diferencia_real_observada,-0.0405,A-D sobre la muestra de 426
+fuga,media_submuestras_simuladas,0.0060,A-D media de 5000 submuestras

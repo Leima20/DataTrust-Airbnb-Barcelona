@@ -1,0 +1,4 @@
+comparacion,diferencia_media,ic95_inferior,ic95_superior,incluye_cero
+"A - D (solo variables, 426 filas)",-0.0408,-0.0878,0.0063,True
+"D - B (solo poblacion, variables ya igualadas)",-0.0602,-0.193,0.0234,True
+"A - B (efecto combinado, hallazgo principal)",-0.101,-0.2478,-0.0043,False

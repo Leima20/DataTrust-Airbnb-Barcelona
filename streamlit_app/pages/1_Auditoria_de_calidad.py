@@ -373,7 +373,7 @@ with tab4:
                 st.markdown(f"**`bedrooms`/`bathrooms`/`beds`**: {ej1.get('regla_bedrooms', '')}")
                 st.markdown("---")
                 st.caption(ej1.get("justificacion", ""))
-                st.caption(ej1.get("limitacion_room_type", ""))
+                st.caption(ej1.get("limitacion_room_type", "")) 
     # --- Ejemplo 2 en Desplegable (Sin estrellitas, con diseño limpio) ---
     ej2 = contexto.get("ejemplo_licencia", {})
     if ej2:

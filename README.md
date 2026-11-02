@@ -1,7 +1,8 @@
 # DataTrust
 
-Auditoría de calidad y gobernanza de datos aplicada a un caso real de alquiler
-turístico en Barcelona.
+Un estudio del impacto de la calidad y la gobernanza de datos en las
+conclusiones analíticas — de negocio y de un modelo predictivo — usando el
+mercado de alquiler turístico de Barcelona como caso de estudio real.
 
 ## Pregunta central
 
@@ -97,9 +98,11 @@ datos oficial de Inside Airbnb:
   último año, la misma ventana temporal que el target), no con
   `number_of_reviews` (histórico completo).
 
-Ninguna corrección debilitó el hallazgo central del proyecto: el impacto de
-auditar la decisión de escalar un portafolio de 50 propiedades pasó de
-124.605 €/año a **149.958 €/año**. Detalle completo en
+Ninguna corrección debilitó el hallazgo central del proyecto: comparando
+anfitriones profesionales y particulares (dos grupos que ya existen hoy,
+escalado solo como ayuda de intuición a un grupo ilustrativo de 50 anuncios),
+el impacto de auditar pasó de 124.605 €/año a **149.958 €/año**. Detalle
+completo en
 `notebooks/05_tratamiento_curacion.ipynb` (sección 1.2 y 1.6) y en la ficha
 maestra.
 

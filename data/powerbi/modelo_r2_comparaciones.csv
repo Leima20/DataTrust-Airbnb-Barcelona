@@ -1,0 +1,12 @@
+grupo_comparacion,version,r2,mae_eur,n_test
+propia_poblacion,A - crudo,0.47,13309.7,2671
+propia_poblacion,D - variables tratadas,0.464,13399.7,2671
+propia_poblacion,B - tratado,0.439,15215.9,2134
+propia_poblacion,Sensibilidad (barrio),0.44,15205.4,2134
+poblacion_limpia,A - toda su poblacion,0.47,13309.7,2671
+poblacion_limpia,A - solo poblacion limpia,0.434,14844.4,2131
+poblacion_limpia,D - solo poblacion limpia,0.428,14957.3,2131
+poblacion_limpia,B - propia poblacion limpia,0.439,15215.9,2134
+muestra_426_sin_fuga,A - crudo,0.348,15153.0,426
+muestra_426_sin_fuga,D - variables tratadas,0.388,14862.1,426
+muestra_426_sin_fuga,B - tratado,0.448,14315.7,426

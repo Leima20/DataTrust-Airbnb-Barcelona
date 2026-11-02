@@ -1,0 +1,15 @@
+id,tabla,resumen,decision_gobernanza,prioridad
+L1,listings,12 columnas 100% vacias,Cambio de datos,Alta
+L2,listings,Nulos parciales en 6 columnas predictoras,Cambio de datos,Media
+L3,listings,"Campo license no verificable: 21,1%",Mantener sin tratamiento,Alta
+L4,listings,Licencias con formato roto: 5.470 registros,Cambio de datos,Media
+L5,listings,minimum_nights > 365 dias: 3 alojamientos,"Bandera, sin cambiar el valor",Baja
+L6,listings,Profesionales sobrerrepresentados en NRUA,Mantener sin tratamiento,Baja
+L7,listings,El problema de licencia varia por distrito,Mantener sin tratamiento,Baja
+L8,listings,Completitud de perfil desigual,Mantener sin tratamiento,Baja
+R1,reviews,48.302 comentarios duplicados exactos,Mantener sin tratamiento,Baja
+R2,reviews,6.592 reseñas huérfanas,Cambio de datos,Alta
+R3,reviews,512 casos de mismo reviewer_id con texto identico,Mantener sin tratamiento,Baja
+R4,reviews,9.917 reseñas con menos de 5 caracteres,Mantener sin tratamiento,Baja
+C1,calendar,41.245 filas huérfanas,Cambio de datos,Alta
+C2,calendar,746 filas con minimum_nights > maximum_nights,"Bandera, sin cambiar el valor",Alta

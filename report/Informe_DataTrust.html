@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Informe DataTrust</title>
+<style>
+  @page { size: A4; margin: 15mm 17mm 15mm 17mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 10.1pt;
+    line-height: 1.32;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  h1 { font-size: 14.5pt; margin: 0 0 2pt 0; line-height: 1.25; }
+  h2.subtitulo { font-size: 10.5pt; font-weight: normal; font-style: italic; color: #333; margin: 0 0 7pt 0; }
+  .autoria { font-size: 9pt; color: #444; margin: 0 0 12pt 0; }
+  h3 {
+    font-size: 11pt; text-transform: uppercase; letter-spacing: 0.03em;
+    color: #14506B; border-bottom: 1px solid #14506B;
+    margin: 9pt 0 4pt 0; padding-bottom: 1pt;
+  }
+  p { margin: 0 0 5pt 0; text-align: justify; }
+  .resumen-label { font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin: 4pt 0 6pt 0; font-size: 9pt; break-inside: avoid; page-break-inside: avoid; }
+  th, td { border: 1px solid #ccc; padding: 2.5pt 5pt; text-align: left; }
+  th { background: #EAF2F8; color: #14506B; font-weight: bold; }
+  td.num, th.num { text-align: right; }
+  .nota-tabla { font-size: 8.3pt; color: #555; font-style: italic; margin: 0 0 6pt 0; break-before: avoid; page-break-before: avoid; }
+  h3 { break-after: avoid; page-break-after: avoid; }
+  p, li { break-inside: avoid; page-break-inside: avoid; orphans: 3; widows: 3; }
+  .refs p { break-inside: avoid; page-break-inside: avoid; }
+  .refs p { text-indent: -14pt; padding-left: 14pt; margin-bottom: 5pt; font-size: 9pt; }
+  .obj-list { margin: 0 0 4pt 0; padding-left: 14pt; }
+  .obj-list li { margin-bottom: 1pt; }
+  strong { color: #14506B; }
+</style>
+</head>
+<body>
+
+<h1>DataTrust: &iquest;podemos confiar en los datos para tomar decisiones?</h1>
+<h2 class="subtitulo">Auditor&iacute;a de calidad de datos aplicada al mercado de alquiler tur&iacute;stico de Airbnb en Barcelona</h2>
+<p class="autoria">Leidy Pimentel &middot; IT Academy &middot; Barcelona Activa &mdash; Especializaci&oacute;n en An&aacute;lisis de Datos, Proyecto final (Sprint 13) &mdash; Barcelona, octubre de 2026</p>
+
+<h3>Resumen</h3>
+<p>Este estudio audita la calidad de los datos de Inside Airbnb Barcelona (15.293 anuncios, 1.033.523 rese&ntilde;as, 5.623.190 filas de calendario) y mide si los problemas de calidad detectados cambian conclusiones de negocio y el rendimiento de un modelo predictivo, no solo cifras aisladas de nulos. Se auditaron las tres tablas con pandas y SQL (SQLite) contra tres dimensiones de calidad &mdash;completitud, integridad referencial y plausibilidad sem&aacute;ntica&mdash;, encontrando 14 hallazgos documentados y priorizados, cada uno con una decisi&oacute;n de gobernanza justificada. El hallazgo central: 2.686 anuncios (20,1% de los que tienen dato) muestran un ingreso anual estimado de 0&euro; que no es un ingreso real, sino un fallo estructural de la f&oacute;rmula de Inside Airbnb cuando un anuncio no tiene rese&ntilde;as recientes y tiene estancia m&iacute;nima de 28 noches o m&aacute;s. Al corregir esto, la brecha de ingresos entre anfitriones profesionales y particulares pasa de un 39,7% aparente a un 23,1% real &mdash;una diferencia equivalente a 149.958&euro;/a&ntilde;o en un grupo ilustrativo de 50 anuncios&mdash;, y un modelo Random Forest, evaluado sin fuga de datos sobre una muestra com&uacute;n de 426 filas, mejora su R&sup2; de 0,348 (datos crudos) a 0,448 (datos tratados). El producto es DataTrust, un framework de auditor&iacute;a&ndash;gobernanza&ndash;tratamiento&ndash;comparaci&oacute;n aplicado aqu&iacute; a Airbnb Barcelona como caso de estudio, pero generalizable a cualquier organizaci&oacute;n que tome decisiones &mdash;humanas o automatizadas&mdash; sobre datos propios sin auditarlos primero.</p>
+
+<h3>Introducci&oacute;n</h3>
+<p>Los datos abiertos permiten an&aacute;lisis r&aacute;pidos, pero raramente se verifica si son aptos para la decisi&oacute;n que pretenden soportar. Inside Airbnb, proyecto independiente de la empresa Airbnb, publica datos de alquiler tur&iacute;stico de ciudades de todo el mundo con fines de investigaci&oacute;n y transparencia (Inside Airbnb, 2026). Que un dato de apariencia correcta &mdash;completo, sin errores evidentes&mdash; oculte un problema estructural no es una posibilidad te&oacute;rica: en este mismo dataset, 2.686 anuncios (20,1% de los que tienen dato) muestran un ingreso estimado de 0&euro; que, como se demuestra en este estudio, no es un ingreso real sino un artefacto de c&aacute;lculo.</p>
+<p>Este estudio parte de la pregunta: &iquest;c&oacute;mo afectan los problemas de calidad, consistencia e integridad de los datos a las conclusiones de negocio y al rendimiento de un modelo predictivo, en un caso real de alquiler tur&iacute;stico en Barcelona? Los objetivos son: (1)&nbsp;auditar la calidad de los datos de <em>listings</em>, <em>reviews</em> y <em>calendar</em>; (2)&nbsp;identificar y priorizar los problemas seg&uacute;n su impacto; (3)&nbsp;aplicar un proceso de curaci&oacute;n documentado y justificado; (4)&nbsp;comparar las conclusiones de negocio antes y despu&eacute;s del tratamiento; y (5)&nbsp;comparar el rendimiento de un modelo predictivo antes y despu&eacute;s del tratamiento.</p>
+
+<h3>Metodolog&iacute;a</h3>
+<p><strong>Datos.</strong> Inside Airbnb Barcelona, snapshot del 24 de junio de 2026 (Inside Airbnb, 2026): <em>listings</em> (15.293 filas, 90 columnas), <em>reviews</em> (1.033.523 filas) y <em>calendar</em> (5.623.190 filas). <strong>Herramientas:</strong> Python y pandas para limpieza y an&aacute;lisis exploratorio; SQLite para integridad referencial, sobre todo en <em>calendar</em> por su volumen; scikit-learn (<code>RandomForestRegressor</code>, <code>n_estimators=200</code>, <code>random_state=42</code>) para el modelo predictivo.</p>
+<p><strong>Auditor&iacute;a.</strong> Cada columna se evalu&oacute; contra tres dimensiones &mdash;completitud, integridad referencial y plausibilidad sem&aacute;ntica&mdash;, documentando 14 hallazgos (8 en <em>listings</em>, 4 en <em>reviews</em>, 2 en <em>calendar</em>), priorizados por riesgo (alto/medio/bajo).</p>
+<p><strong>Gobernanza y tratamiento.</strong> Cada hallazgo recibi&oacute; una de tres decisiones &mdash;cambio de datos, bandera sin modificar el valor, o mantener sin tratamiento&mdash; con su justificaci&oacute;n. La decisi&oacute;n central: marcar como <code>revenue_no_estimable</code> (bandera, no eliminaci&oacute;n) los anuncios con 0 rese&ntilde;as en el &uacute;ltimo a&ntilde;o <strong>y</strong> estancia m&iacute;nima &ge;28 noches &mdash;el patr&oacute;n que impide a la f&oacute;rmula de Inside Airbnb (ocupaci&oacute;n = rese&ntilde;as &divide; tasa de conversi&oacute;n del 50%, &times; duraci&oacute;n de estancia, con tope del 70%; ingreso = ocupaci&oacute;n &times; precio) estimar un ingreso (Inside Airbnb, s.f.).</p>
+<p><strong>Dise&ntilde;o experimental.</strong> Se entren&oacute; el mismo algoritmo bajo 4 versiones: A (crudo, n=13.355), D (variables tratadas, misma poblaci&oacute;n que A), B (tratado, n=10.669, excluye los 2.686 casos no estimables) y un chequeo de sensibilidad (criterio de imputaci&oacute;n alternativo), para aislar el efecto de la poblaci&oacute;n del efecto de las variables. Se detect&oacute; una fuga de datos en la comparaci&oacute;n inicial (80% del test de B ya visto en el entrenamiento de A/D) y se corrigi&oacute; restringiendo la comparaci&oacute;n final a una muestra com&uacute;n de 426 filas no vistas por ning&uacute;n modelo; sobre ella se aplicaron una simulaci&oacute;n de 5.000 submuestras y un <em>bootstrap</em> de 5.000 repeticiones para cuantificar la incertidumbre.</p>
+
+<h3>Resultados</h3>
+<p>Se presentan a continuaci&oacute;n las cifras obtenidas, sin interpretaci&oacute;n (v&eacute;ase Discusi&oacute;n).</p>
+
+<table>
+<tr><th>Dimensi&oacute;n de calidad</th><th class="num">N.&ordm; hallazgos</th><th>Identificadores</th></tr>
+<tr><td>Completitud</td><td class="num">2</td><td>L1, L2</td></tr>
+<tr><td>Integridad referencial</td><td class="num">2</td><td>R2, C1</td></tr>
+<tr><td>Plausibilidad sem&aacute;ntica</td><td class="num">10</td><td>L3&ndash;L8, R1, R3, R4, C2</td></tr>
+</table>
+<p class="nota-tabla">Tabla 1. Los 14 hallazgos de calidad, por dimensi&oacute;n evaluada (8 en <em>listings</em>, 4 en <em>reviews</em>, 2 en <em>calendar</em>).</p>
+
+<table>
+<tr><th>Decisi&oacute;n de gobernanza</th><th class="num">N.&ordm; hallazgos</th><th>Identificadores</th></tr>
+<tr><td>Cambio de datos</td><td class="num">6</td><td>L1, L2, L4, R2, C1, <em>target</em></td></tr>
+<tr><td>Bandera, sin cambiar el valor</td><td class="num">2</td><td>L5, C2</td></tr>
+<tr><td>Mantener sin tratamiento</td><td class="num">7</td><td>L3, L6, L7, L8, R1, R3, R4</td></tr>
+</table>
+<p class="nota-tabla">Tabla 2. Decisi&oacute;n aplicada a cada hallazgo (notebook 04).</p>
+
+<p>Hallazgos destacados: campo <code>license</code> no verificable en el 21,1% de los anuncios, con 5.470 registros de formato roto; 6.592 filas hu&eacute;rfanas en <em>reviews</em> (0,64%) y 41.245 en <em>calendar</em> (0,73%); 2.686 anuncios (20,1% de los que tienen dato) marcados <code>revenue_no_estimable</code>.</p>
+
+<table>
+<tr><th></th><th class="num">Media particular (&euro;)</th><th class="num">Media profesional (&euro;)</th><th class="num">Brecha</th></tr>
+<tr><td>Sin auditar</td><td class="num">24.338</td><td class="num">14.678</td><td class="num">39,7%</td></tr>
+<tr><td>Auditado</td><td class="num">28.794</td><td class="num">22.134</td><td class="num">23,1%</td></tr>
+</table>
+<p class="nota-tabla">Tabla 3. Ingreso medio anual estimado por tipo de anfitri&oacute;n, antes y despu&eacute;s de excluir los 2.686 casos no estimables. Diferencia escalada a un grupo ilustrativo de 50 anuncios: 149.958&euro;/a&ntilde;o.</p>
+
+<table>
+<tr><th>Versi&oacute;n del modelo</th><th class="num">R&sup2;</th><th class="num">MAE (&euro;)</th></tr>
+<tr><td>A &mdash; crudo</td><td class="num">0,348</td><td class="num">15.153,0</td></tr>
+<tr><td>D &mdash; variables tratadas</td><td class="num">0,388</td><td class="num">14.862,1</td></tr>
+<tr><td>B &mdash; tratado</td><td class="num">0,448</td><td class="num">14.315,7</td></tr>
+</table>
+<p class="nota-tabla">Tabla 4. R&sup2; y MAE sobre la muestra com&uacute;n sin fuga de datos (n=426). <em>Bootstrap</em> (5.000 repeticiones): diferencia A&ndash;B, IC95% [&minus;0,2478, &minus;0,0043] (no incluye el cero); diferencias A&ndash;D y D&ndash;B, IC95% incluyen el cero. Simulaci&oacute;n de 5.000 submuestras: percentil del resultado real&nbsp;=&nbsp;1,2.</p>
+
+<h3>Discusi&oacute;n</h3>
+<p>La brecha aparente de rendimiento entre anfitriones profesionales y particulares (39,7%) se reduce casi a la mitad (23,1%) al excluir del c&aacute;lculo los 2.686 anuncios cuyo ingreso de 0&euro; es un artefacto de la f&oacute;rmula de Inside Airbnb, no un ingreso real: escalada a un grupo ilustrativo de 50 anuncios, la diferencia entre decidir con el dato crudo o el auditado equivale a 149.958&euro;/a&ntilde;o. Esta es la aportaci&oacute;n concreta del estudio a la toma de decisiones empresariales: cualquier an&aacute;lisis &mdash;de <em>pricing</em>, de inversi&oacute;n o de priorizaci&oacute;n de cartera&mdash; que use <code>estimated_revenue_l365d</code> sin distinguir estos casos sobreestima sistem&aacute;ticamente la brecha de rendimiento entre tipos de anfitri&oacute;n, y puede derivar en decisiones basadas en una premisa incorrecta.</p>
+<p>En el modelo predictivo, la comparaci&oacute;n entre A, D y B sobre la muestra com&uacute;n sin fuga muestra una mejora progresiva de R&sup2; (0,348&rarr;0,388&rarr;0,448). Al descomponer el efecto, la poblaci&oacute;n evaluada explica entre 6 y 7 veces m&aacute;s varianza que la construcci&oacute;n de las variables; una fuga de datos detectada y corregida durante el propio dise&ntilde;o del experimento confirma que el rigor metodol&oacute;gico debe aplicarse tambi&eacute;n al proceso de comparaci&oacute;n, no solo a los datos de entrada. El <em>bootstrap</em> confirma que la mejora combinada de B sobre A se distingue de cero, aunque los efectos parciales (solo variables, solo poblaci&oacute;n) no se pueden separar con precisi&oacute;n en una muestra de 426 filas.</p>
+<p><strong>Limitaciones.</strong> <code>estimated_revenue_l365d</code> es una estimaci&oacute;n de Inside Airbnb, no un ingreso real observado, y depende de una tasa de conversi&oacute;n de rese&ntilde;as asumida del 50% (rango documentado 30,5%&ndash;72%; Inside Airbnb, s.f.) que puede sesgar segmentos con patrones de rese&ntilde;a distintos al turista medio. La validaci&oacute;n sin fuga de datos usa solo 426 filas &mdash;suficiente para el efecto combinado, no para repartir con precisi&oacute;n poblaci&oacute;n y variables por separado&mdash;. El estudio cubre un &uacute;nico dataset, un &uacute;nico algoritmo y una &uacute;nica variable objetivo; no se generaliza autom&aacute;ticamente a otros contextos.</p>
+
+<h3>Conclusi&oacute;n</h3>
+<p>Los problemas de calidad de datos no solo existen en abstracto: cambian de forma medible tanto una decisi&oacute;n humana de negocio como el rendimiento de un sistema automatizado, a partir del mismo hallazgo de origen. Se cumplieron los 5 objetivos planteados:</p>
+<ol class="obj-list">
+<li>Se auditaron las tres tablas, documentando 14 hallazgos verificados con c&oacute;digo real.</li>
+<li>Cada hallazgo se prioriz&oacute; por riesgo y recibi&oacute; una decisi&oacute;n de gobernanza justificada.</li>
+<li>El tratamiento se ejecut&oacute; y verific&oacute; de forma reproducible (consultas de control antes/despu&eacute;s).</li>
+<li>La brecha de ingresos profesional&ndash;particular cambi&oacute; de 39,7% a 23,1% al auditar los datos (149.958&euro;/a&ntilde;o en el caso ilustrativo).</li>
+<li>El modelo predictivo mejor&oacute; su R&sup2; de 0,348 a 0,448 en la &uacute;nica comparaci&oacute;n sin fuga de datos disponible.</li>
+</ol>
+<p>La respuesta a la pregunta central es afirmativa, con matices: la calidad de los datos s&iacute; cambia conclusiones de negocio y rendimiento de modelo, pero el efecto no es uniforme &mdash;algunos hallazgos (<code>license</code>, por ejemplo) no afectan a la variable objetivo del modelo&mdash;, y el reparto exacto entre causas del efecto combinado del modelo queda como limitaci&oacute;n abierta. DataTrust, el framework de auditor&iacute;a&ndash;gobernanza&ndash;tratamiento&ndash;comparaci&oacute;n aplicado aqu&iacute; a Airbnb Barcelona, es reutilizable: sus funciones de auditor&iacute;a reciben las columnas a evaluar como par&aacute;metro, no est&aacute;n atadas a este dataset en particular.</p>
+
+<h3>Referencias</h3>
+<div class="refs">
+<p>Inside Airbnb. (2026). <em>Barcelona dataset</em> [Conjunto de datos]. https://insideairbnb.com/barcelona/</p>
+<p>Inside Airbnb. (s.f.). <em>Data assumptions</em>. Recuperado el 29 de octubre de 2026, de https://insideairbnb.com/data-assumptions/</p>
+</div>
+
+</body>
+</html>
