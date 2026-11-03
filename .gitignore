@@ -5,6 +5,7 @@
 # esa carpeta no está excluida).
 data/airbnb_bcn/
 data/airbnb_bcn_curado/
+data/airbnb_bcn_modelo/
 
 # Base de datos SQLite: 1.1 GB, se regenera con database/construir_base_datos.py
 # + el notebook 05 (tablas *_curado).
@@ -26,6 +27,10 @@ Thumbs.db
 # respondidas) -- nunca debe aparecer en el repo publico, el publico elige
 # sus propias preguntas, no se muestran preescritas.
 faq_defensa_tribunal.md
+
+# Ficha maestra: documento de trabajo interno que cita el enunciado oficial
+# del Sprint 13 -- no debe aparecer en el repo publico.
+00_ficha_maestra.md
 
 # ZIP temporal usado para pasar el codigo del Streamlit a ChatGPT, no es
 # parte del proyecto.
