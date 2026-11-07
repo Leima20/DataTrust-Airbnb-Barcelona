@@ -1,10 +1,10 @@
 """Carga de los datos precalculados que alimentan la app.
 
-Todos los numeros vienen de notebooks/06_modelo_ml.ipynb, de
-00_ficha_maestra.md, o de una comprobacion en vivo contra los CSV de
+Todos los números vienen de notebooks/06_modelo_ml.ipynb, de
+00_ficha_maestra.md, o de una comprobación en vivo contra los CSV de
 data/airbnb_bcn(_curado)/ -- ver el campo "fuente" en cada JSON.
 No se recalculan modelos ni se leen los CSV de millones de filas en
-tiempo de ejecucion de la app.
+tiempo de ejecución de la app.
 """
 from pathlib import Path
 import json

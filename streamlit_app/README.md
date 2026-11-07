@@ -55,7 +55,7 @@ JSON en `data/`, precalculados a partir de resultados reales ya guardados (ver
 
 Ver el resumen completo en la respuesta que acompañó la construcción de esta app. En corto:
 casi todas las cifras del prompt original (incluidas las de R² sobre la muestra de 426 filas:
-0,348 / 0,388 / 0,448) se confirmaron exactas contra las salidas guardadas del notebook 06.
+0,347 / 0,389 / 0,450) se confirmaron exactas contra las salidas guardadas del notebook 06.
 La única cifra de licencia que se ajustó fue el desglose "Otro" (7,6% en el prompt original):
 el dato real tiene 5 categorías, no 4 — se usó el desglose completo y verificado (HUTB 47,0%,
 Exento 25,7%, Sin dato 19,9%, NRUA 6,2%, No clasificable 1,2%) en vez de agrupar las dos

@@ -1,103 +1,75 @@
 import html
+import math
 
 import pandas as pd
 import streamlit as st
 
 from src.data_loader import cargar_calidad, cargar_contexto, cargar_geografia_distrito, cargar_geojson_barrios
-from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, TURQUESA, AZUL_PIZARRA, ROJO_ALERTA, AMBAR_PENDIENTE, VERDE_OK, GRIS_TEXTO
+from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, AZUL_PIZARRA, AMBAR_ALERTA, AMBAR_PENDIENTE, GRIS_TEXTO
 from src.charts import completitud_por_columna, licencia_categorias, mapa_licencia_distrito, hallazgos_por_tabla, huerfanas_por_tabla
+
+
+def _circulos_alcance(tablas):
+    datos = [
+        ("listings", "listings", AZUL_PIZARRA, tablas.get("listings", {}).get("filas", 0)),
+        ("reviews", "reviews", AZUL_PIZARRA, tablas.get("reviews", {}).get("filas", 0)),
+        ("calendar", "calendar", AZUL_PIZARRA, tablas.get("calendar", {}).get("filas", 0)),
+    ]
+    raices = [math.sqrt(filas) for _, _, _, filas in datos]
+    raiz_min, raiz_max = min(raices), max(raices)
+    radio_min, radio_max = 34, 95
+    centros_x = [150, 450, 750]
+    y_centro = 110
+
+    circulos_svg = []
+    etiquetas_svg = []
+    for (etiqueta, _, color, filas), raiz, cx in zip(datos, raices, centros_x):
+        if raiz_max > raiz_min:
+            radio = radio_min + (raiz - raiz_min) / (raiz_max - raiz_min) * (radio_max - radio_min)
+        else:
+            radio = (radio_min + radio_max) / 2
+        circulos_svg.append(f'<circle cx="{cx}" cy="{y_centro}" r="{radio:.1f}" fill="{color}" opacity="0.88"/>')
+        etiquetas_svg.append(
+            f'<text x="{cx}" y="225" text-anchor="middle" font-family="Helvetica" font-size="15" '
+            f'font-weight="700" fill="{color}">{etiqueta}</text>'
+            f'<text x="{cx}" y="250" text-anchor="middle" font-family="Helvetica" font-size="20" '
+            f'font-weight="800" fill="#31333F">{fmt_num(filas)}</text>'
+        )
+
+    svg = (
+        '<svg viewBox="0 0 900 265" width="100%" height="265">'
+        + "".join(circulos_svg) + "".join(etiquetas_svg) + "</svg>"
+    )
+    st.markdown(svg, unsafe_allow_html=True)
 
 calidad = cargar_calidad()
 contexto = cargar_contexto()
 hallazgos = calidad.get("hallazgos_14", {})
 decisiones = calidad.get("decisiones_tratamiento", {})
 
-kicker("Pagina 3 de 9")
+kicker("Página 3 de 9")
 st.title("Auditoría de calidad")
 st.markdown(
     "Se revisaron las 3 tablas del dataset (`listings`, `reviews`, `calendar`), cruzando cada columna "
     "contra 3 preguntas."
 )
 
-# ---------- 1. Alcance de la auditoria ----------
+# ---------- 1. Alcance de la auditoría ----------
 st.markdown("## 1. Alcance de la auditoría")
 tablas = calidad.get("tablas", {})
-c1, c2, c3 = st.columns(3)
-with c1:
-    st.markdown(f"<span style='color:{AZUL_OSCURO}; font-weight:700;'>listings</span>", unsafe_allow_html=True)
-    st.metric("Filas", f'{tablas.get("listings",{}).get("filas",0):,}'.replace(",", "."),
-              f'{tablas.get("listings",{}).get("columnas_raw","—")} columnas', delta_color="off")
-with c2:
-    st.markdown(f"<span style='color:{TURQUESA}; font-weight:700;'>reviews</span>", unsafe_allow_html=True)
-    st.metric("Filas", f'{tablas.get("reviews",{}).get("filas",0):,}'.replace(",", "."),
-              f'{tablas.get("reviews",{}).get("columnas_raw","—")} columnas', delta_color="off")
-with c3:
-    st.markdown(f"<span style='color:{AZUL_PIZARRA}; font-weight:700;'>calendar</span>", unsafe_allow_html=True)
-    st.metric("Filas", f'{tablas.get("calendar",{}).get("filas",0):,}'.replace(",", "."),
-              f'{tablas.get("calendar",{}).get("columnas_raw","—")} columnas', delta_color="off")
+with st.container(border=True):
+    _circulos_alcance(tablas)
 
 st.markdown("---")
 
-tab2, tab3, tab4, tab5 = st.tabs([
-    "2. Dimensiones", "3. Resultados",
-    "4. Gobernanza y tratamiento", "5. Conclusión",
+tab2, tab4 = st.tabs([
+    "2. Dimensiones y resultados",
+    "3. Gobernanza y tratamiento",
 ])
 
-# ---------- 2. Dimensiones de calidad ----------
+# ---------- 2. Dimensiones y resultados (fusionado: lo que aparecia en "Dimensiones" se
+# repetia en "Resultados", mejor ver el termino y su resultado juntos) ----------
 with tab2:
-    st.markdown("#### Dimensiones de calidad")
-    dim_cols = st.columns(3)
-    dimensiones = [
-        ("🧩", "Completitud", "¿Falta información?"),
-        ("🔗", "Integridad referencial", "¿Las filas conectan bien entre tablas?"),
-        ("🔎", "Plausibilidad semántica", "¿Un valor 'válido' tiene sentido real?"),
-    ]
-    for col, (icono, titulo, pregunta) in zip(dim_cols, dimensiones):
-        with col:
-            with st.container(border=True):
-                st.markdown(f"**{icono} {titulo}**")
-                st.caption(pregunta)
-
-    st.markdown("###### Cómo leer un hallazgo")
-    st.caption(
-        "No todo nulo es un error, y no todo cero es un error -- cada hallazgo cae en una de estas 4 "
-        "categorías:"
-    )
-
-    def _chip_categoria(icono, titulo, bg, borde, color_texto):
-        st.markdown(
-            f"""
-            <div style="background-color:{bg}; border:1px solid {borde}; border-radius:8px;
-                        padding:0.5rem 0.7rem; text-align:center;">
-            <span style="font-size:1.1rem;">{icono}</span><br>
-            <span style="font-size:0.82rem; font-weight:700; color:{color_texto};">{titulo}</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    cat_cols = st.columns(4)
-    categorias_hallazgo = [
-        ("⚠️", "Problema detectado", "#FDECEC", "#F0C9C9", "#D03B3B"),
-        ("🔧", "Decisión de tratamiento", "#EAF2F8", "#C6DBEA", "#14506B"),
-        ("📄", "Limitación de la fuente", "#ECEDEF", "#CBCFD4", "#555555"),
-        ("❓", "Hipótesis pendiente de validar", "#FFF8EC", "#F0DDB3", "#C98A1B"),
-    ]
-    for col, (icono, titulo, bg, borde, color_texto) in zip(cat_cols, categorias_hallazgo):
-        with col:
-            _chip_categoria(icono, titulo, bg, borde, color_texto)
-
-    st.markdown(
-        f"**Nomenclatura de los IDs:** "
-        f"<span style='color:{AZUL_OSCURO}; font-weight:700;'>L</span> = listings &nbsp;·&nbsp; "
-        f"<span style='color:{TURQUESA}; font-weight:700;'>R</span> = reviews &nbsp;·&nbsp; "
-        f"<span style='color:{AZUL_PIZARRA}; font-weight:700;'>C</span> = calendar "
-        f"-- el número es el orden dentro de esa tabla, no correlativo entre tablas.",
-        unsafe_allow_html=True,
-    )
-
-# ---------- 3. Resultados principales ----------
-with tab3:
     st.markdown("#### Resultados principales")
     n_listings, n_reviews, n_calendar = len(hallazgos.get("listings", [])), len(hallazgos.get("reviews", [])), len(hallazgos.get("calendar", []))
     n_total = n_listings + n_reviews + n_calendar
@@ -114,28 +86,26 @@ with tab3:
     with col_chart:
         st.plotly_chart(hallazgos_por_tabla(n_listings, n_reviews, n_calendar), width="stretch")
 
+    st.markdown("<div style='margin-top:1.3rem;'></div>", unsafe_allow_html=True)
     sub_completitud, sub_integridad, sub_plausibilidad = st.tabs([
         "📊 Completitud", "🔗 Integridad referencial", "📍 Plausibilidad",
     ])
 
     with sub_completitud:
-        st.markdown(f"<span style='color:{AZUL_OSCURO}; font-weight:700;'>L1 · L2 · listings</span>", unsafe_allow_html=True)
-        st.caption(
-            "Se comprobó en las 3 tablas -- `reviews` y `calendar` salieron limpias (100% completas), el "
-            "único hallazgo de esta dimensión está en `listings`."
-        )
+        st.markdown("**🧩 Completitud** -- ¿falta información?")
+        st.markdown(f"<span style='color:{AZUL_PIZARRA}; font-weight:700;'>L1 · L2 · listings</span>", unsafe_allow_html=True)
         st.markdown(
-            f"**{calidad.get('columnas_100_nulas', {}).get('cantidad', '—')} columnas** de `listings` están "
-            "100% vacías (`L1`) -- 0% de dato útil en toda la tabla."
+            f"**`L1`** -- {calidad.get('columnas_100_nulas', {}).get('cantidad', '—')} columnas de `listings` "
+            "están 100% vacías. (`reviews` y `calendar` 100% completas)"
         )
         nulos = calidad.get("nulos_parciales_L2", [])
         if nulos:
             cols_n = [n["columna"] for n in nulos]
             pcts_n = [n["pct_nulo"] for n in nulos]
-            st.plotly_chart(completitud_por_columna(cols_n, pcts_n, "L2 — Nulos parciales en columnas predictoras"),
-                             width="stretch")
-            st.caption("Rojo = 20% o más de nulos. Estas 6 columnas son las que se usan como predictoras del "
-                       "modelo (ver página 'Diseño experimental').")
+            st.plotly_chart(
+                completitud_por_columna(cols_n, pcts_n, "L2 — Nulos parciales por columna", color=AZUL_PIZARRA),
+                width="stretch",
+            )
         with st.expander("📝 Notas técnicas"):
             st.caption(
                 "Las 12 columnas 100% vacías (`L1`): "
@@ -144,41 +114,60 @@ with tab3:
             )
 
     with sub_plausibilidad:
-        st.markdown(f"<span style='color:{AZUL_OSCURO}; font-weight:700;'>L3 · L4 · listings</span>", unsafe_allow_html=True)
-        st.markdown(
-            "**El problema** -- el campo `license` debería contener un número de licencia turística "
-            "legible, pero en la práctica mezcla formatos:\n\n"
-            "- **21,1% no verificable** (`L3`: sin dato o texto no clasificable).\n"
-            "- **5.470 registros con formato roto** (HTML sin limpiar o dos números de licencia "
-            "concatenados en el mismo campo, `L4`)."
-        )
-        st.markdown(
-            "**¿Por qué importa?**\n\n"
-            "- Compliance o segmentación por licencia pierde fiabilidad para **1 de cada 5 anuncios** (`L3`).\n"
-            "- Extraer patrones automáticamente del texto puede fallar o contar de más por el formato "
-            "roto (`L4`)."
-        )
-        st.markdown("##### Marco legal de las licencias en el dataset")
-        col_hutb, col_nrua = st.columns(2)
-        with col_hutb:
-            st.info(
-                "**`HUTB` -- Registro catalán**\n\nCódigo del registro turístico de Cataluña "
-                "('Habitatge d'Ús Turístic'). El formato histórico, el más frecuente en el dataset."
-            )
-        with col_nrua:
-            st.info(
-                "**`NRUA` -- Registro estatal**\n\nEl nuevo registro único a nivel nacional, creado por "
-                "el Real Decreto 1312/2024 y obligatorio desde julio de 2025. Convive con el `HUTB`, "
-                "no lo sustituye."
-            )
+        st.markdown("**🔎 Plausibilidad semántica** -- ¿un valor 'válido' tiene sentido real?")
+        st.markdown(f"<span style='color:{AZUL_PIZARRA}; font-weight:700;'>L3 · L4 · listings</span>", unsafe_allow_html=True)
         lic = calidad.get("licencia", {})
+
+        def _tarjeta_stat(valor, etiqueta):
+            st.markdown(
+                f'<div style="background-color:white; border-top:4px solid {AMBAR_ALERTA}; '
+                'border-radius:10px; padding:1rem 1.1rem; text-align:center; height:100%;">'
+                f'<div style="font-size:2.2rem; font-weight:800; color:{AMBAR_ALERTA};">{valor}</div>'
+                f'<div style="font-size:0.9rem; color:#555;">{etiqueta}</div>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+        col_l3, col_l4 = st.columns(2)
+        with col_l3:
+            _tarjeta_stat(f"{fmt_num(lic.get('no_verificable_L3_pct', 0), 1)}%", "No verificable (`L3`)")
+        with col_l4:
+            _tarjeta_stat("35,8%", "Formato roto (`L4`)")
+
+        def _tarjeta_registro(codigo, titulo, texto):
+            st.markdown(
+                f'<div style="background-color:#EAF2F8; border-left:4px solid {AZUL_PIZARRA}; '
+                'border-radius:8px; padding:1rem 1.2rem; height:100%;">'
+                f'<div style="font-size:1.1rem; font-weight:800; color:{AZUL_PIZARRA}; margin-bottom:0.4rem;">'
+                f'<code>{codigo}</code> -- {titulo}</div>'
+                f'<div style="font-size:1.05rem; color:#333; line-height:1.5;">{texto}</div>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+        with st.expander("Ver marco legal de las licencias (HUTB / NRUA)"):
+            col_hutb, col_nrua = st.columns(2)
+            with col_hutb:
+                _tarjeta_registro(
+                    "HUTB", "Registro catalán",
+                    "Código del registro turístico de Cataluña ('Habitatge d'Ús Turístic'). El formato "
+                    "histórico, el más frecuente en el dataset.",
+                )
+            with col_nrua:
+                _tarjeta_registro(
+                    "NRUA", "Registro estatal",
+                    "El nuevo registro único a nivel nacional, creado por el Real Decreto 1312/2024 y "
+                    "obligatorio desde julio de 2025. Convive con el <code>HUTB</code>, no lo sustituye.",
+                )
+        st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
         cats = lic.get("categorias", [])
         if cats:
             st.plotly_chart(
                 licencia_categorias([c["nombre"] for c in cats], [c["pct"] for c in cats]),
                 width="stretch",
             )
-            st.caption(f"Rojo = categorías no verificables (`L3`: {fmt_num(lic.get('no_verificable_L3_pct', 0), 1)}% "
+            st.caption(f"Ámbar = categorías no verificables (`L3`: {fmt_num(lic.get('no_verificable_L3_pct', 0), 1)}% "
                        "del campo `license`) -- no se asume incumplimiento legal, solo que no se puede confirmar.")
         geo = cargar_geografia_distrito()
         geojson = cargar_geojson_barrios()
@@ -220,12 +209,13 @@ with tab3:
                 st.info("**`L7`** -- Variación del problema de licencia por distrito. Ya se ve en el mapa de arriba, no se repite aquí.")
 
     with sub_integridad:
+        st.markdown("**🔗 Integridad referencial** -- ¿las filas conectan bien entre tablas?")
         r2 = next((h for h in hallazgos.get("reviews", []) if h["id"] == "R2"), None)
         c1_ = next((h for h in hallazgos.get("calendar", []) if h["id"] == "C1"), None)
         col_a, col_b = st.columns(2)
         if r2:
             with col_a:
-                st.markdown(f"<span style='color:{TURQUESA}; font-weight:700;'>R2 · reviews</span>", unsafe_allow_html=True)
+                st.markdown(f"<span style='color:{AZUL_PIZARRA}; font-weight:700;'>R2 · reviews</span>", unsafe_allow_html=True)
                 st.metric("Filas huérfanas", "6.592", "0,64% de 1.033.523 filas", delta_color="off")
                 st.caption(r2["detalle"])
         if c1_:
@@ -263,10 +253,6 @@ with tab3:
 # ---------- 4. Decisiones de gobernanza ----------
 with tab4:
     st.markdown("#### Gobernanza: la decisión")
-    st.caption(
-        "Cada uno de los 14 hallazgos cae en exactamente una de estas 3 categorías -- la decisión y su "
-        "justificación quedan documentadas, no se improvisan caso por caso."
-    )
 
     def _caja_gobernanza(titulo, descripcion, codigos, bg, borde, color_texto):
         st.markdown(
@@ -304,7 +290,6 @@ with tab4:
 
     st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
     st.markdown("##### Prioridad de tratamiento")
-    st.caption("Distinta de la decisión de arriba -- mide urgencia, no relevancia narrativa.")
     prioridad = calidad.get("prioridad_gobernanza", {})
     conteo = prioridad.get("conteo", {})
     por_id = prioridad.get("por_id", {})
@@ -327,7 +312,7 @@ with tab4:
 
     p1, p2, p3 = st.columns(3)
     with p1:
-        _stat_prioridad("Alta", conteo.get("Alta", 0), ROJO_ALERTA, cod_alta)
+        _stat_prioridad("Alta", conteo.get("Alta", 0), AZUL_OSCURO, cod_alta)
     with p2:
         _stat_prioridad("Media", conteo.get("Media", 0), AMBAR_PENDIENTE, cod_media)
     with p3:
@@ -337,15 +322,11 @@ with tab4:
 
     st.markdown("---")
     st.markdown("#### Tratamiento: la ejecución")
-    st.caption(
-        "La gobernanza decide, el tratamiento ejecuta — esto es lo que pasó de verdad con los datos "
-        "clasificados como 'cambio de datos'."
-    )
 
     # --- Ejemplo 1 en Desplegable ---
     ej1 = contexto.get("ejemplo_valores_ausentes", {})
     if ej1:
-        titulo_ej1 = ej1.get("titulo", "Tratamiento de valores ausentes (L2)")
+        titulo_ej1 = ej1.get("titulo", "Tratamiento de nulos (L2)")
         with st.expander(titulo_ej1, expanded=False):
             st.caption(ej1.get("intro", ""))
 
@@ -366,8 +347,7 @@ with tab4:
             })
             df_ej1 = df_ej1[["id", "Campo", "Original", "Curado", "Regla aplicada", "Interpretación"]]
             st.dataframe(df_ej1, width="stretch", hide_index=True)
-            st.info(ej1.get("nota_imputacion", ""))
-            
+
             with st.expander("Ver criterio completo de imputación y limitaciones metodológicas"):
                 st.markdown(f"**`price`**: {ej1.get('regla_price', '')}")
                 st.markdown(f"**`bedrooms`/`bathrooms`/`beds`**: {ej1.get('regla_bedrooms', '')}")
@@ -378,7 +358,10 @@ with tab4:
     ej2 = contexto.get("ejemplo_licencia", {})
     if ej2:
         with st.expander(ej2.get("titulo", "Ejemplo 2"), expanded=False):
-            st.caption(ej2.get("intro", ""))
+            st.markdown(
+                f'<div class="dt-nota-exposicion">💡 {ej2.get("intro", "")}</div>',
+                unsafe_allow_html=True,
+            )
             col_x, col_y = st.columns(2)
             
             caja_antes = (
@@ -386,7 +369,7 @@ with tab4:
                 "padding:0.9rem 1rem; font-family:monospace; font-size:0.82rem; height:100%; color:#333;'>{valor}</div>"
             )
             caja_despues = (
-                "<div style='background-color:#F0F7F4; border:1px solid #C2E0D1; border-left:5px solid #2ECC71; border-radius:6px; "
+                "<div style='background-color:#E1EAEE; border:1px solid #C3D4DB; border-left:5px solid #268C87; border-radius:6px; "
                 "padding:0.9rem 1rem; font-family:monospace; font-size:0.82rem; height:100%; color:#333;'>{valor}</div>"
             )
 
@@ -431,25 +414,16 @@ with tab4:
                 )
             
             st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
-            st.markdown("**Regla** (aplicada a los 15.293 anuncios):")
-            st.markdown(ej2.get("regla", ""))
-            
-            st.markdown("**Nota sobre los códigos HUTB detectados:**")
-            st.caption(
-                "`license_hutb_codigos` lista los códigos HUTB detectados en el texto original -- no implica "
-                "que ambos sean licencias vigentes o válidas, solo que el campo `license` contenía dos códigos "
-                "distintos. Confirmar la validez de cada código exigiría consultar el registro oficial, fuera "
-                "del alcance de este dataset."
-            )
-            st.caption(ej2.get("justificacion", ""))
-
-# ---------- 5. Conclusion y transicion ----------
-with tab5:
-    st.markdown("#### Conclusión")
-    st.success(
-        "- **14 hallazgos** documentados en las 3 tablas, cada uno con una decisión de gobernanza justificada.\n"
-        "- **Verificaciones limpias**: completitud 100% en `reviews` y `calendar`, unicidad de `id` en "
-        "`listings` -- no todo resultó ser un problema.\n"
-        "- **El hallazgo de mayor impacto no está aquí**: surge de investigar los ceros en "
-        "`estimated_revenue_l365d`, en la página 'El hallazgo crítico' (siguiente en el menú)."
-    )
+            col_regla, col_nota = st.columns(2)
+            with col_regla:
+                with st.expander("Regla (aplicada a los 15.293 anuncios)", expanded=False):
+                    st.markdown(ej2.get("regla", ""))
+            with col_nota:
+                with st.expander("Nota técnica: fiabilidad y trazabilidad", expanded=False):
+                    st.caption(
+                        "`license_hutb_codigos` lista los códigos HUTB detectados en el texto original -- no implica "
+                        "que ambos sean licencias vigentes o válidas, solo que el campo `license` contenía dos códigos "
+                        "distintos. Confirmar la validez de cada código exigiría consultar el registro oficial, fuera "
+                        "del alcance de este dataset."
+                    )
+                    st.caption(ej2.get("justificacion", ""))

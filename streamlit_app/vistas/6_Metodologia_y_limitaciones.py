@@ -7,7 +7,7 @@ calidad = cargar_calidad()
 modelo = cargar_modelo()
 impacto = cargar_impacto_negocio()
 
-kicker("Pagina 9 de 9")
+kicker("Página 9 de 9")
 st.title("Metodología y limitaciones")
 st.markdown("Detalle técnico completo: fuente de datos, definición de variables, parámetros del modelo, diseño de la validación y limitaciones.")
 
@@ -64,7 +64,7 @@ with tab_modelo:
             f"    random_state={algoritmo.get('random_state')},\n"
             f"    n_jobs={algoritmo.get('n_jobs')},\n"
             f")\n{algoritmo.get('split')}\nMétricas: {', '.join(algoritmo.get('metricas', []))}\n"
-            f"Baseline: {algoritmo.get('baseline')}",
+            f"Modelo de referencia: {algoritmo.get('baseline')}",
             language="text",
         )
 
@@ -140,7 +140,8 @@ with col_lim1:
         "📏", "Tamaño de la muestra común",
         "Solo 426 filas pasaron el filtro sin fuga de datos — suficiente para el efecto combinado (A-B), "
         "insuficiente para repartir con precisión cuánto corresponde a población y cuánto a variables por "
-        "separado (A-D y D-B individualmente).",
+        "separado (A-D y D-B individualmente). <b>Próximo paso</b>: repetir este análisis con una muestra "
+        "mayor (más snapshots de Inside Airbnb) para comprobar si el resultado se mantiene o cambia.",
     )
     _tarjeta_limitacion(
         "📐", "Incertidumbre de las estimaciones",
@@ -162,7 +163,8 @@ with col_lim2:
     _tarjeta_limitacion(
         "🔭", "Alcance del experimento",
         "Un solo dataset (Airbnb Barcelona), un solo algoritmo (Random Forest), una sola variable objetivo "
-        "— no se generaliza automáticamente a otros contextos.",
+        "— no se generaliza automáticamente a otros contextos. <b>Próximo paso</b>: explorar otras "
+        "variables predictoras no incluidas en este modelo, por si influyen en el resultado.",
     )
     _tarjeta_limitacion(
         "🏠", "La imputación no distingue `room_type`",

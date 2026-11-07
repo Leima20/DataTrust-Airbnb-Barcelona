@@ -1,17 +1,17 @@
 import streamlit as st
 
 from src.data_loader import cargar_contexto, cargar_impacto_negocio, cargar_modelo
-from src.styles import kicker, fmt_num, caja_alerta, ROJO_ALERTA, VERDE_OK, AMBAR_PENDIENTE, AZUL_PETROLEO
+from src.styles import kicker, fmt_num, caja_alerta, AZUL_ACERO, TURQUESA, AMBAR_PENDIENTE, AZUL_PETROLEO
 
 impacto = cargar_impacto_negocio()
 modelo = cargar_modelo()
 contexto = cargar_contexto()
 
-kicker("Pagina 8 de 9")
+kicker("Página 8 de 9")
 st.title("Conclusiones y recomendaciones")
 st.markdown(
-    "Despues de auditar, tratar y comparar (sin fuga de datos), esta pagina reune todo en 4 niveles de "
-    "certeza distintos -- para no mezclar lo que se demostro con lo que es solo una interpretacion "
+    "Después de auditar, tratar y comparar (sin fuga de datos), esta página reúne todo en 4 niveles de "
+    "certeza distintos -- para no mezclar lo que se demostró con lo que es solo una interpretación "
     "razonable."
 )
 
@@ -35,10 +35,10 @@ with tab1:
     def _chip_antes_despues(antes, despues, etiqueta=""):
         return (
             f'<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">'
-            f'<span style="background-color:#FDECEC; color:{ROJO_ALERTA}; padding:0.15rem 0.55rem; '
+            f'<span style="background-color:#E9EDF1; color:{AZUL_ACERO}; padding:0.15rem 0.55rem; '
             f'border-radius:4px; font-size:0.82rem; font-weight:700;">{antes}</span>'
             f'<span style="color:#999; font-weight:700;">&rarr;</span>'
-            f'<span style="background-color:#E7F6E7; color:{VERDE_OK}; padding:0.15rem 0.55rem; '
+            f'<span style="background-color:#DCEEEC; color:{TURQUESA}; padding:0.15rem 0.55rem; '
             f'border-radius:4px; font-size:0.82rem; font-weight:700;">{despues}</span>'
             f'<span style="font-size:0.78rem; color:#888;">{etiqueta}</span>'
             f'</div>'
@@ -67,7 +67,7 @@ with tab1:
             "La curación no depende del criterio de imputación elegido",
             "El tratamiento de curación (bedrooms/bathrooms/beds imputados) no depende de cuál de dos "
             "criterios razonables se use: imputar por capacidad o por barrio.",
-            f'<span style="background-color:#E7F6E7; color:{VERDE_OK}; padding:0.15rem 0.55rem; '
+            f'<span style="background-color:#DCEEEC; color:{TURQUESA}; padding:0.15rem 0.55rem; '
             f'border-radius:4px; font-size:0.82rem; font-weight:700;">Δ &lt; 0,1% en MAE</span>',
         )
     with col_b:
@@ -100,7 +100,7 @@ with tab2:
         "efectos van en la misma dirección, pero no se puede repartir la proporción exacta con los datos "
         "disponibles.\n"
         "- Que la discrepancia entre la muestra grande (0,006) y la muestra pequeña (0,04) se explique por "
-        "tamaño de muestra es la explicación **más simple y mejor respaldada** (percentil ~1,2 en 5.000 "
+        "tamaño de muestra es la explicación **más simple y mejor respaldada** (percentil ~0,7 en 5.000 "
         "simulaciones), pero no es una prueba definitiva de que no exista ningún efecto distinto.\n"
         "- Que los profesionales adopten el nuevo registro NRUA más rápido (65,7% vs. 18-25%) es "
         "compatible con una hipótesis de mayor capacidad administrativa, pero el proyecto no investigó la "
@@ -178,12 +178,12 @@ def _fila_certeza(color, bg, numero, titulo, texto):
     )
 
 _fila_certeza(
-    VERDE_OK, "#E7F6E7", "1", "Hallazgo observado",
+    TURQUESA, "#DCEEEC", "1", "Hallazgo observado",
     "La interpretación de los ingresos estimados cambia al investigar los ceros (2.686 casos, gap de 39,7% a 23,1%).",
 )
 _fila_certeza(
     AZUL_PETROLEO, "#EAF2F8", "2", "Resultado del experimento",
-    "Las métricas del modelo varían según la población evaluada y el tratamiento (R² de 0,348 a 0,448 sin fuga de datos).",
+    "Las métricas del modelo varían según la población evaluada y el tratamiento (R² de 0,347 a 0,450 sin fuga de datos).",
 )
 _fila_certeza(
     AMBAR_PENDIENTE, "#FFF8EC", "3", "Cambio de clasificación (simulado)",
