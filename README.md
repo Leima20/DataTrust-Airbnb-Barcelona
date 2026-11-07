@@ -77,8 +77,8 @@ marginal, afecta a más de la mitad del inventario analizado.
 ## Resultado del modelo
 
 El mismo modelo de regresión (RandomForest) entrenado con datos crudos vs.
-tratados da un R² y un MAE **peores** en la versión tratada (R² 0,439 vs.
-0,470; MAE 15.216 € vs. 13.310 €) — no porque el tratamiento empeore el
+tratados da un R² y un MAE **peores** en la versión tratada (R² 0,440 vs.
+0,469; MAE 15.207 € vs. 13.320 €) — no porque el tratamiento empeore el
 modelo, sino porque excluye 2.686 anuncios con ingreso "0 €" artificial que
 inflaban la precisión aparente del modelo crudo. Un chequeo de sensibilidad
 (probando un criterio de imputación alternativo) confirma que la conclusión
