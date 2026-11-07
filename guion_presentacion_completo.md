@@ -22,7 +22,7 @@ La pregunta que guía todo el proyecto es esta: ¿puede la calidad de los datos 
 
 Quiero ser clara en algo desde el principio: no parto asumiendo que los datos de Airbnb están mal. Los audito primero, y dejo que sean los propios datos los que muestren si hay un problema o no. De hecho, van a ver que varias partes de la auditoría salen perfectamente limpias.
 
-Como adelanto de lo que van a ver: el dataset crudo, a primera vista, parece listo para trabajar. Pero al investigar un poco más, encuentro 2.686 casos —un 20,1%— donde el ingreso estimado aparece como "0 euros" sin serlo realmente. Y cuando corrijo eso, el modelo predictivo mejora de forma medible: el R² sube de 0,348 a 0,448 en la comparación más rigurosa que hice. La calidad de los datos no se reduce a mirar el porcentaje de valores nulos — eso es, en una frase, lo que voy a demostrar.
+Como adelanto de lo que van a ver: el dataset crudo, a primera vista, parece listo para trabajar. Pero al investigar un poco más, encuentro 4.181 casos —un 31,3%— donde el ingreso estimado aparece como "0 euros". De esos, 2.686 —un 20,1% del total— no son ceros reales: son casos que la fórmula no pudo estimar. Y cuando corrijo eso, el modelo predictivo mejora de forma medible: el R² sube de 0,347 a 0,450 en la comparación más rigurosa que hice. La calidad de los datos no se reduce a mirar el porcentaje de valores nulos — eso es, en una frase, lo que voy a demostrar.
 
 ---
 
@@ -94,7 +94,7 @@ En resumen: 14 hallazgos documentados, cada uno con su decisión de gobernanza j
 
 Esta es la página central de mi argumento, así que le voy a dedicar tiempo.
 
-**Primer bloque.** Encontré 2.686 anuncios —un 20,1% de los que tienen dato— donde el ingreso anual estimado aparece como cero. Una aclaración desde ya: esta variable, `revenue_no_estimable`, la creé yo para marcarlos — no viene así etiquetada de Inside Airbnb.
+**Primer bloque.** Encontré 4.181 anuncios —un 31,3% de los que tienen dato— donde el ingreso anual estimado aparece como cero. De esos, 2.686 —un 20,1% del total— quedan marcados con una variable propia, `revenue_no_estimable`, que creé yo para señalar los casos donde ese cero probablemente no es real — no viene así etiquetada de Inside Airbnb.
 
 **Segundo bloque — de dónde sale ese ingreso estimado.** *(señalas el diagrama)* La fórmula de Inside Airbnb parte de la ocupación estimada, que se calcula a partir de las reseñas recientes y la duración de estancia; luego, el ingreso estimado es esa ocupación multiplicada por el precio. El problema aparece cuando un anuncio tiene cero reseñas recientes Y una estancia mínima de 28 noches o más: en ese caso, la fórmula no tiene con qué estimar la ocupación, y el resultado que sale es cero — pero ese cero no significa "no genera ingresos", significa "no se pudo estimar".
 
@@ -120,13 +120,13 @@ Las tres comparaciones que hago con este diseño son: A contra D, que aísla el 
 
 ## 6 · Comparación de modelos
 
-Con las cuatro versiones ya entrenadas, lo primero que uno haría es mirar el R² de cada una sobre su propia población de test. *(señalas el gráfico)* A tiene 0,470, D tiene 0,464, B tiene 0,439, y el chequeo de sensibilidad 0,440.
+Con las cuatro versiones ya entrenadas, lo primero que uno haría es mirar el R² de cada una sobre su propia población de test. *(señalas el gráfico)* A tiene 0,469, D tiene 0,465, B tiene 0,440, y el chequeo de sensibilidad 0,439.
 
-Aquí aparece la primera señal interesante: A y D, que comparten exactamente la misma población, solo se diferencian en 0,006 de R². Cambiar únicamente la construcción de las variables apenas mueve el resultado.
+Aquí aparece la primera señal interesante: A y D, que comparten exactamente la misma población, solo se diferencian en 0,004 de R². Cambiar únicamente la construcción de las variables apenas mueve el resultado.
 
 Pero antes de comparar A contra B tengo que señalar algo importante, y por eso esta página termina con una advertencia, no con una conclusión: A y D se evalúan sobre un conjunto de test de 2.671 filas, y B sobre uno de 2.134 filas. Son poblaciones de test distintas, así que comparar sus R² directamente, sin más, no es metodológicamente riguroso. La comparación válida la investigo en la página siguiente, que es el corazón analítico de todo el proyecto.
 
-Antes de pasar, un chequeo de sanidad que me parece importante mencionar: en las tres versiones, Random Forest le gana claramente a la regla trivial de predecir solo la mediana de ingresos del entrenamiento. Por ejemplo, en A el error medio del modelo es de 13.309 euros frente a 19.609 euros de la mediana — así que el modelo sí está aprendiendo algo real sobre los datos, no es ruido.
+Antes de pasar, un chequeo de sanidad que me parece importante mencionar: en las tres versiones, Random Forest le gana claramente a la regla trivial de predecir solo la mediana de ingresos del entrenamiento. Por ejemplo, en A el error medio del modelo es de 13.320 euros frente a 19.609 euros de la mediana — así que el modelo sí está aprendiendo algo real sobre los datos, no es ruido.
 
 ---
 
@@ -138,9 +138,9 @@ Esta es la página más importante de la presentación, así que le dedico el ti
 
 **Primero, la fuga de datos.** Antes de comparar nada entre A/D y B, intenté hacer la comparación "más controlada" posible, evaluando A y D directamente contra el conjunto de test de B. El resultado que obtuve fue un R² de alrededor de 0,82 — sospechosamente alto. Investigué por qué, y encontré un problema real: el 80% de las filas de test de B, 1.708 de 2.134, ya habían sido vistas durante el entrenamiento de A y D, porque A/D y B parten de particiones de entrenamiento y test completamente independientes. Lo documento como parte del proceso, no lo escondo. Corregí usándolo la única intersección verdaderamente segura: 426 filas que no habían sido vistas por ninguno de los tres modelos.
 
-**Segundo, de dónde viene realmente la diferencia entre A y B.** *(señalas el gráfico de 4 barras)* Evalué a A sobre toda su población —R² de 0,470— y también solo sobre la población limpia —R² de 0,434—; evalué a D solo sobre la población limpia —0,428—; y a B sobre su propia población limpia —0,439—. La conclusión es clara: cambiar solo las variables, A contra D, mueve el R² apenas 0,006. Cambiar solo la población evaluada mueve el R² entre 0,036 y 0,04 — un efecto seis a siete veces mayor. El factor dominante es qué población se evalúa, no cómo se construyen las variables.
+**Segundo, de dónde viene realmente la diferencia entre A y B.** *(señalas el gráfico de 4 barras)* Evalué a A sobre toda su población —R² de 0,469— y también solo sobre la población limpia —R² de 0,435—; evalué a D solo sobre la población limpia —0,429—; y a B sobre su propia población limpia —0,440—. La conclusión es clara: cambiar solo las variables, A contra D, mueve el R² apenas 0,006. Cambiar solo la población evaluada mueve el R² entre 0,034 y 0,036 — un efecto cinco a seis veces mayor. El factor dominante es qué población se evalúa, no cómo se construyen las variables.
 
-**Tercero, la comparación sobre la muestra común de 426 filas.** Aquí la progresión es: A con 0,348, D con 0,388, B con 0,448 — mejora en cada paso, primero solo por las variables, luego también por la población. Antes de confiar en esta muestra pequeña, comprobé su representatividad en precio mediano, capacidad media y mezcla de tipo de habitación frente al universo de 2.131 filas — es una comprobación útil de composición, no una prueba de que no exista ningún sesgo en otras variables que no revisé.
+**Tercero, la comparación sobre la muestra común de 426 filas.** Aquí la progresión es: A con 0,347, D con 0,389, B con 0,450 — mejora en cada paso, primero solo por las variables, luego también por la población. Antes de confiar en esta muestra pequeña, comprobé su representatividad en precio mediano, capacidad media y mezcla de tipo de habitación frente al universo de 2.131 filas — es una comprobación útil de composición, no una prueba de que no exista ningún sesgo en otras variables que no revisé.
 
 **Un chequeo adicional de sensibilidad:** si cambio el criterio de imputación —por barrio en vez de por capacidad— la diferencia es de apenas 10,5 euros de error medio, un 0,07% relativo — la conclusión del modelo no depende de cuál de los dos criterios razonables uso.
 
@@ -150,7 +150,7 @@ Esta es la página más importante de la presentación, así que le dedico el ti
 
 **Cuarto, cuánta confianza hay en todo esto.** Detecté algo que tuve que investigar a fondo antes de aceptar cualquier cifra: en la muestra grande, de 2.131 filas, A y D difieren solo 0,006 en R². Pero en la muestra pequeña, de 426 filas, difieren 0,04 — varias veces más, y con el signo invertido. Para entender esto, hice dos cosas.
 
-La primera: tomé 5.000 submuestras aleatorias de 426 filas del mismo universo de 2.131, reutilizando las predicciones ya calculadas, sin reentrenar nada. La media de esas diferencias simuladas fue de 0,0060, con una desviación de 0,0213. El resultado real que observé, menos 0,0405, cae en el percentil 1,2 de esa distribución — es decir, aproximadamente solo 1 de cada 80 submuestras aleatorias produce algo igual de extremo. Es un resultado poco habitual, y la variabilidad de la muestra es la explicación más simple y mejor respaldada que tengo, pero no es una prueba definitiva de que no exista ningún otro efecto.
+La primera: tomé 5.000 submuestras aleatorias de 426 filas del mismo universo de 2.131, reutilizando las predicciones ya calculadas, sin reentrenar nada. La media de esas diferencias simuladas fue de 0,0060, con una desviación de 0,0209. El resultado real que observé, menos 0,0417, cae en el percentil 0,7 de esa distribución — es decir, aproximadamente solo 1 de cada 143 submuestras aleatorias produce algo igual de extremo. Es un resultado poco habitual, y la variabilidad de la muestra es la explicación más simple y mejor respaldada que tengo, pero no es una prueba definitiva de que no exista ningún otro efecto.
 
 La segunda: un bootstrap emparejado de 5.000 repeticiones, remuestreando A, D y B exactamente sobre las mismas filas en cada vuelta. El resultado: la diferencia A menos D, solo variables, tiene un intervalo de confianza que incluye el cero — no es concluyente por sí sola. La diferencia D menos B, solo población, también incluye el cero. Pero la diferencia A menos B, el efecto combinado, el hallazgo principal de todo este bloque, tiene un intervalo que va de menos 0,2478 a menos 0,0043 — no incluye el cero. Es decir, se distingue de cero, aunque el límite superior está bastante cerca.
 
@@ -170,7 +170,7 @@ Reúno todo en cuatro niveles de certeza distintos, para no mezclar lo que demos
 
 *(pestaña "Recomendaciones")* Y termino con siete recomendaciones de alcance general, transferibles a cualquier proyecto de datos: investigar la semántica de las variables antes de tratar sus valores —el caso de los 2.686 ceros no se habría encontrado solo mirando el porcentaje de nulos—; documentar las reglas de limpieza con la misma trazabilidad que una decisión de negocio; separar explícitamente valores desconocidos de ceros reales; evitar fugas entre entrenamiento y evaluación, sobre todo al comparar modelos entrenados sobre poblaciones de origen distintas; usar conjuntos de comparación equivalentes al evaluar dos versiones de un modelo; registrar las transformaciones para garantizar reproducibilidad; y revisar la calidad de los datos antes de interpretar las métricas de un modelo, no después.
 
-*(bajas a la tabla final, fuera de las pestañas)* Para cerrar, quiero distinguir con cuidado cuatro niveles de certeza sobre qué decisión podría cambiar y qué evidencia tengo. El hallazgo observado —la brecha de 39,7% a 23,1%— está medido. El resultado del experimento —el R² de 0,348 a 0,448— está medido. El cambio de clasificación simulado —2.686 anuncios que pasarían a revisión, un 64,2% de los descartados— está medido con datos reales, pero sobre un escenario hipotético. Y el impacto económico real no está observado: no tengo datos de reservas o ingresos reales, ni un caso de inversión documentado que lo mida.
+*(bajas a la tabla final, fuera de las pestañas)* Para cerrar, quiero distinguir con cuidado cuatro niveles de certeza sobre qué decisión podría cambiar y qué evidencia tengo. El hallazgo observado —la brecha de 39,7% a 23,1%— está medido. El resultado del experimento —el R² de 0,347 a 0,450— está medido. El cambio de clasificación simulado —2.686 anuncios que pasarían a revisión, un 64,2% de los descartados— está medido con datos reales, pero sobre un escenario hipotético. Y el impacto económico real no está observado: no tengo datos de reservas o ingresos reales, ni un caso de inversión documentado que lo mida.
 
 Por eso quiero remarcar algo antes de cerrar: no estoy afirmando que haya probado que Airbnb o un anfitrión real tomaron una decisión equivocada. Formulo la conclusión en términos de riesgo analítico: tomar decisiones sobre datos sin auditar es arriesgado, y en este caso, ese riesgo se puede medir con cifras reales — eso es distinto de haber demostrado ya un error concreto.
 
@@ -219,7 +219,7 @@ Y las seis limitaciones completas que reconozco abiertamente: el tamaño de la m
 - *¿Por qué no usar una muestra más grande para más confianza?* — 426 es el máximo que cumple no haber sido visto por ninguno de los tres modelos; ampliarla exigiría rediseñar el experimento desde el split original.
 - *El intervalo de A-B casi toca el cero, ¿no es un resultado débil?* — Es real, pero lo señalo como "evidencia real, no una certeza absoluta" — por eso distingo "lo observado" de "lo que sigue sin resolver".
 - *¿La fuga de datos no afecta a la credibilidad del proyecto?* — Al contrario: estaba en el diseño del experimento, no en los datos auditados, y se detectó y corrigió antes de reportar nada — es el mismo rigor que defiendo en todo el proyecto.
-- *¿Qué significa el percentil 1,2?* — Que, de 5.000 muestras aleatorias del mismo universo, solo alrededor de 1 de cada 80 produce una diferencia tan extrema como la real — un resultado inusual, no imposible.
+- *¿Qué significa el percentil 0,7?* — Que, de 5.000 muestras aleatorias del mismo universo, solo alrededor de 1 de cada 143 produce una diferencia tan extrema como la real — un resultado inusual, no imposible.
 - *¿Por qué ninguna variable geográfica entra en el top 8 de importancia?* — Es lo que muestran los datos dentro de este modelo y estas variables concretas; no significa que la geografía no influya en el precio real.
 
 **Sobre conclusiones**

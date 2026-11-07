@@ -12,7 +12,7 @@ Los paréntesis en *cursiva* son acotaciones para ti, no se leen en voz alta.
 
 Antes de hablar de mi proyecto, el caso Zillow: la mayor plataforma inmobiliaria de Estados Unidos. En noviembre de 2021 cerraron su división de compra-venta automatizada de viviendas, Zillow Offers, y recortaron el 25% de la plantilla. Su algoritmo sobreestimó el valor de reventa de las casas que compraban, lo que les costó 881 millones de dólares de pérdida en el año. El propio CEO dijo: "la imprevisibilidad al pronosticar precios de vivienda superó ampliamente lo que anticipamos". No fue un modelo roto — fue un modelo que confió en datos sin entenderlos del todo.
 
-Mi proyecto parte de la misma pregunta: ¿puede la calidad de los datos cambiar las conclusiones de un análisis, incluso cuando el modelo parece funcionar bien? No parto asumiendo que los datos de Airbnb Barcelona están mal — los audito primero. Como adelanto: encuentro 2.686 casos, un 20,1%, donde el ingreso estimado aparece como cero sin serlo realmente, y al corregirlo, un modelo predictivo mejora de forma medible, el R² sube de 0,348 a 0,448. La calidad de los datos no se reduce al porcentaje de nulos — eso es lo que voy a demostrar.
+Mi proyecto parte de la misma pregunta: ¿puede la calidad de los datos cambiar las conclusiones de un análisis, incluso cuando el modelo parece funcionar bien? No parto asumiendo que los datos de Airbnb Barcelona están mal — los audito primero. Como adelanto: encuentro 4.181 casos, un 31,3%, donde el ingreso estimado aparece como cero. De esos, 2.686 —un 20,1% del total— no son ceros reales, y al corregirlo, un modelo predictivo mejora de forma medible, el R² sube de 0,347 a 0,450. La calidad de los datos no se reduce al porcentaje de nulos — eso es lo que voy a demostrar.
 
 ---
 
@@ -40,7 +40,7 @@ Revisé las tres tablas contra tres preguntas: ¿falta información?, ¿las fila
 
 ## 4 · El hallazgo crítico
 
-Esta es la página central de mi argumento. Encontré 2.686 anuncios —un 20,1%— donde el ingreso anual estimado aparece como cero. Esta variable, `revenue_no_estimable`, la creé yo para marcarlos, no viene así de Inside Airbnb.
+Esta es la página central de mi argumento. Encontré 4.181 anuncios —un 31,3%— donde el ingreso anual estimado aparece como cero. De esos, 2.686 —un 20,1% del total— quedan marcados con una variable propia, `revenue_no_estimable`, que creé yo para señalarlos, no viene así de Inside Airbnb.
 
 *(señalas el diagrama)* La fórmula de Inside Airbnb calcula el ingreso como la ocupación estimada —a partir de reseñas y duración de estancia— multiplicada por el precio. El problema: cuando un anuncio tiene cero reseñas recientes Y una estancia mínima de 28 noches o más, la fórmula no tiene con qué estimar la ocupación, y el resultado es cero — pero ese cero significa "no se pudo estimar", no "no genera ingresos".
 
@@ -62,7 +62,7 @@ Las tres comparaciones son: A contra D, que aísla el efecto de las variables; A
 
 ## 6 · Comparación de modelos
 
-Con las cuatro versiones entrenadas, el R² de cada una sobre su propia población de test es: A 0,470, D 0,464, B 0,439, sensibilidad 0,440. A y D, que comparten población, solo difieren en 0,006 — cambiar las variables apenas mueve el resultado.
+Con las cuatro versiones entrenadas, el R² de cada una sobre su propia población de test es: A 0,469, D 0,465, B 0,440, sensibilidad 0,439. A y D, que comparten población, solo difieren en 0,004 — cambiar las variables apenas mueve el resultado.
 
 Pero A y B se evalúan sobre conjuntos de test distintos —2.671 filas contra 2.134— así que comparar sus R² directamente no es riguroso. Esa comparación válida la hago en la siguiente página, el corazón analítico del proyecto. Un chequeo rápido: en las tres versiones, Random Forest le gana claramente a predecir solo la mediana, así que el modelo sí aprende algo real.
 
@@ -74,11 +74,11 @@ Esta es la página más importante. *(pestaña "Resultados")*
 
 **Primero, la fuga de datos**: al comparar A y D contra el test de B obtuve un R² de 0,82, sospechosamente alto. Investigué y encontré que el 80% de las filas de test de B, 1.708 de 2.134, ya habían sido vistas en el entrenamiento de A y D. Lo documento como parte del proceso. Corregí usando la única intersección segura: 426 filas no vistas por ninguno de los tres modelos.
 
-**Segundo, de dónde viene realmente la diferencia entre A y B**: evaluando todo sobre la misma población limpia, cambiar solo las variables mueve el R² apenas 0,006; cambiar solo la población lo mueve entre 0,036 y 0,04 — un efecto seis a siete veces mayor. El factor dominante es qué población se evalúa, no cómo se construyen las variables.
+**Segundo, de dónde viene realmente la diferencia entre A y B**: evaluando todo sobre la misma población limpia, cambiar solo las variables mueve el R² apenas 0,006; cambiar solo la población lo mueve entre 0,034 y 0,036 — un efecto cinco a seis veces mayor. El factor dominante es qué población se evalúa, no cómo se construyen las variables.
 
-**Tercero, sobre la muestra común de 426 filas**, la progresión es clara: A 0,348, D 0,388, B 0,448 — mejora en cada paso. Comprobé que estas 426 filas son representativas del universo en precio, capacidad y tipo de habitación. Y un chequeo de sensibilidad confirma que cambiar el criterio de imputación apenas mueve 10,5 euros de error — la conclusión no depende de eso.
+**Tercero, sobre la muestra común de 426 filas**, la progresión es clara: A 0,347, D 0,389, B 0,450 — mejora en cada paso. Comprobé que estas 426 filas son representativas del universo en precio, capacidad y tipo de habitación. Y un chequeo de sensibilidad confirma que cambiar el criterio de imputación apenas mueve 5,5 euros de error — la conclusión no depende de eso.
 
-*(pestaña "Confianza y conclusión")* **Cuarto, cuánta confianza hay en esto**: detecté que en la muestra grande A y D difieren solo 0,006, pero en la pequeña de 426, difieren 0,04 — lo investigué con dos métodos. Simulé 5.000 submuestras de 426 filas del mismo universo: el resultado real cae en el percentil 1,2, es decir, poco habitual, aunque no es una prueba definitiva. Y con un bootstrap de 5.000 repeticiones: la diferencia A contra B, el efecto combinado, tiene un intervalo que no incluye el cero — se distingue de cero. Pero los efectos parciales, solo variables o solo población, por separado sí incluyen el cero — no puedo repartir con precisión cuánto corresponde a cada causa.
+*(pestaña "Confianza y conclusión")* **Cuarto, cuánta confianza hay en esto**: detecté que en la muestra grande A y D difieren solo 0,004, pero en la pequeña de 426, difieren 0,04 — lo investigué con dos métodos. Simulé 5.000 submuestras de 426 filas del mismo universo: el resultado real cae en el percentil 0,7, es decir, poco habitual, aunque no es una prueba definitiva. Y con un bootstrap de 5.000 repeticiones: la diferencia A contra B, el efecto combinado, tiene un intervalo que no incluye el cero — se distingue de cero. Pero los efectos parciales, solo variables o solo población, por separado sí incluyen el cero — no puedo repartir con precisión cuánto corresponde a cada causa.
 
 **La conclusión**: lo observado es que el modelo tratado predice mejor que el crudo, con un intervalo que lo respalda. La interpretación razonable es que la mejora viene de ambos efectos juntos. Y lo que sigue sin resolver es el reparto exacto entre esas dos causas.
 
