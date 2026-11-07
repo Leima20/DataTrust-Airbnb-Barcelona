@@ -35,3 +35,8 @@ faq_defensa_tribunal.md
 # ZIP temporal usado para pasar el codigo del Streamlit a ChatGPT, no es
 # parte del proyecto.
 streamlit_app_para_chatgpt.zip
+
+# Guiones de presentacion: notas personales para hablar en la defensa,
+# no deben aparecer en el repo publico.
+guion_presentacion_completo.md
+guion_presentacion_20min.md
