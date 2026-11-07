@@ -1,8 +1,6 @@
 # Datos crudos y curados en CSV: demasiado grandes para GitHub (1.3 GB en
 # total), se regeneran siguiendo las instrucciones del README (descarga de
-# Inside Airbnb + notebooks 01-05). Los datasets usados en Power BI SÍ se
-# incluyen en el repo, pero como Parquet en data/powerbi/ (ver más abajo,
-# esa carpeta no está excluida).
+# Inside Airbnb + notebooks 01-05).
 data/airbnb_bcn/
 data/airbnb_bcn_curado/
 data/airbnb_bcn_modelo/
@@ -40,3 +38,8 @@ streamlit_app_para_chatgpt.zip
 # no deben aparecer en el repo publico.
 guion_presentacion_completo.md
 guion_presentacion_20min.md
+guion_presentacion_datatrust.md
+
+# Power BI descartado del entregable final -- queda solo en local.
+powerbi/
+data/powerbi/
