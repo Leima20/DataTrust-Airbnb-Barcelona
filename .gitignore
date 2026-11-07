@@ -34,11 +34,14 @@ faq_defensa_tribunal.md
 # parte del proyecto.
 streamlit_app_para_chatgpt.zip
 
-# Guiones de presentacion: notas personales para hablar en la defensa,
-# no deben aparecer en el repo publico.
+# Guiones de presentacion y notas de apoyo: personales, no son entregables
+# oficiales, no deben aparecer en el repo publico.
 guion_presentacion_completo.md
 guion_presentacion_20min.md
 guion_presentacion_datatrust.md
+plan_proyecto.md
+plan_proyecto_codigo.ipynb
+resumen_proyecto.ipynb
 
 # Power BI descartado del entregable final -- queda solo en local.
 powerbi/
