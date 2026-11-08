@@ -449,7 +449,7 @@ def perfil_precio_mediana(rev_entera, rev_privada, desc_entera, desc_privada,
     return fig
 
 
-def r2_muestra_comun(nombres, valores, colores, titulo="R² sobre los mismos 426 casos"):
+def r2_muestra_comun(nombres, valores, colores, titulo="R² sobre los mismos 426 casos", height=280):
     orden = sorted(zip(nombres, valores, colores), key=lambda x: x[1])
     nombres_o = [n for n, _, _ in orden]
     valores_o = [v for _, v, _ in orden]
@@ -463,7 +463,7 @@ def r2_muestra_comun(nombres, valores, colores, titulo="R² sobre los mismos 426
     )
     fig.update_layout(
         title=titulo, xaxis_title="R² (mayor = más capacidad explicativa en esta evaluación)",
-        template="plotly_white", showlegend=False, height=280,
+        template="plotly_white", showlegend=False, height=height,
         margin=dict(t=60, b=40, l=10), font=FONT_BASE, title_font=FONT_TITULO,
     )
     fig.update_xaxes(range=[0, max(valores_o) * 1.3])

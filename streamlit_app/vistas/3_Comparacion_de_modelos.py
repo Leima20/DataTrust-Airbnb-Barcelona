@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from src.data_loader import cargar_modelo
-from src.styles import kicker, fmt_num, COLOR_CRUDO, COLOR_D, COLOR_TRATADO, COLOR_NEUTRO, AMBAR_PENDIENTE, AZUL_PETROLEO, OCRE_DORADO_TEXTO
+from src.styles import kicker, fmt_num, COLOR_CRUDO, COLOR_D, COLOR_TRATADO, COLOR_NEUTRO, AMBAR_PENDIENTE, AZUL_PETROLEO, OCRE_DORADO_TEXTO, COLOR_SENSIBILIDAD
 from src.charts import barras_r2_modelos
 
 modelo = cargar_modelo()
@@ -10,114 +10,90 @@ versiones = modelo.get("versiones", {})
 
 kicker("Página 6 de 9")
 st.title("Comparación de modelos")
-st.markdown(
-    "Con las 4 versiones ya entrenadas (página anterior), la comparación más intuitiva es mirar el R² "
-    "de cada una sobre su propia población de test. Es la forma más común de comparar modelos -- pero "
-    "también la que puede engañar, como se investiga en la siguiente página."
-)
 
 st.markdown("### ¿Cómo evaluamos los modelos?")
 col_r2, col_mae = st.columns(2)
 with col_r2:
     st.markdown(
         f"""
-        <div style="background-color: #ffffff; border-top: 4px solid {AZUL_PETROLEO}; border-radius: 8px; padding: 0.8rem 1rem; height: 100%;">
-            <div style="color: {AZUL_PETROLEO}; font-weight: 700; font-size: 0.95rem;">R² -- capacidad explicativa</div>
-            <div style="font-size: 0.85rem; color: #444; line-height: 1.4; margin: 0.3rem 0;">
-                Qué proporción de la variabilidad del ingreso estimado explica el modelo, frente a predecir siempre el promedio.
+        <div style="background-color: #ffffff; border-left: 4px solid {AZUL_PETROLEO}; border-radius: 8px; padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.9rem;">
+            <div style="font-size: 1.7rem; font-weight: 800; color: {AZUL_PETROLEO};">R²</div>
+            <div style="font-size: 0.85rem; color: #444; line-height: 1.35;">
+                Capacidad explicativa.<br><span style="color: {AZUL_PETROLEO}; font-weight: 700;">Más alto = mejor</span>
             </div>
-            <div style="font-size: 0.75rem; color: {AZUL_PETROLEO}; font-weight: 600;">Más alto = mejor (máximo 1)</div>
         </div>
         """,
         unsafe_allow_html=True
+    )
+    st.caption(
+        "Número entre 0 y 1 que mide cuánto explica el modelo de la variación del ingreso estimado (la "
+        "variable a predecir), a partir de las variables usadas para predecirlo -- no es un porcentaje "
+        "de aciertos."
     )
 with col_mae:
     st.markdown(
         f"""
-        <div style="background-color: #ffffff; border-top: 4px solid {OCRE_DORADO_TEXTO}; border-radius: 8px; padding: 0.8rem 1rem; height: 100%;">
-            <div style="color: {OCRE_DORADO_TEXTO}; font-weight: 700; font-size: 0.95rem;">MAE -- error medio absoluto (€)</div>
-            <div style="font-size: 0.85rem; color: #444; line-height: 1.4; margin: 0.3rem 0;">
-                Cuánto se equivoca el modelo en promedio, en euros, al predecir sobre las filas de prueba.
+        <div style="background-color: #ffffff; border-left: 4px solid {OCRE_DORADO_TEXTO}; border-radius: 8px; padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.9rem;">
+            <div style="font-size: 1.7rem; font-weight: 800; color: {OCRE_DORADO_TEXTO};">MAE</div>
+            <div style="font-size: 0.85rem; color: #444; line-height: 1.35;">
+                Error medio absoluto, en €.<br><span style="color: {OCRE_DORADO_TEXTO}; font-weight: 700;">Más bajo = mejor</span>
             </div>
-            <div style="font-size: 0.75rem; color: {OCRE_DORADO_TEXTO}; font-weight: 600;">Más bajo = mejor</div>
         </div>
         """,
         unsafe_allow_html=True
     )
-st.caption(
-    "Un R² de 0,469 no significa '46,9% de precisión' -- significa que el modelo explica "
-    "aproximadamente ese porcentaje de la variabilidad observada en el conjunto de prueba. Y los "
-    "valores usados como referencia son estimaciones de Inside Airbnb, no ingresos reales verificados."
-)
-
+    st.caption(
+        "Diferencia media, en valor absoluto, entre lo que predice el modelo y el ingreso estimado real, "
+        "sobre el conjunto de prueba."
+    )
 st.markdown("---")
 
 st.markdown("### Lógica metodológica de las comparaciones")
 
-col_c1, col_c2, col_c3 = st.columns(3)
-
-with col_c1:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 0.9rem; height: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <span style="font-size: 0.7rem; color: #666; font-weight: 600; text-transform: uppercase;">Comparación 01</span>
-                <span style="background-color: #E6E1EC; color: #5A4A75; font-size: 0.68rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">Misma población</span>
-            </div>
-            <div style="font-weight: 700; font-size: 0.95rem; color: #31333F; margin-bottom: 0.3rem;">A vs. D</div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #5A4A75;">Problema:</b> CRUDO y TRATADO-A cambian dos cosas a la vez (qué filas se evalúan y cómo se construyen las variables) — si solo los comparas, no sabes cuál de las dos causa la diferencia.
-            </div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #5A4A75;">Solución:</b> el Modelo D usa las mismas filas que CRUDO, pero construye las variables como TRATADO — así aísla un solo factor.
-            </div>
-            <div style="font-size: 0.75rem; color: #5A4A75; font-weight: 600;">Resultado real: D≈A → la población manda, no las variables</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-with col_c2:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 0.9rem; height: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <span style="font-size: 0.7rem; color: #666; font-weight: 600; text-transform: uppercase;">Comparación 02</span>
-                <span style="background-color: #dbe5f1; color: #1f3864; font-size: 0.68rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">Pob. distintas</span>
-            </div>
-            <div style="font-weight: 700; font-size: 0.95rem; color: #31333F; margin-bottom: 0.3rem;">A vs. B</div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #1f3864;">Problema:</b> A vs. B es la comparación más intuitiva -- "¿el modelo tratado es mejor?" -- pero cambia la población Y las variables a la vez, así que por sí sola no dice cuál de las dos causa el resultado.
-            </div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #1f3864;">Solución:</b> se interpreta junto con A vs. D -- si ahí ya se vio que las variables casi no pesan (Δ=0,004), lo que quede en la diferencia A-B tiene que venir sobre todo de la población.
-            </div>
-            <div style="font-size: 0.75rem; color: #1f3864; font-weight: 600;">Resultado real: R² baja de 0,469 a 0,440 (Δ=0,029, 7× mayor) -- sobre todo por la población</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-with col_c3:
-    st.markdown(
-        """
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 0.9rem; height: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <span style="font-size: 0.7rem; color: #666; font-weight: 600; text-transform: uppercase;">Comparación 03</span>
-                <span style="background-color: #fff2cc; color: #806000; font-size: 0.68rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px;">n = 426</span>
-            </div>
-            <div style="font-weight: 700; font-size: 0.95rem; color: #31333F; margin-bottom: 0.3rem;">Muestra común</div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #806000;">Problema:</b> A, D y B se evalúan cada uno sobre su propio test (filas distintas) -- comparar sus R² directamente no es justo. Un primer intento de comparación "controlada" resultó tener fuga de datos: el 80% de esas filas ya estaban en el entrenamiento de A/D.
-            </div>
-            <div style="font-size: 0.8rem; color: #444; margin-bottom: 0.35rem; line-height: 1.4;">
-                <b style="color: #806000;">Solución:</b> construir una muestra de 426 filas que estén en el test de los tres modelos a la vez y fuera del entrenamiento de los tres -- garantizado sin fuga, los tres se evalúan sobre exactamente las mismas filas.
-            </div>
-            <div style="font-size: 0.75rem; color: #806000; font-weight: 600;">Resultado real: A 0,347 → D 0,389 → B 0,450 -- progresión clara, B gana limpio</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown(
+    f"""
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem;">
+      <svg width="100%" height="460" viewBox="0 0 1150 460" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="flecha_cm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+          </marker>
+        </defs>
+        <text x="110" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. PUNTO DE PARTIDA</text>
+        <text x="560" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. AÍSLA UN FACTOR A LA VEZ</text>
+        <text x="990" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. COMPARACIÓN CONTROLADA</text>
+        <rect x="20" y="170" width="180" height="110" rx="10" fill="{COLOR_CRUDO}" />
+        <text x="110" y="220" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">A -- CRUDO</text>
+        <text x="110" y="238" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
+        <text x="110" y="256" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.8">punto de partida</text>
+        <line x1="200" y1="195" x2="430" y2="85" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_cm)" />
+        <line x1="200" y1="225" x2="430" y2="225" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_cm)" />
+        <rect x="430" y="35" width="260" height="100" rx="10" fill="{COLOR_D}" />
+        <text x="560" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">D</text>
+        <text x="560" y="78" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Influye el tratamiento de variables?</text>
+        <text x="560" y="96" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">misma población -- n = 13.355</text>
+        <rect x="430" y="175" width="260" height="100" rx="10" fill="{COLOR_TRATADO}" />
+        <text x="560" y="200" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">B -- TRATADO-A</text>
+        <text x="560" y="218" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Qué ocurre al depurar los datos?</text>
+        <text x="560" y="236" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables y población -- n = 10.669</text>
+        <line x1="560" y1="275" x2="560" y2="315" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3,3" />
+        <text x="590" y="298" text-anchor="start" fill="#999" font-size="9" font-family="Helvetica">variante</text>
+        <rect x="430" y="315" width="260" height="110" rx="10" fill="{COLOR_SENSIBILIDAD}" />
+        <text x="560" y="340" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
+        <text x="560" y="358" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Depende del criterio de imputación?</text>
+        <text x="560" y="376" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">mismas filas que B, otro criterio</text>
+        <text x="560" y="392" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.75">fuera de la muestra de 426</text>
+        <line x1="690" y1="85" x2="870" y2="205" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_cm)" />
+        <line x1="690" y1="225" x2="870" y2="225" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_cm)" />
+        <rect x="870" y="170" width="240" height="110" rx="10" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+        <text x="990" y="220" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="14" font-weight="700" font-family="Helvetica">Muestra común</text>
+        <text x="990" y="238" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="11" font-family="Helvetica">¿Qué ocurre en igualdad de condiciones?</text>
+        <text x="990" y="256" text-anchor="middle" fill="#806000" font-size="10" font-family="Helvetica" opacity="0.85">n = 426 -- comparación controlada</text>
+      </svg>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.markdown("---")
 
@@ -140,7 +116,7 @@ color_por_clave = {
     "TRATADO_criterio_B_barrio": AMBAR_PENDIENTE,
 }
 
-st.markdown("**Selecciona qué versiones mostrar**")
+st.caption("Selecciona qué versiones mostrar")
 seleccion = []
 cols_check = st.columns(len(opciones))
 for col, (nombre, clave) in zip(cols_check, opciones.items()):
@@ -148,79 +124,51 @@ for col, (nombre, clave) in zip(cols_check, opciones.items()):
     if marcado:
         seleccion.append(nombre)
 
+etiquetas_extra = {
+    "B_tratado_criterio_A": "<br>(variables y población tratadas)",
+}
+
 if seleccion:
     claves = [opciones[s] for s in seleccion]
-    nombres = [versiones[c]["nombre_display"] for c in claves]
+    nombres = [versiones[c]["nombre_display"] + etiquetas_extra.get(c, "") for c in claves]
     r2s = [versiones[c]["r2"] for c in claves]
     colores = [color_por_clave[c] for c in claves]
-    st.plotly_chart(barras_r2_modelos(nombres, r2s, colores), width="stretch")
+    st.plotly_chart(
+        barras_r2_modelos(nombres, r2s, colores, titulo="R² en el conjunto de prueba de cada modelo"),
+        width="stretch",
+    )
 
 r2_a = versiones.get("A_crudo", {}).get("r2", 0)
 r2_d = versiones.get("D_variables_tratadas_poblacion_cruda", {}).get("r2", 0)
 r2_b = versiones.get("B_tratado_criterio_A", {}).get("r2", 0)
-st.markdown(
-    f'<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-left: 4px solid #14506B; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0;">'
-    f'<div style="font-size: 0.75rem; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem;">Hallazgo preliminar</div>'
-    f'<div style="font-size: 1.05rem; font-weight: 700; color: #31333F; margin-bottom: 0.6rem;">Cambiar solo las variables apenas modifica el R² -- cambiar también la población, sí</div>'
-
-    f'<div style="font-size: 0.78rem; color: #666; font-weight: 600; margin-bottom: 0.3rem;">Solo variables (misma población)</div>'
-    f'<div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-bottom: 0.8rem;">'
-    f'<div><span style="font-size: 0.82rem; color: #555;">Modelo A:</span> '
-    f'<strong style="font-size: 1.05rem; color: {COLOR_CRUDO};">{fmt_num(r2_a, 3)}</strong></div>'
-    f'<div style="color: #888; font-weight: bold;">vs</div>'
-    f'<div><span style="font-size: 0.82rem; color: #555;">Modelo D:</span> '
-    f'<strong style="font-size: 1.05rem; color: {COLOR_D};">{fmt_num(r2_d, 3)}</strong></div>'
-    f'<div style="background-color: #E9EDF1; color: {COLOR_NEUTRO}; padding: 0.15rem 0.6rem; border-radius: 4px; font-size: 0.82rem; font-weight: 600;">'
-    f'Δ = {fmt_num(r2_a - r2_d, 3)}</div>'
-    f'</div>'
-
-    f'<div style="font-size: 0.78rem; color: #666; font-weight: 600; margin-bottom: 0.3rem;">Población + variables (A vs. B)</div>'
-    f'<div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-bottom: 0.6rem;">'
-    f'<div><span style="font-size: 0.82rem; color: #555;">Modelo A:</span> '
-    f'<strong style="font-size: 1.05rem; color: {COLOR_CRUDO};">{fmt_num(r2_a, 3)}</strong></div>'
-    f'<div style="color: #888; font-weight: bold;">vs</div>'
-    f'<div><span style="font-size: 0.82rem; color: #555;">Modelo B:</span> '
-    f'<strong style="font-size: 1.05rem; color: {COLOR_TRATADO};">{fmt_num(r2_b, 3)}</strong></div>'
-    f'<div style="background-color: #FBEED6; color: {AMBAR_PENDIENTE}; padding: 0.15rem 0.6rem; border-radius: 4px; font-size: 0.82rem; font-weight: 600;">'
-    f'Δ = {fmt_num(r2_a - r2_b, 3)} ({fmt_num((r2_a - r2_b) / (r2_a - r2_d), 1)}× la diferencia de arriba)</div>'
-    f'</div>'
-
-    f'<div style="font-size: 0.83rem; color: #555; border-top: 1px solid #eaeaeb; padding-top: 0.5rem; margin-top: 0.4rem;">'
-    f'<em>Las variables casi no pesan (Δ=0,004); la diferencia grande viene al cambiar también la población. '
-    f'<b>Que A salga más alto aquí NO significa que sea el mejor modelo</b> -- son poblaciones distintas, no '
-    f'es una comparación justa. En la comparación válida (muestra común de 426 filas, siguiente página), '
-    f'el resultado se invierte: B gana claramente a A.</em></div>'
-    f'</div>',
-    unsafe_allow_html=True
-)
-
+delta_ad = r2_a - r2_d
+delta_ab = r2_a - r2_b
 n_ad = versiones.get("A_crudo", {}).get("n", 0)
-n_test_ad = versiones.get("A_crudo", {}).get("n_test_propio", 0)
 n_b = versiones.get("B_tratado_criterio_A", {}).get("n", 0)
-n_test_b = versiones.get("B_tratado_criterio_A", {}).get("n_test_propio", 0)
 st.markdown(
-    f'<div style="background-color: #fcf8e3; border: 1px solid #faebcc; border-left: 4px solid #8a6d3b; border-radius: 6px; padding: 0.9rem 1.1rem; margin: 1rem 0; color: #8a6d3b;">'
-    f'<div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; color: #8a6d3b;">⚠️ Advertencia metodológica: Estos R² NO son directamente comparables</div>'
-    f'<div style="font-size: 0.88rem; line-height: 1.4; margin-bottom: 0.5rem; color: #555;">Cada modelo opera sobre una población base y un conjunto de prueba distintos, por lo que una comparativa directa no es rigurosa:</div>'
-    f'<ul style="margin: 0 0 0.5rem 1.2rem; padding: 0; font-size: 0.85rem; line-height: 1.4; color: #555;">'
-    f'<li><b>Modelos A y D:</b> {fmt_num(n_ad)} filas base ➔ Test de {fmt_num(n_test_ad)} filas.</li>'
-    f'<li><b>Modelo B:</b> {fmt_num(n_b)} filas base ➔ Test de {fmt_num(n_test_b)} filas.</li>'
-    f'</ul>'
-    f'<div style="font-size: 0.85rem; font-style: italic; border-top: 1px solid #faebcc; padding-top: 0.4rem; margin-top: 0.4rem; color: #666;">'
-    f"La comparación válida y el análisis de robustez se desarrollan en la página <b>'Resultados y robustez'</b>.</div>"
+    f'<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.4rem 1.6rem; margin: 1rem 0;">'
+    f'<div style="font-size: 0.78rem; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.9rem;">Hallazgo preliminar</div>'
+    f'<div style="display: flex; flex-wrap: wrap; gap: 2.5rem;">'
+    f'<div style="flex: 1; min-width: 260px;">'
+    f'<div style="font-size: 1.15rem; font-weight: 700; color: #31333F;">Efecto de las variables '
+    f'(Δ = <span style="color: {COLOR_NEUTRO};">{fmt_num(delta_ad, 3)}</span>)</div>'
+    f'<div style="font-size: 0.95rem; color: #555; margin-top: 0.5rem; line-height: 1.4;">Cambiar solo variables (A vs. D, misma población) casi no afecta el R².</div>'
+    f'</div>'
+    f'<div style="flex: 1; min-width: 260px; border-left: 2px solid #d8dce0; padding-left: 2.5rem;">'
+    f'<div style="font-size: 1.15rem; font-weight: 700; color: #31333F;">Efecto de la población '
+    f'(Δ = <span style="color: {AMBAR_PENDIENTE};">{fmt_num(delta_ab, 3)}</span>)</div>'
+    f'<div style="font-size: 0.95rem; color: #555; margin-top: 0.5rem; line-height: 1.4;">La diferencia (A vs. B) viene sobre todo de usar poblaciones distintas ({fmt_num(n_ad)} vs. {fmt_num(n_b)} filas).</div>'
+    f'</div>'
+    f'</div>'
+    f'<div style="font-size: 0.8rem; color: #888; border-top: 1px solid #eaeaeb; padding-top: 0.7rem; margin-top: 1rem;">'
+    f'Resultado preliminar, no estadísticamente probado.</div>'
     f'</div>',
     unsafe_allow_html=True
 )
 
 st.markdown("### Tabla de métricas (población propia de cada modelo)")
-filas_cortas = []
 filas_completas = []
 for clave, v in versiones.items():
-    filas_cortas.append({
-        "Modelo": v["nombre_display"],
-        "MAE (€)": fmt_num(v["mae"], 1),
-        "R²": fmt_num(v["r2"], 3),
-    })
     filas_completas.append({
         "Modelo": v["nombre_display"],
         "n (anuncios en el dataset)": fmt_num(v["n"]),
@@ -228,43 +176,30 @@ for clave, v in versiones.items():
         "MAE (€)": fmt_num(v["mae"], 1),
         "RMSE (€)": fmt_num(v["rmse"], 1),
         "R²": fmt_num(v["r2"], 3),
-        "MAE modelo de referencia (predecir mediana)": fmt_num(v["baseline_mae"], 1),
+        "MAE modelo de referencia (predecir mediana)": fmt_num(v["referencia_mae"], 1),
     })
-with st.expander("Ver tabla de métricas (MAE y R² por modelo)"):
-    st.dataframe(pd.DataFrame(filas_cortas), width="stretch", hide_index=True)
 with st.expander("Ver métricas y detalle técnico"):
     st.dataframe(pd.DataFrame(filas_completas), width="stretch", hide_index=True)
 
 st.markdown("---")
 st.markdown("### ¿Random Forest aporta algo más que una regla trivial?")
 st.markdown(
-    "En las tres versiones, el MAE de Random Forest está muy por debajo del MAE de un modelo de "
-    "referencia que simplemente predice la mediana de ingresos del entrenamiento, sin mirar ninguna "
-    "característica del alojamiento."
+    "El MAE de Random Forest está muy por debajo del MAE de un modelo de referencia que simplemente "
+    "predice la mediana de ingresos del entrenamiento, sin mirar ninguna característica del alojamiento."
 )
-c1, c2, c3 = st.columns(3)
-for col, clave in zip([c1, c2, c3], ["A_crudo", "D_variables_tratadas_poblacion_cruda", "B_tratado_criterio_A"]):
+filas_referencia = []
+for clave in ["A_crudo", "D_variables_tratadas_poblacion_cruda", "B_tratado_criterio_A", "TRATADO_criterio_B_barrio"]:
     v = versiones[clave]
-    mejora_pct = (v["baseline_mae"] - v["mae"]) / v["baseline_mae"] * 100
-    with col:
-        st.markdown(
-            f"""
-            <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem;">
-                <div style="font-size: 0.8rem; color: #666; font-weight: 600; margin-bottom: 0.3rem;">{v["nombre_display"]}</div>
-                <div style="font-size: 1.3rem; font-weight: 700; color: #31333F;">{fmt_num(v["mae"], 0)} €</div>
-                <div style="font-size: 0.75rem; color: #888; margin-bottom: 0.3rem;">error del modelo (MAE, más bajo = mejor)</div>
-                <div style="background-color: {AZUL_PETROLEO}1A; color: {AZUL_PETROLEO}; display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.78rem; font-weight: 600;">
-                    ↓ {fmt_num(mejora_pct, 1)}% menos error que el modelo de referencia
-                </div>
-                <div style="font-size: 0.72rem; color: #999; margin-top: 0.3rem;">
-                    modelo de referencia (predecir siempre la mediana): {fmt_num(v["baseline_mae"], 0)} €
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    mejora_pct = (v["referencia_mae"] - v["mae"]) / v["referencia_mae"] * 100
+    filas_referencia.append({
+        "Versión": v["nombre_display"],
+        "MAE Random Forest (€)": fmt_num(v["mae"], 0),
+        "MAE referencia (€)": fmt_num(v["referencia_mae"], 0),
+        "Reducción del error": f"↓ {fmt_num(mejora_pct, 1)}%",
+    })
+st.dataframe(pd.DataFrame(filas_referencia), width="stretch", hide_index=True)
 
 st.caption(
-    "El chequeo de sensibilidad (criterio de imputación por barrio vs. capacidad) se investiga en la "
-    "página 'Resultados y robustez', junto con el resto de comprobaciones de solidez."
+    "El resto de comprobaciones del Chequeo de sensibilidad (criterio de imputación por barrio vs. "
+    "capacidad) se investiga en la página 'Resultados y robustez'."
 )

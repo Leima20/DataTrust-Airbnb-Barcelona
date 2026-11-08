@@ -17,11 +17,11 @@ diseno = st.Page("vistas/2_Diseno_experimental.py", title="Diseño experimental"
 comparacion = st.Page("vistas/3_Comparacion_de_modelos.py", title="Comparación de modelos", icon=":material/bar_chart:")
 resultados = st.Page("vistas/4_Resultados_y_robustez.py", title="Resultados y robustez", icon=":material/insights:")
 conclusiones = st.Page("vistas/5_Conclusiones_y_recomendaciones.py", title="Conclusiones y recomendaciones", icon=":material/flag:")
-metodologia = st.Page("vistas/6_Metodologia_y_limitaciones.py", title="Metodología y limitaciones", icon=":material/menu_book:")
+limitaciones = st.Page("vistas/6_Limitaciones.py", title="Limitaciones", icon=":material/menu_book:")
 
 navegacion = st.navigation({
     "DataTrust": [inicio, contexto_pagina],
     "La investigación": [auditoria, hallazgo_critico, diseno, comparacion, resultados],
-    "Cierre": [conclusiones, metodologia],
+    "Cierre": [limitaciones, conclusiones],
 })
 navegacion.run()

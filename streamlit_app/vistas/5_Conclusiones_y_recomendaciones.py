@@ -1,210 +1,179 @@
 import streamlit as st
 
-from src.data_loader import cargar_contexto, cargar_impacto_negocio, cargar_modelo
-from src.styles import kicker, fmt_num, caja_alerta, AZUL_ACERO, TURQUESA, AMBAR_PENDIENTE, AZUL_PETROLEO
+from src.data_loader import cargar_impacto_negocio, cargar_modelo
+from src.styles import (
+    kicker, fmt_num, AZUL_NOCHE, TURQUESA, TURQUESA_TEXTO, AZUL_PETROLEO,
+    OCRE_DORADO_TEXTO, AMBAR_PENDIENTE, VIOLETA, COLOR_SENSIBILIDAD_TEXTO,
+)
 
 impacto = cargar_impacto_negocio()
 modelo = cargar_modelo()
-contexto = cargar_contexto()
 
-kicker("Página 8 de 9")
+kicker("Página 9 de 9")
 st.title("Conclusiones y recomendaciones")
-st.markdown(
-    "Después de auditar, tratar y comparar (sin fuga de datos), esta página reúne todo en 4 niveles de "
-    "certeza distintos -- para no mezclar lo que se demostró con lo que es solo una interpretación "
-    "razonable."
-)
 
-tab1, tab2, tab3, tab4 = st.tabs(["Hallazgos demostrados", "Interpretaciones razonables", "Limitaciones", "Recomendaciones"])
-
-with tab1:
-    st.subheader("Resultados que se desprenden directamente de las auditorías y experimentos verificados")
-
-    def _tarjeta_hallazgo(icono, titulo, texto, chip_html=""):
-        st.markdown(
-            f'<div style="background-color:#fff; border:1px solid #e3e6ea; border-top:4px solid {AZUL_PETROLEO}; '
-            f'border-radius:10px; padding:1rem 1.1rem; height:100%; margin-bottom:0.9rem;">'
-            f'<div style="font-size:1.3rem; margin-bottom:0.3rem;">{icono}</div>'
-            f'<div style="font-weight:700; font-size:0.98rem; color:#31333F; margin-bottom:0.4rem; line-height:1.3;">{titulo}</div>'
-            f'<div style="font-size:0.88rem; color:#555; line-height:1.45; margin-bottom:0.7rem;">{texto}</div>'
-            f'{chip_html}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-    def _chip_antes_despues(antes, despues, etiqueta=""):
-        return (
-            f'<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">'
-            f'<span style="background-color:#E9EDF1; color:{AZUL_ACERO}; padding:0.15rem 0.55rem; '
-            f'border-radius:4px; font-size:0.82rem; font-weight:700;">{antes}</span>'
-            f'<span style="color:#999; font-weight:700;">&rarr;</span>'
-            f'<span style="background-color:#DCEEEC; color:{TURQUESA}; padding:0.15rem 0.55rem; '
-            f'border-radius:4px; font-size:0.82rem; font-weight:700;">{despues}</span>'
-            f'<span style="font-size:0.78rem; color:#888;">{etiqueta}</span>'
-            f'</div>'
-        )
-
-    naive = impacto.get("gap_naive", {})
-    corregido = impacto.get("gap_corregido", {})
-    muestra = modelo.get("muestra_comun_426", {}).get("resultados", {})
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if naive and corregido:
-            _tarjeta_hallazgo(
-                "💶",
-                "La brecha de ingresos cambia al investigar los ceros",
-                "Al investigar los 2.686 casos de ingreso estimado '0€' no reales, la brecha media "
-                "particular-profesional cambia de forma medible -- un cambio de conclusión, no cosmético "
-                "(ver 'El hallazgo crítico').",
-                _chip_antes_despues(
-                    f"{fmt_num(naive.get('gap_pct', 0), 1)}%", f"{fmt_num(corregido.get('gap_pct', 0), 1)}%",
-                    "brecha particular-profesional",
-                ),
-            )
-        _tarjeta_hallazgo(
-            "🧭",
-            "La curación no depende del criterio de imputación elegido",
-            "El tratamiento de curación (bedrooms/bathrooms/beds imputados) no depende de cuál de dos "
-            "criterios razonables se use: imputar por capacidad o por barrio.",
-            f'<span style="background-color:#DCEEEC; color:{TURQUESA}; padding:0.15rem 0.55rem; '
-            f'border-radius:4px; font-size:0.82rem; font-weight:700;">Δ &lt; 0,1% en MAE</span>',
-        )
-    with col_b:
-        if muestra:
-            _tarjeta_hallazgo(
-                "📊",
-                "El modelo tratado predice mejor, sin fuga de datos",
-                "Sobre 426 observaciones que no formaron parte del entrenamiento de ninguno de los tres "
-                "modelos, el tratado obtiene mejor R² que el crudo, con un intervalo de confianza que no "
-                "incluye el cero -- el diseño no permite repartir con precisión cuánto viene de la "
-                "población y cuánto de las variables (ver 'Interpretaciones razonables').",
-                _chip_antes_despues(
-                    fmt_num(muestra['A_crudo']['r2'], 3), fmt_num(muestra['B_tratado_criterio_A']['r2'], 3),
-                    "R² (A → B, sin fuga)",
-                ),
-            )
-        _tarjeta_hallazgo(
-            "🔍",
-            "Se detectó y corrigió una fuga de datos real",
-            "En el propio diseño del experimento: una muestra de validación ya había sido vista en "
-            "entrenamiento. Documentada como parte del proceso, no ocultada.",
-            _chip_antes_despues("80% contaminación", "426 filas seguras", "muestra de validación"),
-        )
-
-with tab2:
-    st.subheader("Explicaciones compatibles con los resultados, pero no demostradas completamente")
-    st.markdown(
-        "- La mejora combinada del modelo tratado **probablemente** viene tanto de excluir población "
-        "trivial (2.686 casos de ingreso '0€' no estimable) como de construir mejor las variables — ambos "
-        "efectos van en la misma dirección, pero no se puede repartir la proporción exacta con los datos "
-        "disponibles.\n"
-        "- Que la discrepancia entre la muestra grande (0,006) y la muestra pequeña (0,04) se explique por "
-        "tamaño de muestra es la explicación **más simple y mejor respaldada** (percentil ~0,7 en 5.000 "
-        "simulaciones), pero no es una prueba definitiva de que no exista ningún efecto distinto.\n"
-        "- Que los profesionales adopten el nuevo registro NRUA más rápido (65,7% vs. 18-25%) es "
-        "compatible con una hipótesis de mayor capacidad administrativa, pero el proyecto no investigó la "
-        "causa directamente."
-    )
-
-with tab3:
-    st.subheader("Limitaciones")
-    st.markdown(
-        "En resumen: la validación sin fuga de datos usa solo **426 filas** (suficiente para el efecto "
-        "combinado, no para separar población de variables), el target `estimated_revenue_l365d` es una "
-        "**estimación** de Inside Airbnb y no un ingreso real observado, y el experimento cubre un solo "
-        "dataset y un solo algoritmo."
-    )
-    st.caption("Detalle completo (6 puntos) en la página 'Metodología y limitaciones'.")
-
-with tab4:
-    st.subheader("Recomendaciones")
-    st.markdown(
-        "- Investigar la **semántica** de las variables antes de tratar sus valores (el caso de los "
-        "2.686 ceros 'no estimables' no se habría encontrado solo mirando el porcentaje de nulos).\n"
-        "- Documentar las reglas de limpieza con la misma trazabilidad que una decisión de negocio.\n"
-        "- Separar explícitamente valores desconocidos de ceros reales en cualquier variable objetivo.\n"
-        "- Evitar fugas entre entrenamiento y evaluación, especialmente al comparar modelos entrenados "
-        "sobre poblaciones de origen distintas.\n"
-        "- Usar conjuntos de comparación equivalentes al evaluar dos versiones de un modelo.\n"
-        "- Registrar las transformaciones para garantizar la reproducibilidad.\n"
-        "- Revisar la calidad de los datos **antes** de interpretar las métricas de un modelo, no después."
-    )
-
-st.markdown("---")
-st.markdown("### Cierre: ¿se cumplieron los 5 objetivos del proyecto?")
+naive = impacto.get("gap_naive", {})
+corregido = impacto.get("gap_corregido", {})
 muestra_426 = modelo.get("muestra_comun_426", {}).get("resultados", {})
-evidencia_por_objetivo = {
-    1: "14 hallazgos documentados en las 3 tablas (ver 'Auditoría de calidad').",
-    2: "cada hallazgo clasificado por riesgo, con una de 3 decisiones de gobernanza documentada.",
-    3: "L1/L2/L4 ejecutados con cambio de datos, L5/C2 marcados con bandera, el resto mantenido sin "
-       "tratamiento — cada decisión con su justificación.",
-    4: (f"la brecha media particular-profesional cambia de {fmt_num(naive.get('gap_pct', 0), 1)}% a "
-        f"{fmt_num(corregido.get('gap_pct', 0), 1)}% al investigar los 2.686 casos de ingreso no estimable "
-        "(ver 'El hallazgo crítico').") if naive and corregido else "ver 'Hallazgos demostrados' arriba.",
-    5: (f"R² sube de {fmt_num(muestra_426.get('A_crudo', {}).get('r2', 0), 3)} a "
-        f"{fmt_num(muestra_426.get('B_tratado_criterio_A', {}).get('r2', 0), 3)} en una comparación sin fuga "
-        "de datos, sobre 426 observaciones que no formaron parte del entrenamiento de ningún modelo."
-        ) if muestra_426 else "ver 'Resultados y robustez'.",
-}
-with st.expander("Ver detalle objetivo por objetivo"):
-    for o in contexto.get("objetivos", []):
-        st.markdown(f"**{o['n']}. {o['texto']}**")
-        st.markdown(f"✓ Cumplido — {evidencia_por_objetivo.get(o['n'], '')}")
-
-st.markdown("---")
-st.markdown("### Qué decisión podría cambiar, y qué evidencia tenemos")
-st.markdown(
-    "La simulación de clasificación de anuncios es un caso práctico de la pregunta de investigación, pero "
-    "**no se ha demostrado que Airbnb o un anfitrión haya tomado una decisión equivocada**, ni se observó "
-    "una decisión real antes y después de la auditoría. Para no sobre-afirmar, se distinguen 4 niveles:"
-)
 exp = impacto.get("experimento_decision", {})
 auditada = exp.get("regla_auditada", {})
 
-def _fila_certeza(color, bg, numero, titulo, texto):
+st.markdown("### Dos hipótesis, dos respuestas")
+
+
+def _kpi_hipotesis(color, texto_kicker, antes, despues, contexto):
     st.markdown(
-        f'<div style="background-color:{bg}; border-left:5px solid {color}; border-radius:8px; '
-        f'padding:0.8rem 1.1rem 0.8rem 1rem; margin-bottom:0.7rem;">'
-        f'<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem;">'
-        f'<span style="background-color:{color}; color:white; border-radius:50%; width:1.6rem; height:1.6rem; '
-        f'min-width:1.6rem; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem; '
-        f'font-weight:700;">{numero}</span>'
-        f'<span style="font-weight:700; font-size:0.95rem; color:#31333F;">{titulo}</span>'
+        f'<div style="padding:0.3rem 0 0.2rem 0;">'
+        f'<div style="font-size:0.85rem; color:{color}; font-weight:700; text-transform:uppercase; '
+        f'letter-spacing:0.6px; margin-bottom:0.5rem;">{texto_kicker}</div>'
+        f'<div style="display:flex; align-items:baseline; gap:0.7rem; flex-wrap:wrap;">'
+        f'<span style="font-size:2.4rem; font-weight:700; color:#31333F;">{antes}</span>'
+        f'<span style="font-size:1.6rem; color:#aaa;">&rarr;</span>'
+        f'<span style="font-size:2.4rem; font-weight:700; color:{color};">{despues}</span>'
         f'</div>'
-        f'<div style="font-size:0.88rem; color:#555; line-height:1.45; padding-left:2.2rem;">{texto}</div>'
+        f'<div style="font-size:1rem; color:#555; margin-top:0.5rem; line-height:1.45;">{contexto}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
-_fila_certeza(
-    TURQUESA, "#DCEEEC", "1", "Hallazgo observado",
-    "La interpretación de los ingresos estimados cambia al investigar los ceros (2.686 casos, gap de 39,7% a 23,1%).",
-)
-_fila_certeza(
-    AZUL_PETROLEO, "#EAF2F8", "2", "Resultado del experimento",
-    "Las métricas del modelo varían según la población evaluada y el tratamiento (R² de 0,347 a 0,450 sin fuga de datos).",
-)
-_fila_certeza(
-    AMBAR_PENDIENTE, "#FFF8EC", "3", "Cambio de clasificación (simulado)",
-    (
-        f"Bajo una regla de decisión simple que descarta ingreso=0, {fmt_num(auditada.get('revision_n', 0))} "
-        f"de los anuncios descartados ({fmt_num(exp.get('cambian_clasificacion_pct_de_descartados', 0), 1)}%) "
-        "pasarían a 'revisión' en vez de descartarse -- medido con datos reales, ver 'El hallazgo crítico'."
-    ) if exp else "ver 'El hallazgo crítico'.",
-)
-_fila_certeza(
-    "#999999", "#ffffff", "4", "Impacto económico real",
-    "No observado -- no hay datos de ingresos/reservas reales ni un caso de inversión documentado que lo "
-    "mida. No se ha encontrado evidencia de que inversores reales usen Inside Airbnb para decidir así.",
-)
 
-caja_alerta(
-    "**No se afirma que se haya probado una decisión empresarial equivocada.** La conclusión se formula "
-    "en términos de **riesgo analítico**: tomar decisiones sobre datos sin auditar es arriesgado y "
-    "medible en este caso -- no que ya se haya demostrado un error concreto de Airbnb o de un anfitrión."
-)
-st.markdown(
-    "> *La calidad de los datos no se reduce al porcentaje de valores nulos — y una diferencia en las "
-    "métricas, por sí sola, nunca demuestra un impacto empresarial real sin investigar qué la produce.*"
-)
+col_h1, col_h2 = st.columns(2)
+with col_h1:
+    _kpi_hipotesis(
+        OCRE_DORADO_TEXTO, "Hipótesis 1 · Negocio",
+        f"{fmt_num(naive.get('gap_pct', 0), 1)}%", f"{fmt_num(corregido.get('gap_pct', 0), 1)}%",
+        "La brecha media particular-profesional cambia al investigar los 2.686 casos de ingreso "
+        "estimado cero no estimables.",
+    )
+with col_h2:
+    _kpi_hipotesis(
+        TURQUESA, "Hipótesis 2 · Modelo",
+        fmt_num(muestra_426.get("A_crudo", {}).get("r2", 0), 3),
+        fmt_num(muestra_426.get("B_tratado_criterio_A", {}).get("r2", 0), 3),
+        "El modelo tratado (B) mejora frente al crudo (A) en una comparación sobre 426 "
+        "observaciones que ningún modelo vio durante el entrenamiento.",
+    )
+
+st.markdown("---")
+
+tab1, tab4 = st.tabs(["Conclusiones demostradas", "Recomendaciones"])
+
+with tab1:
+    st.subheader("Qué cambió, y qué no, al investigar la calidad de los datos")
+
+    def _fila_hallazgo(numero, color, texto):
+        st.markdown(
+            f'<div style="display:flex; gap:1rem; align-items:flex-start; padding:0.9rem 0; '
+            f'border-bottom:1px solid #eee;">'
+            f'<div style="min-width:2.2rem; height:2.2rem; border-radius:50%; background-color:{color}; '
+            f'color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; '
+            f'justify-content:center; flex-shrink:0;">{numero}</div>'
+            f'<div style="font-size:1.05rem; color:#333; line-height:1.55; padding-top:0.2rem;">{texto}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    _fila_hallazgo(
+        "01", AZUL_PETROLEO,
+        "Al investigar los 2.686 casos de ingreso estimado '0 €' no reales, la brecha de ingresos entre "
+        f"particulares y profesionales cambia de <b>{fmt_num(naive.get('gap_pct', 0), 1)}%</b> a "
+        f"<b>{fmt_num(corregido.get('gap_pct', 0), 1)}%</b> -- un cambio de conclusión de negocio, no solo "
+        "un ajuste cosmético.",
+    )
+    _fila_hallazgo(
+        "02", TURQUESA,
+        "Sobre 426 observaciones que ningún modelo vio durante el entrenamiento, el modelo con variables y "
+        "población tratadas (B) predice mejor que el modelo con los datos crudos (A): el R² sube de "
+        f"<b>{fmt_num(muestra_426.get('A_crudo', {}).get('r2', 0), 3)}</b> a "
+        f"<b>{fmt_num(muestra_426.get('B_tratado_criterio_A', {}).get('r2', 0), 3)}</b>.",
+    )
+    _fila_hallazgo(
+        "03", COLOR_SENSIBILIDAD_TEXTO,
+        "Esa conclusión no depende de qué criterio de imputación se use (por capacidad o por barrio): la "
+        "diferencia es de <b>menos del 0,1%</b> en el error del modelo (MAE) -- es robusta al criterio elegido.",
+    )
+    _fila_hallazgo(
+        "04", AMBAR_PENDIENTE,
+        "Un inversor que descartara automáticamente cualquier anuncio con ingreso estimado = 0 (dato "
+        f"crudo) se equivocaría en el <b>{fmt_num(exp.get('cambian_clasificacion_pct_de_descartados', 0), 1)}%</b> "
+        f"de esos descartes ({fmt_num(auditada.get('revision_n', 0))} anuncios): merecían 'revisión', no "
+        "ser descartados. Simulación sobre datos reales, no una decisión de inversión real.",
+    )
+
+with tab4:
+    st.subheader("De las conclusiones a las acciones")
+
+    def _pilar(color, icono, titulo, items):
+        filas = "".join(
+            f'<div style="display:flex; gap:0.7rem; align-items:flex-start; margin-bottom:0.8rem;">'
+            f'<span style="min-width:1.5rem; height:1.5rem; border-radius:50%; background-color:{color}1A; '
+            f'color:{color}; font-weight:700; font-size:0.85rem; display:flex; align-items:center; '
+            f'justify-content:center; flex-shrink:0;">&check;</span>'
+            f'<span style="font-size:1.05rem; color:#444; line-height:1.5;">{item}</span>'
+            f'</div>'
+            for item in items
+        )
+        st.markdown(
+            f'<div style="border-radius:10px; overflow:hidden; border:1px solid #e3e6ea; height:100%;">'
+            f'<div style="background-color:{color}; color:white; padding:0.8rem 1.1rem; font-weight:700; '
+            f'font-size:1.15rem; display:flex; align-items:center; gap:0.6rem;">'
+            f'<span style="font-size:1.35rem;">{icono}</span>{titulo}</div>'
+            f'<div style="padding:1.1rem 1.1rem 0.3rem 1.1rem;">{filas}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    col_r1, col_r2, col_r3 = st.columns(3)
+    with col_r1:
+        _pilar(
+            AZUL_PETROLEO, "🔍", "Calidad de datos",
+            [
+                "Investigar la <b>semántica</b> de las variables antes de tratar sus valores (el caso de "
+                "los 2.686 ceros 'no estimables' no se habría encontrado solo mirando el % de nulos).",
+                "Separar explícitamente valores desconocidos de ceros reales en cualquier variable objetivo.",
+            ],
+        )
+    with col_r2:
+        _pilar(
+            TURQUESA, "⚙️", "Modelado y validación",
+            [
+                "Evitar fugas entre entrenamiento y evaluación, especialmente al comparar modelos "
+                "entrenados sobre poblaciones de origen distintas.",
+                "Usar conjuntos de comparación equivalentes al evaluar dos versiones de un modelo.",
+                "Revisar la calidad de los datos <b>antes</b> de interpretar las métricas, no después.",
+            ],
+        )
+    with col_r3:
+        _pilar(
+            OCRE_DORADO_TEXTO, "📋", "Gobernanza y procesos",
+            [
+                "Documentar las reglas de limpieza con la misma trazabilidad que una decisión de negocio.",
+                "Registrar las transformaciones para garantizar la reproducibilidad.",
+            ],
+        )
+
+    st.markdown("---")
+
+    st.markdown(
+        f'<div style="display:flex; justify-content:center; align-items:center; gap:1.1rem; '
+        f'margin:0.6rem 0 1.5rem 0; flex-wrap:wrap;">'
+        f'<span style="background-color:{AZUL_PETROLEO}1A; color:{AZUL_PETROLEO}; font-weight:700; '
+        f'font-size:1.2rem; padding:0.6rem 1.3rem; border-radius:999px;">Calidad de datos</span>'
+        f'<span style="color:#aaa; font-size:1.6rem;">&rarr;</span>'
+        f'<span style="background-color:{TURQUESA}1A; color:{TURQUESA_TEXTO}; font-weight:700; '
+        f'font-size:1.2rem; padding:0.6rem 1.3rem; border-radius:999px;">Confianza en el análisis</span>'
+        f'<span style="color:#aaa; font-size:1.6rem;">&rarr;</span>'
+        f'<span style="background-color:{VIOLETA}1A; color:{VIOLETA}; font-weight:700; '
+        f'font-size:1.2rem; padding:0.6rem 1.3rem; border-radius:999px;">Mejores decisiones</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div style="text-align:center; font-size:1.9rem; font-weight:700; color:{AZUL_NOCHE}; '
+        f'line-height:1.5; margin:0.5rem auto 1rem auto; max-width:780px;">'
+        f'"La calidad de los datos no es un detalle técnico: puede cambiar tanto las conclusiones de negocio '
+        f'como el rendimiento de un modelo."'
+        f'</div>',
+        unsafe_allow_html=True,
+    )

@@ -7,7 +7,7 @@
     "n_jobs": -1,
     "split": "train_test_split, test_size=0.2, random_state=42",
     "metricas": ["MAE", "RMSE", "R2"],
-    "baseline": "Predicción constante = mediana del target en el set de entrenamiento (para confirmar que el modelo aporta algo más que una regla trivial)"
+    "modelo_referencia": "Predicción constante = mediana del target en el set de entrenamiento (para confirmar que el modelo aporta algo más que una regla trivial)"
   },
   "target": {
     "nombre": "estimated_revenue_l365d",
@@ -16,34 +16,34 @@
   },
   "predictoras": ["room_type", "property_type", "neighbourhood_cleansed", "accommodates", "bedrooms",
     "bathrooms", "beds", "host_listings_count", "calculated_host_listings_count", "host_is_superhost", "amenities_count"],
-  "nota_amenities": "amenities_count es un proxy burdo (longitud de texto) en CRUDO/A, y un parseo real de la lista JSON de amenities en las versiones TRATADO/D/B -- es la variable más importante del modelo en las tres versiones.",
+  "nota_amenities": "amenities_count es un proxy burdo (longitud de texto) en CRUDO/A, y una extracción real de la lista JSON de amenities en las versiones TRATADO/D/B -- es la variable más importante del modelo en las tres versiones.",
   "versiones": {
     "A_crudo": {
       "nombre_display": "A — CRUDO",
       "descripcion": "data/airbnb_bcn/listings.csv tal como se descargó, sin ningún tratamiento de curación aplicado. Nulos de bedrooms/bathrooms/beds rellenados con -1 (centinela arbitrario). Target: solo se descartan filas sin dato, los 2.686 casos 'no estimable' se tratan como ingreso real 0 EUR.",
       "n": 13355, "n_features": 123, "mae": 13320.1, "rmse": 20915.8, "r2": 0.469,
-      "baseline_mae": 19609.3, "baseline_r2": -0.200,
+      "referencia_mae": 19609.3, "referencia_r2": -0.200,
       "n_test_propio": 2671
     },
     "D_variables_tratadas_poblacion_cruda": {
       "nombre_display": "D — variables tratadas, población cruda",
       "descripcion": "Misma población completa que A (incluye los 2.686 'no estimable'), pero con amenities_count real y bedrooms/bathrooms/beds imputados por mediana en vez de -1. Aisla el efecto de la construcción de variables.",
       "n": 13355, "n_features": 123, "mae": 13375.5, "rmse": 21005.1, "r2": 0.465,
-      "baseline_mae": 19609.3, "baseline_r2": -0.200,
+      "referencia_mae": 19609.3, "referencia_r2": -0.200,
       "n_test_propio": 2671
     },
     "B_tratado_criterio_A": {
       "nombre_display": "B — TRATADO (criterio A: imputación por capacidad)",
       "descripcion": "data/airbnb_bcn_curado/listings.csv, el dataset ya curado y tratado (bedrooms/bathrooms/beds imputados por mediana de accommodates). Excluye los 2.686 anuncios revenue_no_estimable.",
       "n": 10669, "n_features": 119, "mae": 15206.8, "rmse": 23039.7, "r2": 0.440,
-      "baseline_mae": 22373.3, "baseline_r2": -0.132,
+      "referencia_mae": 22373.3, "referencia_r2": -0.132,
       "n_test_propio": 2134
     },
     "TRATADO_criterio_B_barrio": {
       "nombre_display": "Chequeo de sensibilidad — criterio B (imputación por barrio)",
       "descripcion": "Mismas 10.669 filas que B, pero bedrooms/bathrooms/beds reimputados por mediana de neighbourhood_cleansed en vez de por accommodates. Sirve solo para comprobar si la conclusión depende del criterio de imputación exacto.",
       "n": 10669, "n_features": 119, "mae": 15201.3, "rmse": 23053.9, "r2": 0.439,
-      "baseline_mae": 22373.3, "baseline_r2": -0.132, "n_test_propio": 2134,
+      "referencia_mae": 22373.3, "referencia_r2": -0.132, "n_test_propio": 2134,
       "diferencia_vs_A": {"mae_eur": 5.5, "mae_pct": 0.04, "rmse_eur": 14.2, "r2": -0.001}
     }
   },
@@ -111,8 +111,8 @@
     "conclusion": "Solo A-B (el efecto combinado de población + variables) es estadísticamente distinguible de cero, incluso con una muestra de solo 426 filas -- B predice mejor que A. Los efectos parciales (A-D por separado, D-B por separado) son, individualmente, demasiado pequeños para distinguirse del ruido de muestreo en esta muestra: no se puede repartir con precisión cuánto de la mejora viene de la población y cuánto de la construcción de variables."
   },
   "conclusion_final": {
-    "observado": "En la única comparación sin fuga de datos, sobre 426 observaciones que no formaron parte del entrenamiento de ninguno de los tres modelos y que se utilizaron para evaluarlos sobre una base común, el modelo tratado (B) predice mejor que el crudo (A) -- con un intervalo de confianza que respalda que la diferencia no es casualidad.",
-    "interpretacion_razonable": "La mejora combinada de B frente a A probablemente viene tanto de la población evaluada (menos casos triviales de 0 EUR) como de la construcción de variables (amenities real, imputación por mediana) -- ambas van en la misma dirección -- pero los datos actuales no permiten decir en qué proporción exacta contribuye cada una.",
+    "observado": "Sobre las 426 filas sin fuga de datos (ninguna vista en el entrenamiento de los tres modelos), B predice mejor que A -- y el intervalo de confianza confirma que no es casualidad.",
+    "interpretacion_razonable": "La mejora combinada de B frente a A probablemente viene tanto de la población evaluada (menos casos triviales de 0 EUR) como de la construcción de variables (amenities real, imputación por mediana) -- pero los datos no permiten decir en qué proporción exacta contribuye cada una.",
     "sin_resolver": "El reparto preciso entre efecto de población y efecto de construcción de variables queda como limitación abierta. Resolverlo exigiría una muestra común mucho mayor que las 426 filas disponibles.",
     "leccion_metodologica": "La fuga de datos detectada no vino de la calidad de los datos que se estaba auditando -- vino del diseño del propio experimento al intentar hacer la comparación 'más controlada'. Se documenta el error y la corrección, no solo el resultado final."
   },
@@ -134,6 +134,16 @@
   "ejemplo_prediccion_individual": {
     "fuente": "notebooks/06_modelo_ml.ipynb, sección 9.7",
     "id_anuncio": 1569123,
+    "datos_anuncio": {
+      "room_type": "Entire home/apt",
+      "property_type": "Entire rental unit",
+      "neighbourhood_cleansed": "Sant Antoni",
+      "accommodates": 8,
+      "bedrooms": 4.0,
+      "bathrooms": 2.0,
+      "beds": 7.0,
+      "precio_noche_eur": 568.67
+    },
     "valor_real_eur": 17060.0,
     "n_poblacion": 426,
     "mediana_poblacion_eur": 16982.0,

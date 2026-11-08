@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.styles import kicker, caja_alerta, fmt_num, AMBAR_PENDIENTE, AZUL_PETROLEO, COLOR_CRUDO, COLOR_D, COLOR_TRATADO, COLOR_SENSIBILIDAD, TURQUESA_TEXTO, COLOR_SENSIBILIDAD_TEXTO, OCRE_DORADO_TEXTO, AZUL_OSCURO, GRIS_CLARO
+from src.styles import kicker, caja_alerta, fmt_num, AMBAR_PENDIENTE, AZUL_PETROLEO, COLOR_CRUDO, COLOR_D, COLOR_TRATADO, COLOR_SENSIBILIDAD, TURQUESA_TEXTO, COLOR_SENSIBILIDAD_TEXTO, OCRE_DORADO_TEXTO, AZUL_OSCURO
 
 kicker("Página 5 de 9")
 st.title("Diseño experimental")
@@ -13,29 +13,8 @@ st.markdown(
 
 st.markdown("---")
 
-# --- BLOQUE 0a: Algoritmo elegido, lo primero (la intro ya lo menciona) ---
-st.markdown("### El algoritmo: Random Forest")
-st.markdown(
-    f"""
-    <div style="background-color: #ffffff; border-top: 4px solid {AZUL_PETROLEO}; border-radius: 8px;
-                padding: 0.9rem 1.1rem;">
-        <div style="font-weight: 700; font-size: 1rem; color: #31333F; margin-bottom: 0.4rem;">
-        <code>RandomForestRegressor</code> — 200 árboles, <code>random_state=42</code></div>
-        <div style="font-size: 0.85rem; color: #444; line-height: 1.5;">
-        <b>Por qué este algoritmo:</b> maneja bien las variables categóricas codificadas y relaciones no
-        lineales, sin exigir que las variables estén escaladas para funcionar (el escalado se aplica
-        igualmente, por buena práctica y para que el criterio sea idéntico en las 4 versiones) -- y da
-        la importancia de cada variable de forma directa.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown("---")
-
 # --- BLOQUE 0b: Que variables entran en el modelo ---
-st.markdown("### Qué variables entran en el modelo")
+st.markdown("### ¿Qué variables entran en los modelos?")
 
 def _etiqueta(nombre, color):
     return (
@@ -58,40 +37,37 @@ predictoras_num = ["accommodates", "bedrooms", "bathrooms", "beds", "host_listin
 predictoras_cat = ["room_type", "property_type", "neighbourhood_cleansed", "host_is_superhost"]
 excluidas = ["price", "estimated_occupancy_l365d", "number_of_reviews (y variantes)", "minimum_nights"]
 
-st.markdown(
-    f"""
-    <div style="position:relative; width:100%; aspect-ratio:2/1;">
-      <svg width="100%" height="100%" viewBox="0 0 1400 700" xmlns="http://www.w3.org/2000/svg"
-           style="position:absolute; top:0; left:0;">
-        <polygon points="700,20 600,250 800,250" fill="{AZUL_OSCURO}" />
-        <polygon points="600,250 500,480 700,480" fill="{AZUL_PETROLEO}" />
-        <polygon points="800,250 700,480 900,480" fill="{OCRE_DORADO_TEXTO}" />
-        <polygon points="600,250 700,480 800,250" fill="{GRIS_CLARO}" />
-        <text x="700" y="128" text-anchor="middle" fill="white" font-size="17" font-weight="700" font-family="Helvetica">Variable</text>
-        <text x="700" y="152" text-anchor="middle" fill="white" font-size="17" font-weight="700" font-family="Helvetica">objetivo</text>
-        <text x="700" y="225" text-anchor="middle" fill="white" font-size="11" font-family="monospace">estimated_revenue_l365d</text>
-        <text x="600" y="400" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">Predictoras</text>
-        <text x="600" y="422" text-anchor="middle" fill="white" font-size="13" font-family="Helvetica">(11)</text>
-        <text x="800" y="400" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">Excluidas</text>
-        <text x="800" y="422" text-anchor="middle" fill="white" font-size="13" font-family="Helvetica">(4, causan fuga)</text>
-        <defs>
-          <marker id="flecha" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#999" />
-          </marker>
-        </defs>
-        <line x1="595" y1="403" x2="410" y2="403" stroke="#999" stroke-width="2" marker-end="url(#flecha)" />
-        <line x1="805" y1="403" x2="990" y2="403" stroke="#999" stroke-width="2" marker-end="url(#flecha)" />
-      </svg>
-      <div style="position:absolute; left:0%; top:40%; width:28%;">
-        {_bloque_etiquetas(predictoras_num + predictoras_cat, AZUL_PETROLEO)}
-      </div>
-      <div style="position:absolute; left:72%; top:44%; width:26%;">
-        {_bloque_etiquetas(excluidas, OCRE_DORADO_TEXTO)}
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+def _tarjeta_variables(titulo, subtitulo, color, contenido_html):
+    st.markdown(
+        f"""
+        <div style="background-color:white; border-top:4px solid {color}; border-radius:10px;
+                    padding:1rem 1.1rem; height:100%;">
+            <div style="color:{color}; font-weight:700; font-size:0.95rem;">{titulo}</div>
+            <div style="font-size:0.78rem; color:#888; text-transform:uppercase; margin-bottom:0.6rem;">
+            {subtitulo}</div>
+            {contenido_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+col_obj, col_pred, col_exc = st.columns([1, 1.6, 1.3])
+with col_obj:
+    _tarjeta_variables(
+        "Variable objetivo", "A predecir", AZUL_OSCURO,
+        '<code style="font-size:0.78rem;">estimated_revenue_l365d</code>',
+    )
+with col_pred:
+    _tarjeta_variables(
+        "Predictoras", "11 variables", AZUL_PETROLEO,
+        _bloque_etiquetas(predictoras_num + predictoras_cat, AZUL_PETROLEO),
+    )
+with col_exc:
+    _tarjeta_variables(
+        "Excluidas", "4 variables, causan fuga", OCRE_DORADO_TEXTO,
+        _bloque_etiquetas(excluidas, OCRE_DORADO_TEXTO),
+    )
 st.caption(
     "De las 11 predictoras, solo **bedrooms/bathrooms/beds** (nulos a rellenar) y **amenities_count** "
     "(proxy vs. cálculo real) cambian de tratamiento entre las 4 versiones -- las otras 7 llegan completas "
@@ -101,68 +77,70 @@ st.caption(
 
 st.markdown("---")
 
-# --- BLOQUE 1: Las cuatro versiones en tarjetas compactas (2x2) ---
-st.markdown("### Las cuatro versiones")
+# --- BLOQUE 1: Las cuatro versiones -- infografia SVG unica (fuentes -> versiones -> muestra comun) ---
+st.markdown("### Las cuatro versiones de los modelos")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-            <div style="color: {COLOR_CRUDO}; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem;">■ Modelo A — Datos Crudos (Línea Base)</div>
-            <div style="font-size: 0.88rem; color: #444; margin-bottom: 0.5rem; line-height: 1.4;">
-                Escenario sin auditar: población completa, variables sin tratar. Sirve como referencia base.
-            </div>
-            <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">n filas</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #31333F;">13.355</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-            <div style="color: {TURQUESA_TEXTO}; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem;">■ Modelo B — Datos Tratados (Criterio Principal)</div>
-            <div style="font-size: 0.88rem; color: #444; margin-bottom: 0.5rem; line-height: 1.4;">
-                Escenario depurado final: variables tratadas y población limpia. Representa la muestra final del proyecto.
-            </div>
-            <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">n filas</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #31333F;">10.669</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-with col2:
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-            <div style="color: {COLOR_D}; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem;">■ Modelo D — Variables Tratadas / Población Cruda</div>
-            <div style="font-size: 0.88rem; color: #444; margin-bottom: 0.5rem; line-height: 1.4;">
-                Solo variables tratadas: misma población que el Modelo A, para aislar el efecto de cómo se construyen las variables.
-            </div>
-            <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">n filas</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #31333F;">13.355</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-            <div style="color: {COLOR_SENSIBILIDAD_TEXTO}; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem;">■ Chequeo de Sensibilidad (Criterio Alternativo)</div>
-            <div style="font-size: 0.88rem; color: #444; margin-bottom: 0.5rem; line-height: 1.4;">
-                Prueba de robustez: misma población que el Modelo B, con otro criterio de imputación.
-            </div>
-            <div style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">n filas</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #31333F;">10.669</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown(
+    f"""
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem;">
+      <svg width="100%" height="680" viewBox="0 0 1300 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="flecha_v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+          </marker>
+        </defs>
+        <text x="110" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. FUENTES DE DATOS</text>
+        <rect x="20" y="101" width="190" height="90" rx="10" fill="#f4f4f4" stroke="{COLOR_CRUDO}" stroke-width="1.5" />
+        <text x="115" y="123" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_raw</text>
+        <text x="115" y="141" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">sin tratamiento</text>
+        <text x="115" y="157" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 90 cols</text>
+        <rect x="20" y="338" width="190" height="90" rx="10" fill="#f4f4f4" stroke="{COLOR_TRATADO}" stroke-width="1.5" />
+        <text x="115" y="360" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_curado</text>
+        <text x="115" y="378" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">tratado: L1, L2, L4, target</text>
+        <text x="115" y="394" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 91 cols</text>
+        <text x="415" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. CUATRO VERSIONES -- mismo Random Forest</text>
+        <line x1="210" y1="146" x2="295" y2="88" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="210" y1="146" x2="295" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="210" y1="383" x2="295" y2="325" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="210" y1="383" x2="295" y2="442" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <rect x="300" y="35" width="230" height="105" rx="10" fill="{COLOR_CRUDO}" />
+        <text x="415" y="57" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo A -- CRUDO</text>
+        <text x="415" y="75" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 13.355</text>
+        <text x="415" y="91" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables sin tratar</text>
+        <text x="415" y="107" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: -1</text>
+        <text x="415" y="123" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: proxy (texto)</text>
+        <rect x="300" y="152" width="230" height="105" rx="10" fill="{COLOR_D}" />
+        <text x="415" y="174" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo D</text>
+        <text x="415" y="192" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 13.355</text>
+        <text x="415" y="208" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables tratadas</text>
+        <text x="415" y="224" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana</text>
+        <text x="415" y="240" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <rect x="300" y="272" width="230" height="105" rx="10" fill="{COLOR_TRATADO}" />
+        <text x="415" y="294" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo B -- TRATADO-A</text>
+        <text x="415" y="312" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
+        <text x="415" y="328" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">población y variables tratadas</text>
+        <text x="415" y="344" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana</text>
+        <text x="415" y="360" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <rect x="300" y="389" width="230" height="105" rx="10" fill="{COLOR_SENSIBILIDAD}" />
+        <text x="415" y="411" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
+        <text x="415" y="429" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
+        <text x="415" y="445" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">otro criterio de imputación</text>
+        <text x="415" y="461" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana (barrio)</text>
+        <text x="415" y="477" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <text x="915" y="203" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. MUESTRA COMÚN SIN FUGA</text>
+        <line x1="530" y1="88" x2="645" y2="240" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
+        <line x1="530" y1="205" x2="645" y2="255" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
+        <line x1="530" y1="325" x2="645" y2="285" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
+        <line x1="530" y1="442" x2="645" y2="300" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
+        <rect x="650" y="215" width="280" height="110" rx="12" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+        <text x="790" y="250" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="14" font-weight="700" font-family="Helvetica">Muestra común segura</text>
+        <text x="790" y="275" text-anchor="middle" fill="#555" font-size="13" font-family="Helvetica">n = 426</text>
+        <text x="790" y="295" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">sin fuga de datos -- los 4 modelos</text>
+      </svg>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.expander("📋 Ficha técnica: variables e imputación por modelo"):
     st.markdown(
@@ -181,7 +159,7 @@ with st.expander("📋 Ficha técnica: variables e imputación por modelo"):
             <li><code>bedrooms</code>/<code>bathrooms</code>/<code>beds</code>: mediana por <code>accommodates</code></li>
             <li><code>host_listings_count</code>: relleno técnico = <code>1</code></li>
             <li><code>host_is_superhost</code>: relleno técnico = <code>f</code></li>
-            <li><code>amenities_count</code>: parseo real (lista JSON), igual que en el Modelo B</li>
+            <li><code>amenities_count</code>: extracción real (lista JSON), igual que en el Modelo B</li>
         </ul>
 
         <div style="color: {TURQUESA_TEXTO}; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem;">Modelo B — TRATADO-A</div>
@@ -190,7 +168,7 @@ with st.expander("📋 Ficha técnica: variables e imputación por modelo"):
             <li><code>bedrooms</code>/<code>bathrooms</code>/<code>beds</code>: mediana por <code>accommodates</code></li>
             <li><code>host_listings_count</code>: relleno técnico = <code>1</code></li>
             <li><code>host_is_superhost</code>: relleno técnico = <code>f</code></li>
-            <li><code>amenities_count</code>: parseo real (lista JSON)</li>
+            <li><code>amenities_count</code>: extracción real (lista JSON)</li>
         </ul>
 
         <div style="color: {COLOR_SENSIBILIDAD_TEXTO}; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem;">Chequeo de sensibilidad</div>
@@ -204,100 +182,132 @@ with st.expander("📋 Ficha técnica: variables e imputación por modelo"):
 
 st.markdown("---")
 
-# --- BLOQUE 1b: Cómo se evalúa cada versión (80/20) ---
-st.markdown("### Cómo se evalúa cada versión")
+# --- BLOQUE 1b: Cómo se entrena y evalúa cada versión -- infografía SVG unica ---
+st.markdown("### Cómo se entrena y evalúa cada versión")
+
 st.markdown(
-    "Para cada una de las 4 versiones, los datos se dividieron en dos conjuntos: **80% para "
-    "entrenamiento** (el algoritmo aprende patrones entre las variables predictoras y el target) y "
-    "**20% para prueba** (filas que el modelo no vio al entrenar, usadas solo para medir MAE, RMSE y "
-    "R²). Misma proporción y misma semilla (`random_state=42`) en las 4 versiones, para que cualquier "
-    "diferencia en las métricas venga del tratamiento de los datos, no de una partición distinta."
-)
-st.markdown(
-    f'<div style="border-radius:8px; overflow:hidden; display:flex; height:2.4rem; margin:0.6rem 0 0.3rem 0;">'
-    f'<div style="width:80%; background-color:{AZUL_PETROLEO}; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.95rem;">80%</div>'
-    f'<div style="width:20%; background-color:{OCRE_DORADO_TEXTO}; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.95rem;">20%</div>'
-    f'</div>'
-    f'<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#666;">'
-    f'<span>Entrenamiento — aprender patrones</span><span>Prueba — evaluar</span>'
-    f'</div>',
+    f"""
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem;">
+      <svg width="100%" height="460" viewBox="0 0 1500 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="flecha_ev" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+          </marker>
+        </defs>
+        <text x="100" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. DIVISIÓN</text>
+        <rect x="10" y="150" width="180" height="80" rx="10" fill="#f4f4f4" stroke="#ccc" stroke-width="1.5" />
+        <text x="100" y="185" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">Todos los datos</text>
+        <text x="100" y="205" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">por versión</text>
+        <line x1="190" y1="190" x2="255" y2="65" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <line x1="190" y1="190" x2="255" y2="305" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <rect x="260" y="30" width="230" height="70" rx="10" fill="{AZUL_PETROLEO}" />
+        <text x="375" y="60" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">Entrenamiento</text>
+        <text x="375" y="82" text-anchor="middle" fill="white" font-size="13" font-family="Helvetica">80% de las filas</text>
+        <rect x="260" y="270" width="230" height="70" rx="10" fill="{OCRE_DORADO_TEXTO}" />
+        <text x="375" y="300" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">Prueba</text>
+        <text x="375" y="322" text-anchor="middle" fill="white" font-size="13" font-family="Helvetica">20% de las filas</text>
+        <text x="100" y="250" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">(misma semilla en las 4 versiones)</text>
+        <rect x="35" y="258" width="130" height="22" rx="11" fill="#eee" />
+        <text x="100" y="273" text-anchor="middle" fill="#666" font-size="10" font-family="monospace">random_state=42</text>
+        <text x="730" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. PREPARACIÓN Y ENTRENAMIENTO</text>
+        <line x1="490" y1="65" x2="555" y2="80" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <rect x="560" y="30" width="340" height="110" rx="10" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="2" />
+        <text x="730" y="57" text-anchor="middle" fill="{AZUL_PETROLEO}" font-size="13" font-weight="700" font-family="Helvetica">Pipeline (ajustado solo con el 80%)</text>
+        <text x="730" y="79" text-anchor="middle" fill="#444" font-size="12" font-family="Helvetica">StandardScaler + OneHotEncoder</text>
+        <line x1="600" y1="93" x2="860" y2="93" stroke="#eee" stroke-width="1" />
+        <text x="730" y="113" text-anchor="middle" fill="#444" font-size="12" font-weight="600" font-family="Helvetica">Random Forest aprende patrones</text>
+        <text x="730" y="131" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">200 árboles, random_state=42</text>
+        <text x="1100" y="115" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. PREDICCIÓN</text>
+        <line x1="900" y1="90" x2="985" y2="175" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <line x1="490" y1="305" x2="985" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <rect x="980" y="150" width="240" height="80" rx="10" fill="white" stroke="{AZUL_OSCURO}" stroke-width="2" />
+        <text x="1100" y="180" text-anchor="middle" fill="{AZUL_OSCURO}" font-size="13" font-weight="700" font-family="Helvetica">Transformaciones aprendidas</text>
+        <text x="1100" y="200" text-anchor="middle" fill="#444" font-size="12" font-family="Helvetica">aplicadas al 20% de prueba</text>
+        <text x="1100" y="218" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">(nunca visto al entrenar)</text>
+        <text x="1385" y="115" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">4. EVALUACIÓN</text>
+        <line x1="1220" y1="190" x2="1285" y2="190" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
+        <rect x="1290" y="150" width="200" height="80" rx="10" fill="{OCRE_DORADO_TEXTO}" />
+        <text x="1390" y="178" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">MAE · RMSE · R²</text>
+        <text x="1390" y="198" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">sobre el 20% de prueba</text>
+        <text x="1390" y="216" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">mismo criterio en las 4 versiones</text>
+      </svg>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
-st.caption(
-    "Esto es la división **dentro de cada versión por separado** -- no confundir con la 'muestra común "
-    "de 426 filas' del diagrama de abajo, que es un subconjunto adicional construido después, para "
-    "comparar las versiones entre sí sin fuga de datos (ver 'Resultados y robustez')."
-)
 
 st.markdown("---")
 
-# --- BLOQUE 1c: Estandarizacion y codificacion, identicas en las 4 versiones ---
-st.markdown("### Antes de entrenar: mismo criterio en las 4 versiones")
-col_std, col_ohe = st.columns(2)
-with col_std:
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border-top: 4px solid {AZUL_PETROLEO}; border-radius: 8px;
-                    padding: 0.9rem 1rem; height: 100%;">
-            <div style="color: {AZUL_PETROLEO}; font-weight: 700; font-size: 0.95rem;">StandardScaler</div>
-            <div style="font-size: 0.78rem; color: #888; text-transform: uppercase; margin-bottom: 0.4rem;">
-            Variables numéricas</div>
-            <div style="font-size: 0.85rem; color: #444; line-height: 1.4;">
-            Cada variable se reescala a media 0 y desviación 1, ajustado solo con el 80% de entrenamiento.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+# --- BLOQUE 0a: Algoritmo elegido, una vez que ya se sabe con qué datos trabaja ---
+st.markdown(
+    "<div style='text-align:center; color:#666; font-size:1.15rem; font-style:italic; margin-bottom:0.5rem;'>"
+    "¿Cómo consigue el modelo generar esa predicción?</div>",
+    unsafe_allow_html=True,
+)
+st.markdown("### ¿Qué ocurre dentro de Random Forest?")
+
+def _icono_arbol(cx, color):
+    return (
+        f'<circle cx="{cx}" cy="34" r="14" fill="{color}" />'
+        f'<line x1="{cx}" y1="34" x2="{cx-34}" y2="78" stroke="{color}" stroke-width="4" />'
+        f'<line x1="{cx}" y1="34" x2="{cx+34}" y2="78" stroke="{color}" stroke-width="4" />'
+        f'<circle cx="{cx-34}" cy="78" r="10" fill="{color}" />'
+        f'<circle cx="{cx+34}" cy="78" r="10" fill="{color}" />'
     )
-with col_ohe:
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border-top: 4px solid {TURQUESA_TEXTO}; border-radius: 8px;
-                    padding: 0.9rem 1rem; height: 100%;">
-            <div style="color: {TURQUESA_TEXTO}; font-weight: 700; font-size: 0.95rem;">OneHotEncoder</div>
-            <div style="font-size: 0.78rem; color: #888; text-transform: uppercase; margin-bottom: 0.4rem;">
-            Variables categóricas</div>
-            <div style="font-size: 0.85rem; color: #444; line-height: 1.4;">
-            Cada categoría se convierte en una columna binaria, también ajustado solo con el 80% de entrenamiento.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-st.caption(
-    "Mismo criterio de escalado y codificación en las 4 versiones (dentro de un `Pipeline`, para no "
-    "filtrar información del test) -- lo único que cambia entre versiones es la población y la "
-    "construcción de las variables, que es justo lo que se quiere comparar."
+
+arboles_x = [430, 590, 750, 910, 1070]
+arboles_label = ["Árbol 1", "Árbol 2", "Árbol 3", "...", "Árbol 200"]
+iconos = "".join(_icono_arbol(cx, AZUL_PETROLEO) for cx in arboles_x)
+etiquetas = "".join(
+    f'<text x="{cx}" y="108" text-anchor="middle" fill="#444" font-size="15" font-weight="600" font-family="Helvetica">{lbl}</text>'
+    for cx, lbl in zip(arboles_x, arboles_label)
+)
+flechas = "".join(
+    f'<line x1="{cx}" y1="118" x2="750" y2="142" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rf)" />'
+    for cx in arboles_x
 )
 
-st.markdown("---")
+st.markdown(
+    f"""
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem; margin-top: 0.8rem;">
+      <svg width="100%" height="390" viewBox="0 0 1250 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="flecha_rf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+          </marker>
+        </defs>
+        <text x="130" y="20" text-anchor="middle" fill="#888" font-size="12" font-weight="600" letter-spacing="0.5" font-family="Helvetica">¿POR QUÉ RANDOM FOREST?</text>
+        <rect x="10" y="32" width="240" height="80" rx="8" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="1.5" />
+        <text x="130" y="66" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Variables categóricas</text>
+        <text x="130" y="86" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">codificadas</text>
+        <rect x="10" y="122" width="240" height="80" rx="8" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="1.5" />
+        <text x="130" y="156" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Relaciones</text>
+        <text x="130" y="176" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">no lineales</text>
+        <rect x="10" y="212" width="240" height="80" rx="8" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="1.5" />
+        <text x="130" y="246" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Calcula de forma directa</text>
+        <text x="130" y="266" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">la importancia de variables</text>
+        <text x="130" y="306" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">sin exigir variables escaladas</text>
+        <text x="130" y="320" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">(se aplica igual, por criterio uniforme)</text>
+        <line x1="255" y1="150" x2="405" y2="60" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#flecha_rf)" />
+        <text x="340" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. LA DIVERSIDAD</text>
+        {iconos}
+        {etiquetas}
+        {flechas}
+        <text x="750" y="152" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. LA AGREGACIÓN</text>
+        <rect x="450" y="160" width="600" height="60" rx="10" fill="{AZUL_PETROLEO}" />
+        <text x="750" y="196" text-anchor="middle" fill="white" font-size="17" font-weight="700" font-family="Helvetica">Promedio de las 200 predicciones</text>
+        <line x1="750" y1="220" x2="750" y2="246" stroke="#aaa" stroke-width="2.5" marker-end="url(#flecha_rf)" />
+        <text x="750" y="260" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. LA PREDICCIÓN</text>
+        <rect x="550" y="268" width="400" height="46" rx="10" fill="{OCRE_DORADO_TEXTO}" />
+        <text x="750" y="296" text-anchor="middle" fill="white" font-size="16" font-weight="700" font-family="Helvetica">Predicción final (ingreso estimado)</text>
+      </svg>
+      <div style="font-size: 0.85rem; color: #666; text-align: center; margin-top: 0.3rem;">
+      200 árboles independientes predicen cada uno su propio número, y se promedian para llegar a un
+      resultado más robusto que un único árbol: cada uno se entrena con una muestra aleatoria distinta
+      de filas y variables. <code>RandomForestRegressor</code> -- 200 árboles, <code>random_state=42</code>.
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-# --- BLOQUE 2: Diagrama de arquitectura experimental ---
-st.markdown("### Diagrama: población, tratamiento y comparaciones")
-dot_experimento = f"""
-digraph Experimento {{
-  rankdir=LR;
-  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, margin=0.15, color="{AZUL_PETROLEO}"];
-  edge [fontname="Helvetica", fontsize=10, color="#888888"];
-
-  raw [label="listings_raw\\n(15.293 filas, 90 cols)\\nsin tratamiento", fillcolor="#E3E9EF", color="{COLOR_CRUDO}"];
-  curado [label="listings_curado\\n(15.293 filas, 91 cols)\\ntratado: L1, L2, L4, target", fillcolor="#DCEEEC", color="{COLOR_TRATADO}"];
-
-  mod_a [label="Modelo A — CRUDO\\nn=13.355\\n(variables sin tratar)", fillcolor="#E3E9EF", color="{COLOR_CRUDO}"];
-  mod_d [label="Modelo D\\nn=13.355\\n(población de A, variables tratadas)", fillcolor="#EAE4F0", color="{COLOR_D}"];
-  mod_b [label="Modelo B — TRATADO-A\\nn=10.669\\n(población y variables tratadas)", fillcolor="#DCEEEC", color="{COLOR_TRATADO}"];
-
-  chequeo [label="Chequeo sensibilidad\\nn=10.669\\n(otro criterio de imputación)", fillcolor="#E2E3E5", color="{COLOR_SENSIBILIDAD}"];
-  comun [label="Muestra común segura\\nn=426\\n(sin fuga de datos)", shape=ellipse, fillcolor="#FBEED6", color="{AMBAR_PENDIENTE}"];
-
-  raw -> mod_a [label="mismas filas,\\notras variables"];
-  raw -> mod_d;
-  curado -> mod_b [label="misma población,\\notro criterio imputación"];
-  curado -> chequeo;
-
-  mod_a -> comun [style=dashed];
-  mod_d -> comun [style=dashed];
-  mod_b -> comun [style=dashed];
-}}
-"""
-st.graphviz_chart(dot_experimento, width="stretch")

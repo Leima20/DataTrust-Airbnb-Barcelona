@@ -37,71 +37,137 @@ st.markdown("---")
 tab_resultados, tab_confianza = st.tabs(["📊 Resultados", "🔍 Confianza y conclusión"])
 
 with tab_resultados:
-    st.markdown("## 1. La fuga de datos detectada y corregida")
+    st.markdown("## 1. Detectamos un solapamiento que invalidaba la comparación inicial")
+    st.markdown(
+        "Para comparar A, D y B en igualdad de condiciones, se intentó evaluar a los tres sobre las mismas "
+        "filas: las 2.134 del test de B."
+    )
     fuga = modelo.get("fuga_de_datos_detectada_y_corregida", {})
     n_comun_426 = modelo.get("muestra_comun_426", {}).get("n", 0)
+    n_contaminadas = fuga.get("n_contaminadas", 0)
+    n_test_b_total = fuga.get("n_test_B_total", 0)
+    pct_contam = fuga.get("pct_filas_contaminadas", 0)
+    pct_seguro = 100 - pct_contam
+    ancho_total = 760
+    ancho_contam = ancho_total * (pct_contam / 100)
+    ancho_seguro = ancho_total - ancho_contam
+    cx_contam = 70 + ancho_contam / 2
+    cx_seguro = 70 + ancho_contam + ancho_seguro / 2
+
     st.markdown(
-        f'<div style="background-color: #fff; border: 1px solid #e0e0e0; border-left: 4px solid {AMBAR_ALERTA}; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0;">'
-        f'<div style="font-size: 0.95rem; font-weight: 700; color: #31333F; margin-bottom: 0.5rem;">Una evaluación inicial pareció demasiado buena: comparar A y D contra el test de B dio R² ≈ 0,82</div>'
-        f'<div style="font-size: 0.85rem; color: #555; margin-bottom: 0.9rem; line-height: 1.4;">'
-        f'Como A, D y B no son comparables cada uno en su propia población, se intentó dar a los tres el mismo '
-        f'examen: usar las 2.134 filas de test de B como terreno común, y evaluar ahí también a A y D. '
-        f'Pero A/D y B parten de poblaciones base distintas (13.355 vs. 10.669 filas), con particiones 80/20 '
-        f'hechas cada una por su cuenta -- nada garantizaba que esas filas de test de B no fueran ya filas de '
-        f'entrenamiento de A o D. Y lo eran: por eso salió una fuga.</div>'
-        f'<div style="display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 0.8rem;">'
-        f'<div><div style="font-size:2rem; font-weight:800; color:{OCRE_DORADO_TEXTO};">{fmt_num(fuga.get("pct_filas_contaminadas", 0), 0)}%</div>'
-        f'<div style="font-size:0.78rem; color:#666; max-width:220px;">Solapamiento -- filas del test de B que ya estaban en el entrenamiento de A/D '
-        f'({fmt_num(fuga.get("n_contaminadas", 0))} de {fmt_num(fuga.get("n_test_B_total", 0))})</div></div>'
-        f'<div><div style="font-size:2rem; font-weight:800; color:{TURQUESA};">{fmt_num(n_comun_426)}</div>'
-        f'<div style="font-size:0.78rem; color:#666; max-width:260px;">Filas limpias -- las 2.134 de B, menos las 1.708 contaminadas: la única base sin fuga para comparar (sección 3)</div></div>'
-        f'</div>'
-        f'<div style="font-size:0.85rem; color:#555; border-top:1px solid #eee; padding-top:0.6rem;">'
-        f'Evaluar con datos ya vistos infla el resultado artificialmente -- se corrigió antes de reportar nada. '
-        f'{fuga.get("correccion", "")}</div>'
-        f'</div>',
-        unsafe_allow_html=True
+        f"""
+        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.2rem 1.4rem;">
+          <svg width="100%" height="340" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="flecha_fuga" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+              </marker>
+            </defs>
+            <text x="450" y="25" text-anchor="middle" fill="#444" font-size="15" font-weight="700" font-family="Helvetica">Test del modelo B -- {fmt_num(n_test_b_total)} filas</text>
+            <rect x="70" y="40" width="{ancho_contam:.0f}" height="70" fill="{AMBAR_ALERTA}" />
+            <rect x="{70 + ancho_contam:.0f}" y="40" width="{ancho_seguro:.0f}" height="70" fill="{TURQUESA}" />
+            <text x="{cx_contam:.0f}" y="85" text-anchor="middle" fill="white" font-size="24" font-weight="800" font-family="Helvetica">{fmt_num(pct_contam, 0)}%</text>
+            <text x="{cx_seguro:.0f}" y="85" text-anchor="middle" fill="white" font-size="24" font-weight="800" font-family="Helvetica">{fmt_num(pct_seguro, 0)}%</text>
+            <text x="{cx_contam:.0f}" y="130" text-anchor="middle" fill="#666" font-size="12" font-family="Helvetica">{fmt_num(n_contaminadas)} filas -- ya vistas por A/D en su entrenamiento</text>
+            <text x="{cx_seguro:.0f}" y="130" text-anchor="middle" fill="#666" font-size="12" font-family="Helvetica">{fmt_num(n_comun_426)} filas</text>
+            <line x1="{cx_seguro:.0f}" y1="150" x2="{cx_seguro:.0f}" y2="195" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_fuga)" />
+            <rect x="{cx_seguro - 170:.0f}" y="200" width="340" height="65" rx="10" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+            <text x="{cx_seguro:.0f}" y="228" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="16" font-weight="700" font-family="Helvetica">{fmt_num(n_comun_426)} -- Muestra común segura</text>
+            <text x="{cx_seguro:.0f}" y="248" text-anchor="middle" fill="#806000" font-size="11" font-family="Helvetica">fuera del entrenamiento de los tres modelos</text>
+          </svg>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+    with st.expander("Ver explicación completa"):
+        st.markdown(
+            "Una evaluación inicial pareció demasiado buena: comparar A y D directamente contra el test de B "
+            "dio R² ≈ 0,82. Como A, D y B no son comparables cada uno en su propia población, se intentó dar "
+            "a los tres el mismo examen: usar las 2.134 filas de test de B como terreno común, y evaluar ahí "
+            "también a A y D. Pero A/D y B parten de poblaciones base distintas (13.355 vs. 10.669 filas), "
+            "con particiones 80/20 hechas cada una por su cuenta -- nada garantizaba que esas filas de test "
+            "de B no fueran ya filas de entrenamiento de A o D. Y lo eran: por eso salió un solapamiento. "
+            "Evaluar con datos ya vistos infla el resultado artificialmente -- se corrigió antes de reportar "
+            f"nada. {fuga.get('correccion', '')}"
+        )
 
     st.markdown("---")
-    st.markdown("## 2. ¿De dónde viene realmente la diferencia entre A y B?")
-    st.caption(
-        "Esta comprobación es independiente de la sección 1 -- no usa las 426 filas seguras, porque aquí "
-        "nunca se evalúa un modelo con filas de otro (solo A y D, cada uno sobre un subconjunto de su "
-        "propio test). Es otra forma, en paralelo, de investigar el mismo origen de la diferencia A-B."
-    )
+    st.markdown("## 2. ¿De dónde viene la diferencia?")
     pob = modelo.get("poblacion_limpia_experimento", {})
-    st.caption(pob.get("nota", ""))
     r2_d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {}).get("r2", 0)
+
+    st.markdown(
+        f"""
+        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1rem;">
+          <svg width="100%" height="270" viewBox="0 0 1100 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="flecha_dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+              </marker>
+            </defs>
+            <text x="310" y="40" text-anchor="middle" fill="{AZUL_PETROLEO}" font-size="15" font-weight="700" letter-spacing="0.5" font-family="Helvetica">VARIABLES</text>
+            <text x="310" y="58" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">cómo se construyen y tratan</text>
+            <text x="770" y="40" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="15" font-weight="700" letter-spacing="0.5" font-family="Helvetica">POBLACIÓN</text>
+            <text x="770" y="58" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">qué anuncios se incluyen</text>
+            <rect x="20" y="80" width="120" height="70" rx="10" fill="{COLOR_CRUDO}" />
+            <text x="80" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">A -- CRUDO</text>
+            <text x="80" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
+            <line x1="140" y1="115" x2="480" y2="115" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_dim)" />
+            <text x="310" y="145" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">misma población, distinto tratamiento de variables</text>
+            <rect x="480" y="80" width="120" height="70" rx="10" fill="{COLOR_D}" />
+            <text x="540" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">D</text>
+            <text x="540" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
+            <line x1="600" y1="115" x2="940" y2="115" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_dim)" />
+            <text x="770" y="145" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">variables ya tratadas, cambia la población</text>
+            <rect x="940" y="80" width="120" height="70" rx="10" fill="{COLOR_TRATADO}" />
+            <text x="1000" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">B -- TRATADO</text>
+            <text x="1000" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 10.669</text>
+          </svg>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if pob:
         st.plotly_chart(
             r2_muestra_comun(
-                ["A · toda su población", "D · toda su población", "A · población limpia", "D · población limpia", "B · población limpia"],
-                [pob["A_toda_poblacion"]["r2"], r2_d_toda_poblacion, pob["A_solo_poblacion_limpia"]["r2"], pob["D_solo_poblacion_limpia"]["r2"], pob["B_propia_poblacion_limpia"]["r2"]],
-                [AMBAR_PENDIENTE, COLOR_D, COLOR_CRUDO, COLOR_NEUTRO, COLOR_TRATADO],
-                titulo="R² de A y D al cambiar solo la población evaluada",
+                ["A · población limpia", "D · población limpia"],
+                [pob["A_solo_poblacion_limpia"]["r2"], pob["D_solo_poblacion_limpia"]["r2"]],
+                [COLOR_CRUDO, COLOR_NEUTRO],
+                titulo="R² de A y D al evaluarlos solo sobre la población limpia",
             ),
             width="stretch",
         )
-        aislar = modelo.get("aislar_variables_vs_poblacion", {})
-        r2_var = aislar.get("A_vs_D_r2_diferencia", 0)
-        rango_pob = aislar.get("cambio_poblacion_r2_diferencia_rango", [0, 0])
         st.markdown(
-            f'<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-left: 4px solid {COLOR_NEUTRO}; border-radius: 8px; padding: 0.9rem 1.1rem; margin: 0.8rem 0;">'
-            f'<div style="font-size: 0.95rem; font-weight: 700; color: #31333F; margin-bottom: 0.5rem;">Mismo modelo, mismas variables -- solo cambia la población evaluada</div>'
-            f'<div style="font-size: 0.85rem; color: #555; margin-bottom: 0.4rem;">'
-            f'A: {fmt_num(pob["A_toda_poblacion"]["r2"], 3)} (toda su población) − {fmt_num(pob["A_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = <b>{fmt_num(rango_pob[0], 3)}</b><br>'
-            f'D: {fmt_num(r2_d_toda_poblacion, 3)} (toda su población) − {fmt_num(pob["D_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = <b>{fmt_num(rango_pob[1], 3)}</b>'
-            f'</div>'
-            f'<div style="font-size: 0.85rem; color: #555;">Son los mismos modelos, sin reentrenar -- cambia únicamente qué filas se usan para evaluarlos. '
-            f'No hace falta tocar ni una variable para mover el resultado tanto.</div>'
-            f'<div style="font-size: 0.78rem; color: #888; border-top: 1px solid #eee; margin-top: 0.5rem; padding-top: 0.4rem;">'
-            f'Confirma lo visto en "Comparación de modelos": cambiar solo las variables (A vs. D, cada uno en su propia '
-            f'población) apenas movía el R² (<b>{fmt_num(r2_var, 3)}</b>) -- 6-7 veces menos que el efecto de la población.</div>'
-            f'</div>',
-            unsafe_allow_html=True,
+            f"Al evaluarlos solo sobre la población limpia, el R² de A baja a "
+            f"**{fmt_num(pob['A_solo_poblacion_limpia']['r2'], 3)}** y el de D a "
+            f"**{fmt_num(pob['D_solo_poblacion_limpia']['r2'], 3)}** -- muy cerca del R² de B "
+            f"(**{fmt_num(pob['B_propia_poblacion_limpia']['r2'], 3)}**), confirmando que la diferencia viene "
+            f"sobre todo de la población."
         )
-        with st.expander("Ver MAE y n de cada evaluación"):
+        with st.expander("Ver detalle del cálculo y MAE de cada evaluación"):
+            st.markdown(
+                "Esta comprobación es independiente de la sección 1 -- no usa las 426 filas seguras, porque "
+                "aquí nunca se evalúa un modelo con filas de otro (solo A y D, cada uno sobre un subconjunto "
+                f"de su propio test). {pob.get('nota', '')}"
+            )
+            aislar = modelo.get("aislar_variables_vs_poblacion", {})
+            r2_var = aislar.get("A_vs_D_r2_diferencia", 0)
+            rango_pob = aislar.get("cambio_poblacion_r2_diferencia_rango", [0, 0])
+            st.markdown(
+                f'A: {fmt_num(pob["A_toda_poblacion"]["r2"], 3)} (toda su población) − '
+                f'{fmt_num(pob["A_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = '
+                f'**{fmt_num(rango_pob[0], 3)}**  \n'
+                f'D: {fmt_num(r2_d_toda_poblacion, 3)} (toda su población) − '
+                f'{fmt_num(pob["D_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = '
+                f'**{fmt_num(rango_pob[1], 3)}**'
+            )
+            st.markdown(
+                "Son los mismos modelos, sin reentrenar -- cambia únicamente qué filas se usan para "
+                "evaluarlos. Confirma lo visto en 'Comparación de modelos': cambiar solo las variables "
+                f"(A vs. D, cada uno en su propia población) apenas movía el R² (**{fmt_num(r2_var, 3)}**) -- "
+                "6-7 veces menos que el efecto de la población."
+            )
             d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {})
             df_pob = pd.DataFrame([
                 {"Evaluación": "A, sobre toda su población", "n test": fmt_num(pob["A_toda_poblacion"]["n_test"]), "MAE (€)": fmt_num(pob["A_toda_poblacion"]["mae"], 1), "R²": fmt_num(pob["A_toda_poblacion"]["r2"], 3)},
@@ -111,25 +177,15 @@ with tab_resultados:
                 {"Evaluación": "B, su propia población limpia", "n test": fmt_num(pob["B_propia_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["B_propia_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["B_propia_poblacion_limpia"]["r2"], 3)},
             ])
             st.dataframe(df_pob, width="stretch", hide_index=True)
-        st.caption(pob.get("conclusion", ""))
+            st.caption(pob.get("conclusion", ""))
 
     st.markdown("---")
     st.markdown("## 3. Comparación sobre la muestra común segura (426 filas)")
-    st.markdown(
-        "**Por qué se hace esta comparación:** con la fuga ya corregida (sección 1), esta es la "
-        "respuesta final y de fiar a la pregunta que abre toda la página -- ¿cuál de los tres modelos "
-        "predice mejor de verdad? A diferencia del punto 2, donde cada modelo se evaluaba sobre **su "
-        "propia población** (filtrada de forma parecida, pero no las mismas filas), aquí los tres se "
-        "evalúan sobre **exactamente las mismas 426 filas** -- por eso hace falta reducir la muestra a "
-        "ese tamaño: es lo único que cumple esa condición para los tres modelos a la vez, y ninguno la "
-        "vio durante su entrenamiento."
-    )
     st.caption(
-        "Solo aparecen A, D y B -- el Chequeo de sensibilidad responde una pregunta distinta (si el "
-        "criterio de imputación importa), nunca se diseñó una comparación sin fuga para él."
+        "Los tres modelos evaluados sobre exactamente las mismas 426 filas -- ninguno las vio durante su "
+        "entrenamiento. Solo aparecen A, D y B; el Chequeo de sensibilidad se trata en el bloque 4."
     )
     muestra = modelo.get("muestra_comun_426", {})
-    st.markdown(muestra.get("representatividad", ""))
     resultados_426 = muestra.get("resultados", {})
     if resultados_426:
         st.plotly_chart(
@@ -137,11 +193,62 @@ with tab_resultados:
                 ["A · Crudo", "D · Variables tratadas", "B · Tratado"],
                 [resultados_426["A_crudo"]["r2"], resultados_426["D_variables_tratadas_poblacion_cruda"]["r2"], resultados_426["B_tratado_criterio_A"]["r2"]],
                 [COLOR_CRUDO, COLOR_NEUTRO, COLOR_TRATADO],
+                height=360,
             ),
             width="stretch",
         )
-        st.caption(muestra.get("progresion", ""))
-        with st.expander("Ver métricas detalladas (MAE)"):
+
+        r2_a_426 = resultados_426["A_crudo"]["r2"]
+        r2_d_426 = resultados_426["D_variables_tratadas_poblacion_cruda"]["r2"]
+        r2_b_426 = resultados_426["B_tratado_criterio_A"]["r2"]
+        diferencia_ab_426 = r2_b_426 - r2_a_426
+        st.markdown(
+            f"""
+            <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.2rem 1.4rem; margin: 1rem 0;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                  <div style="width: 72px; height: 72px; border-radius: 50%; background-color: {COLOR_CRUDO}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; margin: 0 auto;">A</div>
+                  <div style="font-size: 1.15rem; font-weight: 800; margin-top: 0.4rem; color: #31333F;">{fmt_num(r2_a_426, 3)}</div>
+                  <div style="font-size: 0.78rem; color: #666;">datos crudos</div>
+                </div>
+                <div style="font-size: 1.6rem; color: #aaa;">&rarr;</div>
+                <div style="text-align: center;">
+                  <div style="width: 72px; height: 72px; border-radius: 50%; background-color: {COLOR_D}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; margin: 0 auto;">D</div>
+                  <div style="font-size: 1.15rem; font-weight: 800; margin-top: 0.4rem; color: #31333F;">{fmt_num(r2_d_426, 3)}</div>
+                  <div style="font-size: 0.78rem; color: #666;">variables tratadas</div>
+                </div>
+                <div style="font-size: 1.6rem; color: #aaa;">&rarr;</div>
+                <div style="text-align: center;">
+                  <div style="width: 72px; height: 72px; border-radius: 50%; background-color: {COLOR_TRATADO}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; margin: 0 auto;">B</div>
+                  <div style="font-size: 1.15rem; font-weight: 800; margin-top: 0.4rem; color: #31333F;">{fmt_num(r2_b_426, 3)}</div>
+                  <div style="font-size: 0.78rem; color: #666;">variables tratadas y<br>población depurada</div>
+                </div>
+              </div>
+              <div style="text-align: center; margin-top: 1rem;">
+                <span style="background-color: {AMBAR_PENDIENTE}1A; color: {AMBAR_PENDIENTE}; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.95rem; font-weight: 700;">
+                  +{fmt_num(diferencia_ab_426, 3)} -- diferencia de R² entre A y B en la muestra común
+                </span>
+              </div>
+              <div style="font-size: 0.78rem; color: #888; border-top: 1px solid #eaeaeb; margin-top: 1rem; padding-top: 0.6rem; text-align: center;">
+                Tres modelos entrenados con sus respectivas versiones de datos, evaluados sobre los mismos 426 casos --
+                la secuencia no demuestra cuánto aporta cada decisión por separado.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        with st.expander("Ver por qué esta es la comparación controlada, y métricas detalladas"):
+            st.markdown(
+                "Con la fuga ya corregida (sección 1), esta es la respuesta final y de fiar a la pregunta "
+                "que abre toda la página -- ¿cuál de los tres modelos predice mejor de verdad? A diferencia "
+                "del punto 2, donde cada modelo se evaluaba sobre su propia población (filtrada de forma "
+                "parecida, pero no las mismas filas), aquí los tres se evalúan sobre exactamente las mismas "
+                "426 filas -- por eso hace falta reducir la muestra a ese tamaño: es lo único que cumple esa "
+                "condición para los tres modelos a la vez, y ninguno la vio durante su entrenamiento."
+            )
+            st.markdown(muestra.get("representatividad", ""))
+            st.caption(muestra.get("progresion", ""))
             df = pd.DataFrame([
                 {"Modelo": "A (CRUDO)", "MAE (€)": fmt_num(resultados_426["A_crudo"]["mae"], 1), "R²": fmt_num(resultados_426["A_crudo"]["r2"], 3)},
                 {"Modelo": "D (variables tratadas)", "MAE (€)": fmt_num(resultados_426["D_variables_tratadas_poblacion_cruda"]["mae"], 1), "R²": fmt_num(resultados_426["D_variables_tratadas_poblacion_cruda"]["r2"], 3)},
@@ -153,28 +260,55 @@ with tab_resultados:
     sec5, sec6 = st.columns(2)
     with sec5:
         with st.container(border=True):
-            st.markdown("**4 · Chequeo de sensibilidad**")
-            st.caption("¿Cambia la conclusión si imputo por barrio en vez de por capacidad?")
+            st.markdown("**4 · ¿Cambia la conclusión si utilizamos otro criterio de imputación?**")
             versiones = modelo.get("versiones", {})
             b = versiones.get("B_tratado_criterio_A", {})
             sens = versiones.get("TRATADO_criterio_B_barrio", {})
             diff = sens.get("diferencia_vs_A", {})
-            if b and sens:
-                st.plotly_chart(
-                    comparacion_sensibilidad(
-                        b.get("mae", 0), sens.get("mae", 0), b.get("r2", 0), sens.get("r2", 0),
-                        COLOR_TRATADO, COLOR_SENSIBILIDAD,
-                        titulo="B vs. Chequeo de sensibilidad",
-                    ),
-                    width="stretch",
-                )
             if diff:
-                st.caption(f"Diferencia: MAE {fmt_num(diff.get('mae_eur', 0), 1)} € ({fmt_num(diff.get('mae_pct', 0), 2)}% relativo) · R² {fmt_num(diff.get('r2', 0), 3)} -- la conclusión del modelo no depende de cuál de los dos criterios razonables se use.")
+                col_mae, col_r2 = st.columns(2)
+                with col_mae:
+                    st.markdown(
+                        f"""
+                        <div style="text-align: center; padding: 0.6rem 0;">
+                          <div style="font-size: 0.78rem; color: #666;">Diferencia de MAE</div>
+                          <div style="font-size: 1.6rem; font-weight: 800; color: {COLOR_SENSIBILIDAD};">+{fmt_num(diff.get('mae_eur', 0), 1)} €</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+                with col_r2:
+                    st.markdown(
+                        f"""
+                        <div style="text-align: center; padding: 0.6rem 0;">
+                          <div style="font-size: 0.78rem; color: #666;">Diferencia de R²</div>
+                          <div style="font-size: 1.6rem; font-weight: 800; color: {COLOR_SENSIBILIDAD};">{fmt_num(diff.get('r2', 0), 3)}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+                st.markdown(
+                    "**La elección entre los dos criterios razonables de imputación apenas altera el resultado.**"
+                )
+                with st.expander("Ver detalle y comparación completa"):
+                    st.caption("¿Cambia la conclusión si imputo por barrio en vez de por capacidad?")
+                    if b and sens:
+                        st.plotly_chart(
+                            comparacion_sensibilidad(
+                                b.get("mae", 0), sens.get("mae", 0), b.get("r2", 0), sens.get("r2", 0),
+                                COLOR_TRATADO, COLOR_SENSIBILIDAD,
+                                titulo="B vs. Chequeo de sensibilidad",
+                            ),
+                            width="stretch",
+                        )
+                    st.caption(
+                        f"Diferencia: MAE {fmt_num(diff.get('mae_eur', 0), 1)} € "
+                        f"({fmt_num(diff.get('mae_pct', 0), 2)}% relativo) · R² {fmt_num(diff.get('r2', 0), 3)}."
+                    )
 
     with sec6:
         with st.container(border=True):
-            st.markdown("**5 · Importancia de variables**")
-            st.caption("Cuánto ayuda cada variable a reducir el error de predicción cada vez que se usa para dividir los datos.")
+            st.markdown("**5 · ¿Qué características utiliza más el modelo?**")
             imp = modelo.get("importancia_variables", {})
             valores_imp = imp.get("valores", [])
             if valores_imp:
@@ -188,9 +322,15 @@ with tab_resultados:
                     width="stretch",
                 )
             st.caption("Las mismas 8 variables dominan en las tres versiones -- ninguna variable geográfica específica entra en el top 8 (ni `room_type`, ni `property_type`, ni `neighbourhood_cleansed`).")
-            st.caption(f"⚠️ {imp.get('caveat', '')}")
+            st.markdown(
+                f'<div style="background-color: #fff3dc; border-left: 4px solid {AMBAR_PENDIENTE}; border-radius: 6px; padding: 0.5rem 0.8rem; font-size: 0.85rem; font-weight: 700; color: #806000;">'
+                f'⚠️ Importancia predictiva ≠ causalidad</div>',
+                unsafe_allow_html=True,
+            )
             if valores_imp:
-                with st.expander("Ver tabla: importancia de cada variable en A, B y el Chequeo de sensibilidad"):
+                with st.expander("Ver explicación completa y tabla por variable"):
+                    st.caption("Cuánto ayuda cada variable a reducir el error de predicción cada vez que se usa para dividir los datos.")
+                    st.caption(imp.get('caveat', ''))
                     st.dataframe(
                         df_imp.rename(columns={"crudo": "A (crudo)", "tratado_a": "B (tratado)", "tratado_b": "Sensibilidad"}),
                         width="stretch",
@@ -200,85 +340,165 @@ with tab_resultados:
     st.markdown("### 6 · Un modelo puede ganar globalmente y no en cada predicción")
     ejemplo = modelo.get("ejemplo_prediccion_individual", {})
     if ejemplo:
-        st.caption("B es el mejor modelo en la evaluación global. ¿Ocurre lo mismo cuando examinamos un anuncio concreto?")
         preds = ejemplo.get("predicciones", [])
+        preds_adb = [p for p in preds if p["modelo"] in ("A", "D", "B")]
         COLOR_REAL = "#3A3A3A"
 
-        with st.container(border=True):
-            st.markdown("**01 — Selección del anuncio**")
-            col_med, col_ref = st.columns(2)
-            with col_med:
-                st.caption(f"Mediana de las {fmt_num(ejemplo.get('n_poblacion', 0))} filas")
-                st.markdown(f"<span style='font-size:1.6rem; font-weight:700; color:{AZUL_PETROLEO};'>{fmt_num(ejemplo.get('mediana_poblacion_eur', 0), 1)} €</span>", unsafe_allow_html=True)
-            with col_ref:
-                st.caption("Valor de referencia")
-                st.markdown(f"<span style='font-size:1.6rem; font-weight:700; color:#31333F;'>{fmt_num(ejemplo.get('valor_real_eur', 0), 1)} €</span>", unsafe_allow_html=True)
-                st.caption(f"ID {ejemplo.get('id_anuncio', '')}")
-            st.markdown("---")
-            st.markdown(f"Distancia a la mediana &nbsp;&nbsp; **{fmt_num(ejemplo.get('distancia_a_mediana_eur', 0), 1)} €**")
-            st.caption(
-                f"Se seleccionó el anuncio más próximo a la mediana. Existe otro registro empatado "
-                f"(ID {ejemplo.get('empate_id', '')}), también a {fmt_num(ejemplo.get('distancia_a_mediana_eur', 0), 1)} €. "
-                f"Se conserva el primero según el criterio determinista del notebook."
+        st.markdown("**EVALUACIÓN GLOBAL**")
+        st.markdown(
+            f"B obtiene el mejor R² sobre la muestra común "
+            f"(R² = {fmt_num(resultados_426.get('B_tratado_criterio_A', {}).get('r2', 0), 3)})."
+        )
+        st.markdown("<div style='text-align:center; color:#aaa; font-size:1.4rem; margin:0.3rem 0;'>&darr;</div>", unsafe_allow_html=True)
+
+        st.markdown("**UN ANUNCIO CONCRETO**")
+        datos_anuncio = ejemplo.get("datos_anuncio", {})
+        if datos_anuncio:
+            st.markdown(
+                f"""
+                <div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1.4rem 1.7rem; margin-bottom: 1rem;">
+                  <div style="font-weight: 800; color: #31333F; margin-bottom: 0.4rem; font-size: 1.4rem;">🏠 Vivienda completa -- {datos_anuncio.get('neighbourhood_cleansed', '')}</div>
+                  <div style="font-size: 0.95rem; color: #888; margin-bottom: 1.1rem;">room_type: {datos_anuncio.get('room_type', '')} -- property_type: {datos_anuncio.get('property_type', '')} -- id {ejemplo.get('id_anuncio', '')}</div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 2.4rem; font-size: 1.35rem; color: #333;">
+                    <div>Precio/noche: <b>{fmt_num(datos_anuncio.get('precio_noche_eur', 0), 2)} €</b></div>
+                    <div>Capacidad: <b>{fmt_num(datos_anuncio.get('accommodates', 0))}</b> personas</div>
+                    <div>Habitaciones: <b>{fmt_num(datos_anuncio.get('bedrooms', 0))}</b></div>
+                    <div>Baños: <b>{fmt_num(datos_anuncio.get('bathrooms', 0))}</b></div>
+                    <div>Camas: <b>{fmt_num(datos_anuncio.get('beds', 0))}</b></div>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
+        st.caption(f"¿Cómo se eligió? De las {fmt_num(ejemplo.get('n_poblacion', 0))} filas seguras, se buscó el anuncio real más cercano a la mediana -- para no favorecer a ningún modelo.")
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 0.6rem 0 1rem 0; flex-wrap: wrap;">
+              <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #666;">Mediana de las {fmt_num(ejemplo.get('n_poblacion', 0))} filas</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: {AZUL_PETROLEO};">{fmt_num(ejemplo.get('mediana_poblacion_eur', 0), 1)} €</div>
+              </div>
+              <div style="font-size: 1.6rem; color: #aaa;">&rarr;</div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #666;">Este anuncio (ID {ejemplo.get('id_anuncio', '')})</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #31333F;">{fmt_num(ejemplo.get('valor_real_eur', 0), 1)} €</div>
+              </div>
+              <div style="font-size: 1.6rem; color: #aaa;">&rarr;</div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #666;">Distancia</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: {AMBAR_PENDIENTE};">{fmt_num(ejemplo.get('distancia_a_mediana_eur', 0), 1)} €</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        color_por_modelo = {"A": COLOR_CRUDO, "D": COLOR_D, "B": COLOR_TRATADO, "C": COLOR_SENSIBILIDAD}
+        nombre_por_modelo = {"A": "A -- CRUDO", "D": "D", "B": "B -- TRATADO", "C": "Chequeo de sensibilidad"}
+        preds_por_valor = sorted(preds_adb, key=lambda p: p["prediccion_eur"])
+        valor_max = max([ejemplo.get("valor_real_eur", 0)] + [p["prediccion_eur"] for p in preds_por_valor])
+        _barra_eur("Valor de referencia", ejemplo.get("valor_real_eur", 0), valor_max, COLOR_REAL, negrita=True)
+        for p in preds_por_valor:
+            etiqueta = f"{nombre_por_modelo.get(p['modelo'], p['nombre_display'])} -- error: {fmt_num(p['error_abs_eur'], 1)} €"
+            _barra_eur(etiqueta, p["prediccion_eur"], valor_max, color_por_modelo.get(p["modelo"], AZUL_PETROLEO))
+        st.markdown("<div style='text-align:center; color:#aaa; font-size:1.4rem; margin:0.3rem 0;'>&darr;</div>", unsafe_allow_html=True)
 
-        st.markdown("")
-        with st.container(border=True):
-            st.markdown("**02 — ¿Qué predice cada modelo?**")
-            st.caption(f"Importes en euros · valor de referencia: {fmt_num(ejemplo.get('valor_real_eur', 0), 1)} €")
-            preds_por_valor = sorted(preds, key=lambda p: p["prediccion_eur"])
-            valor_max = max([ejemplo.get("valor_real_eur", 0)] + [p["prediccion_eur"] for p in preds_por_valor])
-            _barra_eur("Valor de referencia", ejemplo.get("valor_real_eur", 0), valor_max, COLOR_REAL, negrita=True)
-            for p in preds_por_valor:
-                _barra_eur(p["nombre_display"], p["prediccion_eur"], valor_max, AZUL_PETROLEO)
-            st.caption("Representación ilustrativa de las predicciones y del valor de referencia. Escala común desde cero.")
+        st.markdown("**RESULTADO**")
+        ganador = min(preds_adb, key=lambda p: p["error_abs_eur"])
+        st.markdown(
+            f"**D obtiene el menor error individual en este anuncio** -- "
+            f"{fmt_num(ganador['error_abs_eur'], 1)} € de error absoluto."
+        )
 
-        st.markdown("")
-        with st.container(border=True):
-            st.markdown("**03 — ¿Cuál se equivoca menos?**")
-            preds_por_error = sorted(preds, key=lambda p: p["error_abs_eur"])
-            df_errores = pd.DataFrame([
-                {"Modelo": p["nombre_display"], "Error absoluto": f"{fmt_num(p['error_abs_eur'], 1)} €"}
-                for p in preds_por_error
-            ])
-            st.dataframe(df_errores, width="stretch", hide_index=True)
-            ganador = preds_por_error[0]
-            st.markdown("**Menor error individual**")
-            st.markdown(f"<span style='font-size:1.6rem; font-weight:700; color:{AZUL_PETROLEO};'>{fmt_num(ganador['error_abs_eur'], 1)} €</span>", unsafe_allow_html=True)
-            st.caption(f"Error absoluto en el anuncio {ejemplo.get('id_anuncio', '')} (modelo {ganador['nombre_display']})")
-
-        st.markdown("")
-        with st.container(border=True):
-            st.markdown("**El mensaje final que debe quedar en pantalla**")
-            col_g, col_i = st.columns(2)
-            with col_g:
-                st.caption(f"Evaluación global · {fmt_num(ejemplo.get('n_poblacion', 0))} filas")
-                st.markdown(f"<span style='font-size:1.8rem; font-weight:800; color:{COLOR_TRATADO};'>B</span>", unsafe_allow_html=True)
-                st.caption(f"R² = {fmt_num(resultados_426.get('B_tratado_criterio_A', {}).get('r2', 0), 3)}")
-                st.caption("Mejor rendimiento global")
-            with col_i:
-                st.caption("Ejemplo individual · 1 anuncio")
-                st.markdown(f"<span style='font-size:1.8rem; font-weight:800; color:{COLOR_D};'>D</span>", unsafe_allow_html=True)
-                st.caption(f"Error = {fmt_num(ganador['error_abs_eur'], 1)} €")
-                st.caption("Menor error en este caso")
-            st.markdown("---")
-            st.markdown("**El mejor modelo global no tiene por qué ser el más preciso en cada predicción individual.**")
+        st.markdown("---")
+        st.markdown("**El mejor modelo global no tiene por qué ser el más preciso en cada predicción individual.**")
+        st.caption(
+            "Es un ejemplo ilustrativo de un único anuncio, no una demostración de que D sea mejor modelo que B."
+        )
+        with st.expander("Ver notas metodológicas (criterio de selección del anuncio)"):
+            st.caption(
+                f"Existe otro registro empatado en distancia a la mediana (ID {ejemplo.get('empate_id', '')}), "
+                f"también a {fmt_num(ejemplo.get('distancia_a_mediana_eur', 0), 1)} € -- se conserva el primero "
+                "según el criterio determinista del notebook."
+            )
             st.caption(ejemplo.get("nota_metodologica", ""))
-        st.caption(f"ℹ️ {ejemplo.get('nota_c', '')}")
+
+        pred_c = next((p for p in preds if p["modelo"] == "C"), None)
+        if pred_c:
+            with st.expander("Ficha técnica: predicción del Chequeo de sensibilidad para este anuncio"):
+                st.markdown(
+                    f"Predicción: **{fmt_num(pred_c['prediccion_eur'], 1)} €** -- "
+                    f"error absoluto: **{fmt_num(pred_c['error_abs_eur'], 1)} €**."
+                )
+                st.caption(
+                    "No es un cuarto modelo global -- el Chequeo responde una pregunta distinta a la de A, D "
+                    "y B (ver bloque 4). Un solo caso tampoco demuestra nada sobre su rendimiento general."
+                )
 
 with tab_confianza:
     st.markdown("## ¿Cuánta confianza hay en estos resultados?")
-    disc = modelo.get("discrepancia_426_vs_2131", {})
-    st.caption(disc.get("descripcion", ""))
 
     sim = modelo.get("simulacion_5000_submuestras", {})
     boot = modelo.get("bootstrap_intervalos_confianza", {})
     comparaciones = boot.get("comparaciones", [])
+    pob_grande = modelo.get("poblacion_limpia_experimento", {})
+    r2_a_grande = pob_grande.get("A_solo_poblacion_limpia", {}).get("r2", 0)
+    r2_d_grande = pob_grande.get("D_solo_poblacion_limpia", {}).get("r2", 0)
+    delta_grande = r2_a_grande - r2_d_grande
+    muestra_426_r = modelo.get("muestra_comun_426", {}).get("resultados", {})
+    r2_a_pequena = muestra_426_r.get("A_crudo", {}).get("r2", 0)
+    r2_d_pequena = muestra_426_r.get("D_variables_tratadas_poblacion_cruda", {}).get("r2", 0)
+    delta_pequena = abs(r2_a_pequena - r2_d_pequena)
+
+    st.markdown(
+        f"""
+        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1rem;">
+          <svg width="100%" height="380" viewBox="0 0 1040 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="flecha_rompecabezas" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+              </marker>
+            </defs>
+            <text x="200" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. DOS MUESTRAS, DOS RESULTADOS</text>
+            <text x="780" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. LA PREGUNTA</text>
+            <rect x="40" y="40" width="320" height="120" rx="10" fill="white" stroke="{COLOR_NEUTRO}" stroke-width="2" />
+            <text x="200" y="65" text-anchor="middle" fill="#31333F" font-size="14" font-weight="700" font-family="Helvetica">Muestra grande -- 2.131 filas</text>
+            <text x="200" y="88" text-anchor="middle" fill="#31333F" font-size="13" font-family="Helvetica">A: {fmt_num(r2_a_grande, 3)} -- D: {fmt_num(r2_d_grande, 3)}</text>
+            <text x="200" y="108" text-anchor="middle" fill="#31333F" font-size="12" font-family="Helvetica">Δ R² (A-D) = {fmt_num(delta_grande, 3)}</text>
+            <text x="200" y="128" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">A ligeramente por delante</text>
+            <rect x="40" y="180" width="320" height="120" rx="10" fill="white" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+            <text x="200" y="205" text-anchor="middle" fill="#31333F" font-size="14" font-weight="700" font-family="Helvetica">Muestra pequeña -- 426 filas</text>
+            <text x="200" y="228" text-anchor="middle" fill="#31333F" font-size="13" font-family="Helvetica">A: {fmt_num(r2_a_pequena, 3)} -- D: {fmt_num(r2_d_pequena, 3)}</text>
+            <text x="200" y="248" text-anchor="middle" fill="#31333F" font-size="12" font-family="Helvetica">Δ R² (A-D) = {fmt_num(delta_pequena, 3)}</text>
+            <text x="200" y="268" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">D claramente por delante (signo invertido)</text>
+            <line x1="360" y1="100" x2="620" y2="160" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rompecabezas)" />
+            <line x1="360" y1="240" x2="620" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rompecabezas)" />
+            <text x="490" y="172" text-anchor="middle" fill="#888" font-size="10" font-family="Helvetica">{fmt_num(delta_pequena, 3)} &divide; {fmt_num(delta_grande, 3)} &approx; {fmt_num(delta_pequena / delta_grande, 0)}&times;</text>
+            <text x="490" y="186" text-anchor="middle" fill="#888" font-size="10" font-family="Helvetica">más grande que en la muestra grande</text>
+            <rect x="620" y="125" width="320" height="110" rx="10" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+            <text x="780" y="175" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="15" font-weight="700" font-family="Helvetica">¿Por qué cambia tanto?</text>
+            <text x="780" y="197" text-anchor="middle" fill="#806000" font-size="11" font-family="Helvetica">Investigado a fondo en los paneles de abajo</text>
+          </svg>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     sub1, sub2 = st.columns(2)
     with sub1:
-        st.markdown("**A · Variación entre subconjuntos del universo**")
-        st.caption("¿Qué pasaría si eligiéramos otros 426 casos?")
+        st.markdown("**A · ¿Se repite el resultado?**")
+        st.markdown(
+            '<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; '
+            'padding: 0.7rem 1rem; margin-bottom: 0.7rem; font-size: 0.85rem; color: #444;">'
+            '<b>¿Cómo funciona?</b> De un universo de 2.131 filas, se sortean 426 filas distintas '
+            '(sin repetir ninguna) en cada una de las 5.000 repeticiones -- simula elegir otros 426 '
+            'anuncios reales distintos.</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div style='text-align:center; color:#888; font-size:0.78rem; font-weight:600; letter-spacing:0.3px; margin-bottom:0.5rem;'>"
+            "5.000 SUBMUESTRAS &rarr; REPETIR LA COMPARACIÓN A-D &rarr; OBSERVAR LA DISTRIBUCIÓN DE DIFERENCIAS</div>",
+            unsafe_allow_html=True,
+        )
         if sim:
             diffs_reales = simulacion_real.get("diffs_sim_426")
             if diffs_reales:
@@ -291,40 +511,51 @@ with tab_confianza:
                     "No se encontraron los 5.000 valores reales de la simulacion -- falta "
                     "`simulacion_5000_valores.json`. No se muestra un histograma aproximado en su lugar."
                 )
-            st.metric("Percentil del resultado real", fmt_num(sim.get('percentil_del_resultado_real', 0), 1))
-            with st.expander("Ver detalle de la simulación"):
+            pct_real = sim.get('percentil_del_resultado_real', 0)
+            st.markdown(
+                f"""
+                <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-left: 4px solid {AMBAR_PENDIENTE}; border-radius: 8px; padding: 1rem 1.3rem; margin-top: 0.8rem;">
+                  <div style="display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 0.6rem;">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: {AMBAR_PENDIENTE};">{fmt_num(pct_real, 1)}%</div>
+                    <div style="font-size: 0.85rem; color: #666;">percentil del resultado real</div>
+                  </div>
+                  <div style="font-size: 0.95rem; color: #31333F; font-weight: 700; margin-bottom: 0.4rem;">La diferencia observada es poco habitual</div>
+                  <div style="font-size: 0.85rem; color: #555;">Solo el {fmt_num(pct_real, 1)}% de las 5.000 submuestras dieron un resultado tan extremo como el real, o más.</div>
+                  <div style="font-size: 0.78rem; color: #888; border-top: 1px solid #eee; margin-top: 0.6rem; padding-top: 0.5rem;">Esto no demuestra por sí solo significación estadística -- es una medida de sensibilidad a qué filas se evalúan, no una prueba formal.</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            with st.expander("Ver detalle de la simulación y explicación completa"):
                 st.metric("Media de 5.000 simulaciones", fmt_num(sim.get('r2_diferencia_media', 0), 4))
                 st.metric("Desviación estándar", fmt_num(sim.get('r2_diferencia_std', 0), 4))
                 rango = sim.get('rango_central_95', [0, 0])
                 st.metric("Rango central (2.5%-97.5%)", f"[{fmt_num(rango[0], 4)}, {fmt_num(rango[1], 4)}]")
                 st.metric("Resultado real observado (426 filas)", fmt_num(sim.get('diferencia_real_observada_426', 0), 4))
-            st.markdown("**La diferencia observada es poco habitual.**")
-            st.caption(
-                f"Solo el {fmt_num(sim.get('percentil_del_resultado_real', 0), 1)}% de las 5.000 submuestras "
-                "simuladas (cada una, otros 426 anuncios elegidos al azar del mismo universo) dieron un "
-                "resultado tan extremo como el real, o más. Con solo 426 filas, no se puede afirmar con "
-                "seguridad que si se hubieran elegido otros 426 anuncios distintos, el resultado se "
-                "mantuviera igual -- de hecho, el histograma muestra que la mayoría de esas otras "
-                "elecciones posibles habrían dado un resultado muy distinto (más cercano a cero, o incluso "
-                "a favor de A). Por eso esta comparación concreta, por sí sola, no es una base sólida para "
-                "afirmar que D gana a A -- el hallazgo fiable es el de la muestra grande (sección 2)."
-            )
+                st.markdown(
+                    "Con solo 426 filas, no se puede afirmar con seguridad que si se hubieran elegido otros "
+                    "426 anuncios distintos, el resultado se mantuviera igual -- de hecho, el histograma "
+                    "muestra que la mayoría de esas otras elecciones posibles habrían dado un resultado muy "
+                    "distinto (más cercano a cero, o incluso a favor de A). Por eso esta comparación "
+                    "concreta, por sí sola, no es una base sólida para afirmar que D gana a A -- el hallazgo "
+                    "fiable es el de la muestra grande (sección 2)."
+                )
 
     with sub2:
-        st.markdown("**B · Incertidumbre de la muestra fija (bootstrap)**")
-        st.caption("¿Cuánta incertidumbre tiene la diferencia de nuestra muestra?")
+        st.markdown("**B · ¿Cuánta incertidumbre tiene la muestra?**")
         st.markdown(
-            f"**Qué se hizo**: igual que en el panel A, se repite el cálculo **5.000 veces** -- pero con un "
-            f"método distinto. Aquí no se buscan otras filas del universo: se vuelve a muestrear **de "
-            f"las mismas 426 filas, con reemplazo** (un mismo anuncio puede salir repetido varias veces "
-            f"en una ronda, o ninguna). En cada una de las 5.000 repeticiones se remuestrea una sola vez "
-            f"y se aplica igual a A, D y B -- los tres se evalúan sobre las mismas filas remuestreadas en "
-            f"cada ronda, para que la comparación entre ellos sea consistente ronda a ronda."
+            '<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; '
+            'padding: 0.7rem 1rem; margin-bottom: 0.7rem; font-size: 0.85rem; color: #444;">'
+            '<b>¿Cómo funciona?</b> De las mismas 426 filas fijas, se sacan 426 "con reemplazo" (un mismo '
+            'anuncio puede salir repetido) en cada una de las 5.000 repeticiones -- simula la variabilidad '
+            'dentro de esta misma muestra, sin cambiar de anuncios.</div>',
+            unsafe_allow_html=True,
         )
-        st.caption(
-            "**Para qué sirve**: mide cuánto se movería el resultado si tuvieras mala suerte (o buena) con "
-            "qué filas concretas te tocaron dentro de esta muestra fija de 426 -- no cambia de muestra, "
-            "mide la fiabilidad de la que ya tienes."
+        st.markdown(
+            "<div style='font-size:0.82rem; color:#555; margin-bottom:0.6rem;'>"
+            "Si el intervalo <b>cruza el cero</b> &rarr; no concluyente. "
+            "Si <b>no lo cruza</b> &rarr; diferencia respaldada por este procedimiento.</div>",
+            unsafe_allow_html=True,
         )
         if comparaciones:
             etiquetas_cortas = {
@@ -341,15 +572,20 @@ with tab_confianza:
                 ),
                 width="stretch",
             )
-            st.caption(
-                "**Cómo leerlo**: si la barra toca o cruza la línea de puntos (el cero), esa diferencia "
-                "no se puede distinguir del azar con esta muestra. Solo la barra de abajo (A vs. B) no la toca."
+            st.markdown(
+                "**B predice mejor que A, y esa diferencia SÍ es estadísticamente real** -- el intervalo de "
+                "confianza de A vs. B no incluye el cero."
             )
-            st.success(
-                "**B predice mejor que A, y esa diferencia SÍ es estadísticamente real** (el intervalo de "
-                "confianza de A-B no incluye el cero)."
-            )
-            with st.expander("Ver intervalos por comparación"):
+            with st.expander("Ver cómo se hizo el bootstrap, e intervalos por comparación"):
+                st.markdown(
+                    "Igual que en el panel A, se repite el cálculo 5.000 veces -- pero con un método "
+                    "distinto. Aquí no se buscan otras filas del universo: se vuelve a muestrear de las "
+                    "mismas 426 filas, con reemplazo (un mismo anuncio puede salir repetido varias veces en "
+                    "una ronda, o ninguna). En cada una de las 5.000 repeticiones se remuestrea una sola vez "
+                    "y se aplica igual a A, D y B -- los tres se evalúan sobre las mismas filas "
+                    "remuestreadas en cada ronda, para que la comparación entre ellos sea consistente ronda "
+                    "a ronda. Mide la fiabilidad de la muestra que ya tienes, no cambia de muestra."
+                )
                 veredictos = {
                     "A - B (efecto combinado, hallazgo principal)": "**Resultado: B predice mejor que A** -- diferencia real, confirmada.",
                     "A - D (solo variables, 426 filas)": "**Resultado: no concluyente** -- con esta muestra, no se puede afirmar si D es mejor o peor que A.",
@@ -360,17 +596,38 @@ with tab_confianza:
                     st.markdown(f"- **{c['nombre']}**: diferencia media {fmt_num(c['diferencia_media'], 4)}, IC95% "
                                 f"[{fmt_num(c['ic_95'][0], 4)}, {fmt_num(c['ic_95'][1], 4)}] — {incluye}. "
                                 f"{veredictos.get(c['nombre'], '')}")
-            st.caption(
-                "Lo único que no se puede repartir con precisión es **cuánto** de esa mejora viene de excluir "
-                "los ceros artificiales (población) y cuánto de construir mejor las variables -- esas dos "
-                "piezas, vistas por separado (A-D y D-B), sí incluyen el cero en esta muestra de 426 filas. "
-                "Que un intervalo incluya el 0 no demuestra que el efecto sea nulo, solo que con esta muestra "
-                "no se puede distinguir del azar."
-            )
+                st.caption(
+                    "Lo único que no se puede repartir con precisión es **cuánto** de esa mejora viene de "
+                    "excluir los ceros artificiales (población) y cuánto de construir mejor las variables -- "
+                    "esas dos piezas, vistas por separado (A-D y D-B), sí incluyen el cero en esta muestra de "
+                    "426 filas. Que un intervalo incluya el 0 no demuestra que el efecto sea nulo, solo que "
+                    "con esta muestra no se puede distinguir del azar."
+                )
 
     st.markdown("---")
     st.markdown("## Conclusión de esta sección")
     concl = modelo.get("conclusion_final", {})
-    st.success(f"**Lo observado:** {concl.get('observado', '')}")
-    st.warning(f"**Interpretación razonable:** {concl.get('interpretacion_razonable', '')}")
-    st.info(f"**Lo que sigue sin resolver:** {concl.get('sin_resolver', '')}")
+
+    def _tarjeta_conclusion(numero, color, titulo, texto):
+        st.markdown(
+            f'<div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; '
+            f'padding: 1.2rem 1.3rem; height: 100%;">'
+            f'<div style="display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem;">'
+            f'<div style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background-color: {color}; '
+            f'color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; '
+            f'font-size: 1.2rem;">{numero}</div>'
+            f'<div style="font-size: 0.95rem; color: {color}; font-weight: 700; text-transform: uppercase; '
+            f'letter-spacing: 0.5px; line-height: 1.3;">{titulo}</div>'
+            f'</div>'
+            f'<div style="font-size: 1.15rem; color: #31333F; line-height: 1.55;">{texto}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    col_ev, col_int, col_lim = st.columns(3)
+    with col_ev:
+        _tarjeta_conclusion(1, AZUL_PETROLEO, "Evidencia -- lo observado", concl.get('observado', ''))
+    with col_int:
+        _tarjeta_conclusion(2, COLOR_NEUTRO, "Interpretación -- la lectura razonable", concl.get('interpretacion_razonable', ''))
+    with col_lim:
+        _tarjeta_conclusion(3, AMBAR_PENDIENTE, "Limitación -- lo que sigue sin resolver", concl.get('sin_resolver', ''))
