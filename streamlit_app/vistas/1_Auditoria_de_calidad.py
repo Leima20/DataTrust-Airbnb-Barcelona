@@ -160,6 +160,12 @@ with tab2:
                     "El nuevo registro único a nivel nacional, creado por el Real Decreto 1312/2024 y "
                     "obligatorio desde julio de 2025. Convive con el <code>HUTB</code>, no lo sustituye.",
                 )
+            st.markdown(
+                '<div style="text-align:center; font-size:0.8rem; color:#888; margin-top:0.8rem;">Fuente: '
+                '<a href="https://www.boe.es/boe/dias/2024/12/24/pdfs/BOE-A-2024-26931.pdf" target="_blank">'
+                'Real Decreto 1312/2024, BOE-A-2024-26931</a></div>',
+                unsafe_allow_html=True,
+            )
         st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
         cats = lic.get("categorias", [])
         if cats:

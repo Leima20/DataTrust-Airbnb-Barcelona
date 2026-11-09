@@ -4,19 +4,26 @@ Un estudio del impacto de la calidad y la gobernanza de datos en las
 conclusiones analíticas — de negocio y de un modelo predictivo — usando el
 mercado de alquiler turístico de Barcelona como caso de estudio real.
 
+**App interactiva en vivo (presentación del proyecto)**:
+[datatrust-bcn.streamlit.app](https://datatrust-bcn.streamlit.app/)
+
 ## Pregunta central
 
 ¿Cómo afectan los problemas de calidad, consistencia e integridad de los datos a
 las conclusiones de negocio y al rendimiento de un modelo predictivo, en un caso
 real de alquiler turístico en Barcelona?
 
-## Objetivos
+## Dos hipótesis de trabajo
 
-1. Auditar la calidad de los datos (`listings`, `reviews`, `calendar`).
-2. Identificar y priorizar los problemas encontrados según su impacto.
-3. Aplicar un proceso de curación documentado y justificado.
-4. Comparar las conclusiones de negocio antes y después del tratamiento.
-5. Comparar el rendimiento de un modelo predictivo antes y después del tratamiento.
+1. **Negocio**: ¿la calidad de los datos puede cambiar las conclusiones de negocio?
+2. **Modelo**: ¿el tratamiento de los datos puede cambiar el rendimiento de un
+   modelo predictivo?
+
+El proyecto sigue un flujo de 6 pasos para responder a ambas hipótesis con
+evidencia: 1. Auditoría (detección de hallazgos en `listings`, `reviews`,
+`calendar`) → 2. Gobernanza (decisión documentada por cada hallazgo) →
+3. Tratamiento (decisiones ejecutadas sobre los datos) → 4. Comparación de
+negocio → 5. Comparación de modelos → 6. Simulación de decisión.
 
 ## El caso de estudio
 
@@ -32,7 +39,6 @@ tablas) que se auditan, documentan y tratan a lo largo del proyecto.
 Proyecto_Final/
 ├── README.md                    ← estás aquí
 ├── 00_ficha_maestra.md          ← documento de trabajo interno (plan, decisiones)
-├── data/powerbi/                ← datasets usados en Power BI (Parquet, vía Git LFS)
 ├── data/airbnb_bcn/             ← datos originales de Inside Airbnb (NO en el repo, ver abajo)
 ├── data/airbnb_bcn_curado/      ← datos curados en CSV (NO en el repo, ver abajo)
 ├── database/construir_base_datos.py  ← script para regenerar la base SQLite
@@ -43,8 +49,8 @@ Proyecto_Final/
 │   ├── 04_recomendaciones_gobernanza.ipynb  ← 14 hallazgos priorizados (completado)
 │   ├── 05_tratamiento_curacion.ipynb     ← curación ejecutada en código (completado)
 │   └── 06_modelo_ml.ipynb                ← modelo original vs. tratado (completado)
-├── report/                      ← informe final en PDF (pendiente)
-└── slides/                      ← presentación de 30 minutos (pendiente)
+├── report/                      ← informe final en PDF (completado)
+└── streamlit_app/                ← app de presentación interactiva (ver enlace arriba)
 ```
 
 Se recomienda abrir los notebooks en orden numérico, cada uno documenta sus
@@ -64,9 +70,6 @@ Los CSV originales y curados (1,3 GB en total) y la base de datos SQLite
 3. Ejecutar los notebooks 01-05 en orden; el notebook 05 genera
    `data/airbnb_bcn_curado/` y las tablas `*_curado` en la base de datos.
 
-Los datasets ya usados en el dashboard de Power BI (formato Parquet,
-mucho más ligero) sí están incluidos en `data/powerbi/`.
-
 ## Hallazgo de apertura
 
 **El 51,4% de los alojamientos presenta al menos una incidencia de calidad**
@@ -76,14 +79,14 @@ marginal, afecta a más de la mitad del inventario analizado.
 
 ## Resultado del modelo
 
-El mismo modelo de regresión (RandomForest) entrenado con datos crudos vs.
-tratados da un R² y un MAE **peores** en la versión tratada (R² 0,440 vs.
-0,469; MAE 15.207 € vs. 13.320 €) — no porque el tratamiento empeore el
-modelo, sino porque excluye 2.686 anuncios con ingreso "0 €" artificial que
-inflaban la precisión aparente del modelo crudo. Un chequeo de sensibilidad
-(probando un criterio de imputación alternativo) confirma que la conclusión
-es estable y no depende de esa decisión concreta de curación (diferencia
-menor al 0,1%). Detalle completo en `notebooks/06_modelo_ml.ipynb`.
+Comparando el mismo algoritmo (RandomForest) entrenado con datos crudos vs.
+tratados, sobre una muestra común de 426 filas que ningún modelo vio durante
+su entrenamiento (sin fuga de datos), el modelo tratado predice **mejor**
+que el crudo: R² sube de 0,347 a 0,450, y el MAE baja de 15.168 € a
+14.343 €. Un chequeo de sensibilidad (probando un criterio de imputación
+alternativo) confirma que la conclusión es estable y no depende de esa
+decisión concreta de curación (diferencia menor al 0,1% en MAE). Detalle
+completo en `notebooks/06_modelo_ml.ipynb` y en la app interactiva.
 
 ## Corrección metodológica aplicada
 
