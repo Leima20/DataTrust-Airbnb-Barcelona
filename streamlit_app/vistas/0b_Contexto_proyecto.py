@@ -158,9 +158,9 @@ digraph Flujo {
   aud [label="1. Auditoría\n\nDetección de hallazgos\nen listings, reviews, calendar"];
   gob [label="2. Gobernanza\n\nDecisión documentada por\ncada hallazgo"];
   tra [label="3. Tratamiento\n\nDecisiones ejecutadas\nsobre los datos"];
-  neg [label="4. Comparación de negocio"];
-  mod [label="5. Comparación de modelos"];
-  sim [label="6. Simulación de decisión"];
+  neg [label="4. Comparación de negocio\n\nBrecha de ingresos:\ncrudo vs. auditado"];
+  mod [label="5. Comparación de modelos\n\nRendimiento:\ncrudo vs. tratado"];
+  sim [label="6. Simulación de decisión\n\n¿Qué cambiaría con una\nregla de descarte simple?"];
 
   aud -> gob -> tra;
   tra -> neg;

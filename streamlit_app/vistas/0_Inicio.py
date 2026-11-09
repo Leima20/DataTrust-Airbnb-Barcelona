@@ -158,8 +158,8 @@ with tab_zillow:
                 """
                 <div style="background-color:#EAF2F8; border-left:4px solid #0B3954; border-radius:8px;
                             padding:0.9rem 1.1rem; font-size:0.92rem; color:#333;">
-                💡 Un modelo predictivo con buenas métricas técnicas no garantiza buenas decisiones si
-                no se auditan los límites de los datos que lo alimentan.
+                💡 ¿Puede un modelo con buenas métricas técnicas garantizar buenas decisiones si nadie
+                audita los datos y los supuestos que lo alimentan?
                 </div>
                 """,
                 unsafe_allow_html=True,

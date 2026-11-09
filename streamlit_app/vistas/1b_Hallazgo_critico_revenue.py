@@ -58,8 +58,8 @@ digraph Flujo {
     style=filled;
     color="#F2F4F6";
 
-    anuncio [label="Anuncio:\nreseñas recientes, estancia mínima, price", fillcolor="#EAF2F8"];
-    ocupacion [label="Ocupación estimada:\nreseñas recientes ÷ 50%\n(huéspedes que dejan reseña)\n× duración media", fillcolor="#EAF2F8"];
+    anuncio [label="Anuncio:\nreseñas recientes (number_of_reviews_ltm),\nestancia mínima (minimum_nights), price", fillcolor="#EAF2F8"];
+    ocupacion [label="estimated_occupancy_l365d:\nreseñas recientes ÷ 50%\n× duración media", fillcolor="#EAF2F8"];
     ingreso [label="estimated_revenue_l365d\n= ocupación × price", fillcolor="#EAF2F8"];
     espacio_airbnb [label="", style=invis, width=0.01, height=0.01];
     anuncio -> ocupacion -> ingreso;
@@ -210,11 +210,6 @@ if exp:
                 width="stretch",
             )
 
-        st.caption(
-            "Los anuncios que pasan a revisión tienden a ser más pequeños, más baratos y con más peso de habitación privada "
-            "que los que siguen descartados — un patrón descriptivo compatible con alojamientos de estancia larga, "
-            "no una prueba de que estén ocupados o generen ingresos reales."
-        )
 
 st.markdown("---")
 
@@ -229,7 +224,7 @@ st.markdown(
     <li>Existen 2.686 anuncios (20,1%) con <code>estimated_revenue_l365d = 0</code>, y no todos son ceros reales -- algunos quedan marcados como "no estimables" (0 reseñas recientes + estancia ≥ 28 noches).</li>
     <li>Excluirlos cambia la brecha particular-profesional de <b>39,7% a 23,1%</b>.</li>
     <li>El 64,2% de los anuncios descartados por la regla simple cambiarían de categoría con la regla auditada.</li>
-    <li>Si alguien usara este dato para filtrar oportunidades de inversión, su decisión cambiaría según qué versión use: con la regla simple descartaría automáticamente anuncios que, con la regla auditada, en realidad requieren revisión en vez de descarte directo.</li>
+    <li>En una simulación, un filtro ingenuo descartaría por igual los 4.181 anuncios con ingreso 0€. Pero 2.686 de ellos (los que pasan a revisión al auditar) son sobre todo alojamientos pequeños y baratos -- el segmento más accesible del mercado.</li>
     </ul>
     </div>
     """,

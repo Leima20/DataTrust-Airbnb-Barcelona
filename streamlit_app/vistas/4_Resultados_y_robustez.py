@@ -26,18 +26,58 @@ def _barra_eur(etiqueta, valor, valor_max, color, negrita=False):
 
 kicker("Página 7 de 9")
 st.title("Resultados, robustez e interpretación")
-st.markdown(
-    "Esta es la página central del proyecto. Los R² de la página anterior invitan a sacar una "
-    "conclusión rápida -- pero **se evalúan sobre poblaciones distintas**, y comparar así puede "
-    "engañar. Antes de confiar en cualquier diferencia entre modelos, se investigó si la comparación "
-    "en sí misma era confiable. No lo era: se encontró un problema real."
-)
 
 st.markdown("---")
 tab_resultados, tab_confianza = st.tabs(["📊 Resultados", "🔍 Confianza y conclusión"])
 
 with tab_resultados:
-    st.markdown("## 1. Detectamos un solapamiento que invalidaba la comparación inicial")
+    st.markdown("### ¿Qué se intentó comparar?")
+    st.markdown(
+        f"""
+        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem;">
+          <svg width="100%" height="460" viewBox="0 0 1150 460" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="flecha_cm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
+              </marker>
+            </defs>
+            <text x="110" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. PUNTO DE PARTIDA</text>
+            <text x="560" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. AÍSLA UN FACTOR A LA VEZ</text>
+            <text x="990" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. COMPARACIÓN CONTROLADA</text>
+            <rect x="20" y="170" width="180" height="110" rx="10" fill="{COLOR_CRUDO}" />
+            <text x="110" y="220" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">A -- CRUDO</text>
+            <text x="110" y="238" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
+            <text x="110" y="256" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.8">punto de partida</text>
+            <line x1="200" y1="195" x2="430" y2="85" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_cm)" />
+            <line x1="200" y1="225" x2="430" y2="225" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_cm)" />
+            <rect x="430" y="35" width="260" height="100" rx="10" fill="{COLOR_D}" />
+            <text x="560" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">D</text>
+            <text x="560" y="78" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Influye el tratamiento de variables?</text>
+            <text x="560" y="96" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">misma población -- n = 13.355</text>
+            <rect x="430" y="175" width="260" height="100" rx="10" fill="{COLOR_TRATADO}" />
+            <text x="560" y="200" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">B -- TRATADO-A</text>
+            <text x="560" y="218" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Qué ocurre al depurar los datos?</text>
+            <text x="560" y="236" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables y población -- n = 10.669</text>
+            <line x1="560" y1="275" x2="560" y2="315" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3,3" />
+            <text x="590" y="298" text-anchor="start" fill="#999" font-size="9" font-family="Helvetica">variante</text>
+            <rect x="430" y="315" width="260" height="110" rx="10" fill="{COLOR_SENSIBILIDAD}" />
+            <text x="560" y="340" text-anchor="middle" fill="white" font-size="14" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
+            <text x="560" y="358" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">¿Depende del criterio de imputación?</text>
+            <text x="560" y="376" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">mismas filas que B, otro criterio</text>
+            <text x="560" y="392" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.75">fuera de la muestra de 426</text>
+            <line x1="690" y1="85" x2="870" y2="205" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_cm)" />
+            <line x1="690" y1="225" x2="870" y2="225" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_cm)" />
+            <rect x="870" y="170" width="240" height="110" rx="10" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
+            <text x="990" y="220" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="14" font-weight="700" font-family="Helvetica">Muestra común</text>
+            <text x="990" y="238" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="11" font-family="Helvetica">¿Qué ocurre en igualdad de condiciones?</text>
+            <text x="990" y="256" text-anchor="middle" fill="#806000" font-size="10" font-family="Helvetica" opacity="0.85">n = 426 -- comparación controlada</text>
+          </svg>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("## 1. Se detectó un solapamiento que invalidaba la comparación inicial")
     st.markdown(
         "Para comparar A, D y B en igualdad de condiciones, se intentó evaluar a los tres sobre las mismas "
         "filas: las 2.134 del test de B."
@@ -92,99 +132,7 @@ with tab_resultados:
         )
 
     st.markdown("---")
-    st.markdown("## 2. ¿De dónde viene la diferencia?")
-    pob = modelo.get("poblacion_limpia_experimento", {})
-    r2_d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {}).get("r2", 0)
-
-    st.markdown(
-        f"""
-        <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1rem;">
-          <svg width="100%" height="270" viewBox="0 0 1100 220" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <marker id="flecha_dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
-              </marker>
-            </defs>
-            <text x="310" y="40" text-anchor="middle" fill="{AZUL_PETROLEO}" font-size="15" font-weight="700" letter-spacing="0.5" font-family="Helvetica">VARIABLES</text>
-            <text x="310" y="58" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">cómo se construyen y tratan</text>
-            <text x="770" y="40" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="15" font-weight="700" letter-spacing="0.5" font-family="Helvetica">POBLACIÓN</text>
-            <text x="770" y="58" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">qué anuncios se incluyen</text>
-            <rect x="20" y="80" width="120" height="70" rx="10" fill="{COLOR_CRUDO}" />
-            <text x="80" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">A -- CRUDO</text>
-            <text x="80" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
-            <line x1="140" y1="115" x2="480" y2="115" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_dim)" />
-            <text x="310" y="145" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">misma población, distinto tratamiento de variables</text>
-            <rect x="480" y="80" width="120" height="70" rx="10" fill="{COLOR_D}" />
-            <text x="540" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">D</text>
-            <text x="540" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 13.355</text>
-            <line x1="600" y1="115" x2="940" y2="115" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_dim)" />
-            <text x="770" y="145" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica">variables ya tratadas, cambia la población</text>
-            <rect x="940" y="80" width="120" height="70" rx="10" fill="{COLOR_TRATADO}" />
-            <text x="1000" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="700" font-family="Helvetica">B -- TRATADO</text>
-            <text x="1000" y="130" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica" opacity="0.9">n = 10.669</text>
-          </svg>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    if pob:
-        st.plotly_chart(
-            r2_muestra_comun(
-                ["A · población limpia", "D · población limpia"],
-                [pob["A_solo_poblacion_limpia"]["r2"], pob["D_solo_poblacion_limpia"]["r2"]],
-                [COLOR_CRUDO, COLOR_NEUTRO],
-                titulo="R² de A y D al evaluarlos solo sobre la población limpia",
-            ),
-            width="stretch",
-        )
-        st.markdown(
-            f"Al evaluarlos solo sobre la población limpia, el R² de A baja a "
-            f"**{fmt_num(pob['A_solo_poblacion_limpia']['r2'], 3)}** y el de D a "
-            f"**{fmt_num(pob['D_solo_poblacion_limpia']['r2'], 3)}** -- muy cerca del R² de B "
-            f"(**{fmt_num(pob['B_propia_poblacion_limpia']['r2'], 3)}**), confirmando que la diferencia viene "
-            f"sobre todo de la población."
-        )
-        with st.expander("Ver detalle del cálculo y MAE de cada evaluación"):
-            st.markdown(
-                "Esta comprobación es independiente de la sección 1 -- no usa las 426 filas seguras, porque "
-                "aquí nunca se evalúa un modelo con filas de otro (solo A y D, cada uno sobre un subconjunto "
-                f"de su propio test). {pob.get('nota', '')}"
-            )
-            aislar = modelo.get("aislar_variables_vs_poblacion", {})
-            r2_var = aislar.get("A_vs_D_r2_diferencia", 0)
-            rango_pob = aislar.get("cambio_poblacion_r2_diferencia_rango", [0, 0])
-            st.markdown(
-                f'A: {fmt_num(pob["A_toda_poblacion"]["r2"], 3)} (toda su población) − '
-                f'{fmt_num(pob["A_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = '
-                f'**{fmt_num(rango_pob[0], 3)}**  \n'
-                f'D: {fmt_num(r2_d_toda_poblacion, 3)} (toda su población) − '
-                f'{fmt_num(pob["D_solo_poblacion_limpia"]["r2"], 3)} (población limpia) = '
-                f'**{fmt_num(rango_pob[1], 3)}**'
-            )
-            st.markdown(
-                "Son los mismos modelos, sin reentrenar -- cambia únicamente qué filas se usan para "
-                "evaluarlos. Confirma lo visto en 'Comparación de modelos': cambiar solo las variables "
-                f"(A vs. D, cada uno en su propia población) apenas movía el R² (**{fmt_num(r2_var, 3)}**) -- "
-                "6-7 veces menos que el efecto de la población."
-            )
-            d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {})
-            df_pob = pd.DataFrame([
-                {"Evaluación": "A, sobre toda su población", "n test": fmt_num(pob["A_toda_poblacion"]["n_test"]), "MAE (€)": fmt_num(pob["A_toda_poblacion"]["mae"], 1), "R²": fmt_num(pob["A_toda_poblacion"]["r2"], 3)},
-                {"Evaluación": "A, solo sobre población limpia", "n test": fmt_num(pob["A_solo_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["A_solo_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["A_solo_poblacion_limpia"]["r2"], 3)},
-                {"Evaluación": "D, sobre toda su población", "n test": fmt_num(d_toda_poblacion.get("n_test_propio", 0)), "MAE (€)": fmt_num(d_toda_poblacion.get("mae", 0), 1), "R²": fmt_num(d_toda_poblacion.get("r2", 0), 3)},
-                {"Evaluación": "D, solo sobre población limpia", "n test": fmt_num(pob["D_solo_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["D_solo_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["D_solo_poblacion_limpia"]["r2"], 3)},
-                {"Evaluación": "B, su propia población limpia", "n test": fmt_num(pob["B_propia_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["B_propia_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["B_propia_poblacion_limpia"]["r2"], 3)},
-            ])
-            st.dataframe(df_pob, width="stretch", hide_index=True)
-            st.caption(pob.get("conclusion", ""))
-
-    st.markdown("---")
-    st.markdown("## 3. Comparación sobre la muestra común segura (426 filas)")
-    st.caption(
-        "Los tres modelos evaluados sobre exactamente las mismas 426 filas -- ninguno las vio durante su "
-        "entrenamiento. Solo aparecen A, D y B; el Chequeo de sensibilidad se trata en el bloque 4."
-    )
+    st.markdown("## 2. Comparación sobre la muestra común segura (426 filas)")
     muestra = modelo.get("muestra_comun_426", {})
     resultados_426 = muestra.get("resultados", {})
     if resultados_426:
@@ -241,11 +189,11 @@ with tab_resultados:
         with st.expander("Ver por qué esta es la comparación controlada, y métricas detalladas"):
             st.markdown(
                 "Con la fuga ya corregida (sección 1), esta es la respuesta final y de fiar a la pregunta "
-                "que abre toda la página -- ¿cuál de los tres modelos predice mejor de verdad? A diferencia "
-                "del punto 2, donde cada modelo se evaluaba sobre su propia población (filtrada de forma "
-                "parecida, pero no las mismas filas), aquí los tres se evalúan sobre exactamente las mismas "
-                "426 filas -- por eso hace falta reducir la muestra a ese tamaño: es lo único que cumple esa "
-                "condición para los tres modelos a la vez, y ninguno la vio durante su entrenamiento."
+                "que abre toda la página -- ¿cuál de los tres modelos predice mejor de verdad? Aquí los "
+                "tres se evalúan sobre exactamente las mismas 426 filas -- por eso hace falta reducir la "
+                "muestra a ese tamaño: es lo único que cumple esa condición para los tres modelos a la vez, "
+                "y ninguno la vio durante su entrenamiento. La sección 3 profundiza en *por qué* B gana, "
+                "usando una muestra más grande."
             )
             st.markdown(muestra.get("representatividad", ""))
             st.caption(muestra.get("progresion", ""))
@@ -255,6 +203,106 @@ with tab_resultados:
                 {"Modelo": "B (TRATADO-A)", "MAE (€)": fmt_num(resultados_426["B_tratado_criterio_A"]["mae"], 1), "R²": fmt_num(resultados_426["B_tratado_criterio_A"]["r2"], 3)},
             ])
             st.dataframe(df, width="stretch", hide_index=True)
+
+    st.markdown("---")
+    st.markdown("## 3. ¿De dónde viene la diferencia entre A y B?")
+    pob = modelo.get("poblacion_limpia_experimento", {})
+    r2_d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {}).get("r2", 0)
+    n_muestra_grande = pob.get("A_solo_poblacion_limpia", {}).get("n_test", 0)
+
+    st.markdown(
+        f"La sección 2 mostró que B gana a A (+{fmt_num(diferencia_ab_426, 3)} de R²). ¿Por qué? Aquí se "
+        f"separa el efecto de las variables del de la población, con más margen: una muestra grande de "
+        f"{fmt_num(n_muestra_grande)} filas para A y D (de la que las 426 de la sección 2 son un "
+        f"subconjunto), y la propia población limpia de B."
+    )
+
+    aislar = modelo.get("aislar_variables_vs_poblacion", {})
+    r2_var = aislar.get("A_vs_D_r2_diferencia", 0)
+    rango_pob = aislar.get("cambio_poblacion_r2_diferencia_rango", [0, 0])
+    d_toda_poblacion = modelo.get("versiones", {}).get("D_variables_tratadas_poblacion_cruda", {})
+
+    def _fila_antes_despues(etiqueta, antes, despues, color):
+        delta = despues - antes
+        signo = "+" if delta >= 0 else ""
+        st.markdown(
+            f'<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap: wrap; '
+            f'background-color:#f8f9fa; border-radius:8px; padding:0.7rem 1rem; margin-bottom:0.6rem; gap:0.5rem;">'
+            f'<span style="font-size:0.95rem; font-weight:700; color:#31333F;">{etiqueta}</span>'
+            f'<div style="display:flex; align-items:center; gap:0.6rem;">'
+            f'<span style="font-size:1rem; color:#666;">{fmt_num(antes, 3)}</span>'
+            f'<span style="color:#aaa;">&rarr;</span>'
+            f'<span style="font-size:1rem; font-weight:700; color:#31333F;">{fmt_num(despues, 3)}</span>'
+            f'<span style="background-color:{color}1A; color:{color}; padding:0.25rem 0.6rem; border-radius:6px; '
+            f'font-size:0.9rem; font-weight:800; margin-left:0.4rem;">{signo}{fmt_num(delta, 3)}</span>'
+            f'</div></div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        '<div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.1rem 1.3rem; margin-bottom: 1rem;">',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div style="font-size:0.8rem; font-weight:800; color:{AZUL_PETROLEO}; letter-spacing:0.4px; margin-bottom:0.5rem;">'
+        f'EFECTO DE LAS VARIABLES &nbsp;·&nbsp; misma población completa, n=13.355</div>',
+        unsafe_allow_html=True,
+    )
+    _fila_antes_despues(
+        "A (crudo) &rarr; D (variables tratadas)",
+        pob["A_toda_poblacion"]["r2"], r2_d_toda_poblacion, AZUL_PETROLEO,
+    )
+    st.markdown(
+        f'<div style="font-size:0.8rem; font-weight:800; color:{OCRE_DORADO_TEXTO}; letter-spacing:0.4px; margin:0.9rem 0 0.5rem;">'
+        f'EFECTO DE LA POBLACIÓN &nbsp;·&nbsp; mismo modelo, quitando filas problemáticas</div>',
+        unsafe_allow_html=True,
+    )
+    _fila_antes_despues(
+        "A, toda su población &rarr; A, población limpia",
+        pob["A_toda_poblacion"]["r2"], pob["A_solo_poblacion_limpia"]["r2"], OCRE_DORADO_TEXTO,
+    )
+    _fila_antes_despues(
+        "D, toda su población &rarr; D, población limpia",
+        r2_d_toda_poblacion, pob["D_solo_poblacion_limpia"]["r2"], OCRE_DORADO_TEXTO,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if pob:
+        st.plotly_chart(
+            r2_muestra_comun(
+                ["A · muestra grande", "D · muestra grande", "B · su población"],
+                [
+                    pob["A_solo_poblacion_limpia"]["r2"], pob["D_solo_poblacion_limpia"]["r2"],
+                    pob["B_propia_poblacion_limpia"]["r2"],
+                ],
+                [COLOR_CRUDO, COLOR_NEUTRO, COLOR_TRATADO],
+                titulo=f"R² de A y D en la muestra grande (n={fmt_num(n_muestra_grande)}), y de B en su propia población limpia",
+            ),
+            width="stretch",
+        )
+        st.markdown(
+            f"Al evaluarlos sobre la muestra grande, el R² de A y D baja a "
+            f"**{fmt_num(pob['A_solo_poblacion_limpia']['r2'], 3)}** y **{fmt_num(pob['D_solo_poblacion_limpia']['r2'], 3)}** "
+            f"-- muy cerca del R² de B (**{fmt_num(pob['B_propia_poblacion_limpia']['r2'], 3)}**). "
+            f"**Conclusión: la diferencia entre A y B viene sobre todo de la población (-0,034 a -0,036), "
+            f"no de las variables (-{fmt_num(r2_var, 3)}) -- 8-9 veces más.**"
+        )
+        with st.expander("Ver detalle del cálculo y MAE de cada evaluación"):
+            st.markdown(
+                "Esta comprobación no usa las 426 filas seguras de la sección 1 -- las 426 son un "
+                "subconjunto de esta misma muestra grande, reducido todavía más para que quepa también B "
+                "(sección 2). Aquí no hace falta esa restricción extra porque nunca se evalúa un modelo con "
+                f"filas de otro (solo A y D, cada uno sobre un subconjunto de su propio test). {pob.get('nota', '')}"
+            )
+            df_pob = pd.DataFrame([
+                {"Evaluación": "A, sobre toda su población", "n test": fmt_num(pob["A_toda_poblacion"]["n_test"]), "MAE (€)": fmt_num(pob["A_toda_poblacion"]["mae"], 1), "R²": fmt_num(pob["A_toda_poblacion"]["r2"], 3)},
+                {"Evaluación": "A, solo sobre población limpia", "n test": fmt_num(pob["A_solo_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["A_solo_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["A_solo_poblacion_limpia"]["r2"], 3)},
+                {"Evaluación": "D, sobre toda su población", "n test": fmt_num(d_toda_poblacion.get("n_test_propio", 0)), "MAE (€)": fmt_num(d_toda_poblacion.get("mae", 0), 1), "R²": fmt_num(d_toda_poblacion.get("r2", 0), 3)},
+                {"Evaluación": "D, solo sobre población limpia", "n test": fmt_num(pob["D_solo_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["D_solo_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["D_solo_poblacion_limpia"]["r2"], 3)},
+                {"Evaluación": "B, su propia población limpia", "n test": fmt_num(pob["B_propia_poblacion_limpia"]["n_test"]), "MAE (€)": fmt_num(pob["B_propia_poblacion_limpia"]["mae"], 1), "R²": fmt_num(pob["B_propia_poblacion_limpia"]["r2"], 3)},
+            ])
+            st.dataframe(df_pob, width="stretch", hide_index=True)
+            st.caption(pob.get("conclusion", ""))
 
     st.markdown("---")
     sec5, sec6 = st.columns(2)
@@ -538,7 +586,7 @@ with tab_confianza:
                     "muestra que la mayoría de esas otras elecciones posibles habrían dado un resultado muy "
                     "distinto (más cercano a cero, o incluso a favor de A). Por eso esta comparación "
                     "concreta, por sí sola, no es una base sólida para afirmar que D gana a A -- el hallazgo "
-                    "fiable es el de la muestra grande (sección 2)."
+                    "fiable es el de la muestra grande (sección 3)."
                 )
 
     with sub2:

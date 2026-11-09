@@ -1,6 +1,9 @@
 import streamlit as st
 
-from src.styles import kicker, caja_alerta, fmt_num, AMBAR_PENDIENTE, AZUL_PETROLEO, COLOR_CRUDO, COLOR_D, COLOR_TRATADO, COLOR_SENSIBILIDAD, TURQUESA_TEXTO, COLOR_SENSIBILIDAD_TEXTO, OCRE_DORADO_TEXTO, AZUL_OSCURO
+from src.styles import (
+    kicker, AZUL_PETROLEO, OCRE_DORADO_TEXTO, AZUL_OSCURO, COLOR_CRUDO, COLOR_D, COLOR_TRATADO,
+    COLOR_SENSIBILIDAD, AMBAR_PENDIENTE, TURQUESA_TEXTO, COLOR_SENSIBILIDAD_TEXTO,
+)
 
 kicker("Página 5 de 9")
 st.title("Diseño experimental")
@@ -70,9 +73,7 @@ with col_exc:
     )
 st.caption(
     "De las 11 predictoras, solo **bedrooms/bathrooms/beds** (nulos a rellenar) y **amenities_count** "
-    "(proxy vs. cálculo real) cambian de tratamiento entre las 4 versiones -- las otras 7 llegan completas "
-    "y se usan igual en todas. Las 4 excluidas forman parte de la fórmula con la que Inside Airbnb calcula "
-    "el propio target -- usarlas sería hacer trampa al modelo."
+    "(proxy vs. cálculo real) cambian de tratamiento entre las 4 versiones."
 )
 
 st.markdown("---")
@@ -113,20 +114,23 @@ st.markdown(
         <text x="415" y="174" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo D</text>
         <text x="415" y="192" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 13.355</text>
         <text x="415" y="208" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables tratadas</text>
-        <text x="415" y="224" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana</text>
-        <text x="415" y="240" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <text x="415" y="222" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="415" y="234" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por accommodates</text>
+        <text x="415" y="248" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
         <rect x="300" y="272" width="230" height="105" rx="10" fill="{COLOR_TRATADO}" />
         <text x="415" y="294" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo B -- TRATADO-A</text>
         <text x="415" y="312" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
         <text x="415" y="328" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">población y variables tratadas</text>
-        <text x="415" y="344" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana</text>
-        <text x="415" y="360" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <text x="415" y="342" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="415" y="354" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por accommodates</text>
+        <text x="415" y="368" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
         <rect x="300" y="389" width="230" height="105" rx="10" fill="{COLOR_SENSIBILIDAD}" />
         <text x="415" y="411" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
         <text x="415" y="429" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
         <text x="415" y="445" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">otro criterio de imputación</text>
-        <text x="415" y="461" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: mediana (barrio)</text>
-        <text x="415" y="477" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <text x="415" y="459" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="415" y="471" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por barrio</text>
+        <text x="415" y="485" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
         <text x="915" y="203" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. MUESTRA COMÚN SIN FUGA</text>
         <line x1="530" y1="88" x2="645" y2="240" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
         <line x1="530" y1="205" x2="645" y2="255" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
@@ -211,12 +215,13 @@ st.markdown(
         <text x="100" y="273" text-anchor="middle" fill="#666" font-size="10" font-family="monospace">random_state=42</text>
         <text x="730" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. PREPARACIÓN Y ENTRENAMIENTO</text>
         <line x1="490" y1="65" x2="555" y2="80" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
-        <rect x="560" y="30" width="340" height="110" rx="10" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="2" />
-        <text x="730" y="57" text-anchor="middle" fill="{AZUL_PETROLEO}" font-size="13" font-weight="700" font-family="Helvetica">Pipeline (ajustado solo con el 80%)</text>
-        <text x="730" y="79" text-anchor="middle" fill="#444" font-size="12" font-family="Helvetica">StandardScaler + OneHotEncoder</text>
-        <line x1="600" y1="93" x2="860" y2="93" stroke="#eee" stroke-width="1" />
-        <text x="730" y="113" text-anchor="middle" fill="#444" font-size="12" font-weight="600" font-family="Helvetica">Random Forest aprende patrones</text>
-        <text x="730" y="131" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">200 árboles, random_state=42</text>
+        <rect x="560" y="30" width="340" height="125" rx="10" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="2" />
+        <text x="730" y="55" text-anchor="middle" fill="{AZUL_PETROLEO}" font-size="13" font-weight="700" font-family="Helvetica">Pipeline (ajustado solo con el 80%)</text>
+        <text x="730" y="75" text-anchor="middle" fill="#444" font-size="12" font-family="Helvetica">StandardScaler + OneHotEncoder</text>
+        <text x="730" y="88" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">(escalado de números, codificación de categorías)</text>
+        <line x1="600" y1="98" x2="860" y2="98" stroke="#eee" stroke-width="1" />
+        <text x="730" y="117" text-anchor="middle" fill="#444" font-size="12" font-weight="600" font-family="Helvetica">Random Forest aprende patrones</text>
+        <text x="730" y="135" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">200 árboles, random_state=42</text>
         <text x="1100" y="115" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. PREDICCIÓN</text>
         <line x1="900" y1="90" x2="985" y2="175" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
         <line x1="490" y1="305" x2="985" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
@@ -278,8 +283,8 @@ st.markdown(
         </defs>
         <text x="130" y="20" text-anchor="middle" fill="#888" font-size="12" font-weight="600" letter-spacing="0.5" font-family="Helvetica">¿POR QUÉ RANDOM FOREST?</text>
         <rect x="10" y="32" width="240" height="80" rx="8" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="1.5" />
-        <text x="130" y="66" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Variables categóricas</text>
-        <text x="130" y="86" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">codificadas</text>
+        <text x="130" y="66" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Maneja bien variables</text>
+        <text x="130" y="86" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">categóricas codificadas</text>
         <rect x="10" y="122" width="240" height="80" rx="8" fill="white" stroke="{AZUL_PETROLEO}" stroke-width="1.5" />
         <text x="130" y="156" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">Relaciones</text>
         <text x="130" y="176" text-anchor="middle" fill="#444" font-size="13" font-weight="600" font-family="Helvetica">no lineales</text>
@@ -310,4 +315,3 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-

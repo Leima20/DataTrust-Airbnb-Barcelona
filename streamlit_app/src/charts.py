@@ -381,7 +381,7 @@ def kpi_comparativo_eur(nombres, valores, titulo):
 
 
 def ingreso_particular_profesional(particular_antes, particular_despues, profesional_antes, profesional_despues,
-                                    titulo="Ingreso medio: antes vs. después de auditar los ceros"):
+                                    titulo="Ingreso medio por anuncio: antes vs. después de auditar los ceros"):
     categorias = ["Particular", "Profesional"]
     gap_antes_pct = (particular_antes - profesional_antes) / particular_antes * 100 if particular_antes else 0
     gap_despues_pct = (particular_despues - profesional_despues) / particular_despues * 100 if particular_despues else 0
@@ -400,7 +400,7 @@ def ingreso_particular_profesional(particular_antes, particular_despues, profesi
     ))
     fig.update_layout(
         title=titulo, barmode="group", template="plotly_white", height=420,
-        yaxis_title="Ingreso medio (EUR/año)", margin=dict(t=60, b=40),
+        yaxis_title="Ingreso medio por anuncio (EUR/año)", margin=dict(t=60, b=40),
         font=FONT_BASE, title_font=FONT_TITULO,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
@@ -412,7 +412,7 @@ def perfil_tipo_habitacion(rev_entera, rev_privada, desc_entera, desc_privada,
     grupos = ["Pasan a revisión", "Siguen descartados"]
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=grupos, y=[rev_entera, desc_entera], name="Habitación entera", marker_color=AZUL_PIZARRA,
+        x=grupos, y=[rev_entera, desc_entera], name="Alojamiento entero", marker_color=AZUL_PIZARRA,
         text=[f"{fmt_num(v, 1)}%" for v in [rev_entera, desc_entera]], textposition="inside",
     ))
     fig.add_trace(go.Bar(
@@ -433,7 +433,7 @@ def perfil_precio_mediana(rev_entera, rev_privada, desc_entera, desc_privada,
     grupos = ["Pasan a revisión", "Siguen descartados"]
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        x=grupos, y=[rev_entera, desc_entera], name="Habitación entera", marker_color=AZUL_PIZARRA,
+        x=grupos, y=[rev_entera, desc_entera], name="Alojamiento entero", marker_color=AZUL_PIZARRA,
         text=[f"{fmt_num(v, 1)} €" for v in [rev_entera, desc_entera]], textposition="outside",
     ))
     fig.add_trace(go.Bar(

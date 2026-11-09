@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 from src.data_loader import cargar_calidad, cargar_contexto, cargar_geografia_distrito, cargar_geojson_barrios
-from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, AZUL_PIZARRA, AMBAR_ALERTA, AMBAR_PENDIENTE, GRIS_TEXTO
+from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, AZUL_PIZARRA, AMBAR_ALERTA, AMBAR_PENDIENTE, GRIS_TEXTO, GRIS_CLARO
 from src.charts import completitud_por_columna, licencia_categorias, mapa_licencia_distrito, hallazgos_por_tabla, huerfanas_por_tabla
 
 
@@ -188,6 +188,33 @@ with tab2:
                 f"Rango: {fmt_num(mejor['pct_problema'], 1)}% (`{mejor['distrito']}`) a "
                 f"{fmt_num(peor['pct_problema'], 1)}% (`{peor['distrito']}`)."
             )
+
+            def _fila_ranking_licencia(d, max_pct):
+                ancho = d["pct_problema"] / max_pct * 100
+                st.markdown(
+                    f'''<div style="margin-bottom:0.7rem;">
+                      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.25rem;">
+                        <span style="font-size:1.05rem; color:{AZUL_OSCURO}; font-weight:600;">{d["distrito"]}</span>
+                        <span style="font-size:1.05rem; color:{AZUL_OSCURO}; font-weight:800;">{fmt_num(d["pct_problema"], 1)}%</span>
+                      </div>
+                      <div style="background-color:{GRIS_CLARO}; border-radius:5px; height:12px; overflow:hidden;">
+                        <div style="width:{ancho:.1f}%; height:100%; background-color:{AZUL_PETROLEO}; border-radius:5px;"></div>
+                      </div>
+                    </div>''',
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown("**% de anuncios con problema de licencia, por distrito**")
+            filas_lic = sorted(distritos_data, key=lambda d: -d["pct_problema"])
+            max_pct_lic = filas_lic[0]["pct_problema"]
+            mitad_lic = (len(filas_lic) + 1) // 2
+            col_lic_izq, col_lic_der = st.columns(2, gap="large")
+            with col_lic_izq:
+                for d in filas_lic[:mitad_lic]:
+                    _fila_ranking_licencia(d, max_pct_lic)
+            with col_lic_der:
+                for d in filas_lic[mitad_lic:]:
+                    _fila_ranking_licencia(d, max_pct_lic)
         with st.expander("📝 Notas técnicas y hallazgos secundarios de Plausibilidad"):
             st.markdown(
                 "**Contexto metodológico** -- esta dimensión abarca también `minimum_nights` en "
@@ -264,10 +291,10 @@ with tab4:
         st.markdown(
             f"""
             <div style="background-color:{bg}; border:1px solid {borde}; border-radius:10px;
-                        padding:0.9rem 1.1rem; height:100%;">
-            <b style="color:{color_texto};">{titulo}</b><br>
-            <span style="font-size:0.82rem; color:#555;">{descripcion}</span><br><br>
-            <span style="font-family:monospace; font-size:0.85rem; color:{color_texto};">
+                        padding:1.5rem 1.7rem; height:100%;">
+            <b style="color:{color_texto}; font-size:1.3rem;">{titulo}</b><br>
+            <span style="font-size:1.15rem; color:#555; line-height:1.55;">{descripcion}</span><br><br>
+            <span style="font-family:monospace; font-size:1.15rem; color:{color_texto};">
             {", ".join(codigos)}</span>
             </div>
             """,
@@ -304,9 +331,9 @@ with tab4:
         st.markdown(
             f"""
             <div style="text-align:center; padding-bottom:1rem;">
-            <span style="font-size:2.2rem; font-weight:800; color:{color};">{valor}</span><br>
-            <span style="font-size:0.85rem; color:#555;">{etiqueta}</span><br>
-            <span style="font-family:monospace; font-size:0.75rem; color:{color};">{", ".join(codigos)}</span>
+            <span style="font-size:3.2rem; font-weight:800; color:{color};">{valor}</span><br>
+            <span style="font-size:1.15rem; color:#555;">{etiqueta}</span><br>
+            <span style="font-family:monospace; font-size:1rem; color:{color};">{", ".join(codigos)}</span>
             </div>
             """,
             unsafe_allow_html=True,
