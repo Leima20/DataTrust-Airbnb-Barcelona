@@ -9,6 +9,17 @@ from src.styles import kicker, fmt_num, AZUL_OSCURO, AZUL_PETROLEO, AZUL_PIZARRA
 from src.charts import completitud_por_columna, licencia_categorias, mapa_licencia_distrito, hallazgos_por_tabla, huerfanas_por_tabla
 
 
+def _tabla_hallazgos(hallazgos):
+    with st.expander("Ver los 14 hallazgos completos, con su trazabilidad"):
+        for grupo, titulo in [("listings", "Listings"), ("reviews", "Reviews"), ("calendar", "Calendar")]:
+            filas_grupo = hallazgos.get(grupo, [])
+            st.markdown(f"**{titulo}** ({len(filas_grupo)} hallazgos)")
+            df = pd.DataFrame(filas_grupo)
+            if not df.empty:
+                df = df.rename(columns={"id": "ID", "resumen": "Hallazgo", "detalle": "Detalle"})
+                st.dataframe(df, width="stretch", hide_index=True)
+
+
 def _circulos_alcance(tablas):
     datos = [
         ("listings", "listings", AZUL_PIZARRA, tablas.get("listings", {}).get("filas", 0)),
@@ -130,9 +141,9 @@ with tab2:
 
         col_l3, col_l4 = st.columns(2)
         with col_l3:
-            _tarjeta_stat(f"{fmt_num(lic.get('no_verificable_L3_pct', 0), 1)}%", "No verificable (`L3`)")
+            _tarjeta_stat(f"{fmt_num(lic.get('no_verificable_L3_pct', 0), 0)}%", "No verificable (`L3`)")
         with col_l4:
-            _tarjeta_stat("35,8%", "Formato roto (`L4`)")
+            _tarjeta_stat("36%", "Formato roto (`L4`)")
 
         def _tarjeta_registro(codigo, titulo, texto):
             st.markdown(
@@ -146,7 +157,7 @@ with tab2:
             )
 
         st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
-        with st.expander("Ver marco legal de las licencias (HUTB / NRUA)"):
+        with st.expander("**Ver marco legal de las licencias (HUTB / NRUA)**"):
             col_hutb, col_nrua = st.columns(2)
             with col_hutb:
                 _tarjeta_registro(
@@ -273,19 +284,13 @@ with tab2:
                 "tienen caracteres mal codificados."
             )
 
-    with st.expander("Ver los 14 hallazgos completos, con su trazabilidad"):
-        for grupo, titulo in [("listings", "Listings"), ("reviews", "Reviews"), ("calendar", "Calendar")]:
-            filas_grupo = hallazgos.get(grupo, [])
-            st.markdown(f"**{titulo}** ({len(filas_grupo)} hallazgos)")
-            df = pd.DataFrame(filas_grupo)
-            if not df.empty:
-                df = df.rename(columns={"id": "ID", "resumen": "Hallazgo", "detalle": "Detalle"})
-                st.dataframe(df, width="stretch", hide_index=True)
+    _tabla_hallazgos(hallazgos)
 
 
 # ---------- 4. Decisiones de gobernanza ----------
 with tab4:
     st.markdown("#### Gobernanza: la decisión")
+    _tabla_hallazgos(hallazgos)
 
     def _caja_gobernanza(titulo, descripcion, codigos, bg, borde, color_texto):
         st.markdown(

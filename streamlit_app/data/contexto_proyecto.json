@@ -14,8 +14,8 @@
   },
   "autoria": {
     "nombre": "Leidy Pimentel",
-    "programa": "",
-    "institucion": "IT Academy · Barcelona Activa"
+    "programa": "Proyecto Final",
+    "institucion": "IT Academy"
   },
   "objetivos": [
     {"n": 1, "texto": "Auditar la calidad de los datos (listings, calendar, reviews).", "pagina": "Auditoría de calidad"},

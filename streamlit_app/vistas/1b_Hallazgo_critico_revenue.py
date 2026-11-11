@@ -221,7 +221,7 @@ st.markdown(
                 padding:1rem 1.2rem;">
     <b style="color:{COLOR_TRATADO};">✓ Demostrado con datos</b>
     <ul style="margin-top:0.6rem; padding-left:1.1rem; font-size:0.95rem;">
-    <li>Existen 2.686 anuncios (20,1%) con <code>estimated_revenue_l365d = 0</code>, y no todos son ceros reales -- algunos quedan marcados como "no estimables" (0 reseñas recientes + estancia ≥ 28 noches).</li>
+    <li>Existen {cantidad_fmt} anuncios ({pct_fmt}) con <code>estimated_revenue_l365d = 0</code>, y no todos son ceros reales -- 2.686 de ellos quedan marcados como "no estimables" (0 reseñas recientes + estancia ≥ 28 noches).</li>
     <li>Excluirlos cambia la brecha particular-profesional de <b>39,7% a 23,1%</b>.</li>
     <li>El 64,2% de los anuncios descartados por la regla simple cambiarían de categoría con la regla auditada.</li>
     <li>En una simulación, un filtro ingenuo descartaría por igual los 4.181 anuncios con ingreso 0€. Pero 2.686 de ellos (los que pasan a revisión al auditar) son sobre todo alojamientos pequeños y baratos -- el segmento más accesible del mercado.</li>

@@ -34,7 +34,7 @@ st.markdown(
     </svg>
     <div style="position:relative; z-index:1;">
     <span style="color:{TURQUESA_CLARO}; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
-                 font-size:0.85rem;">DataTrust · Auditoría de calidad de datos</span>
+                 font-size:0.85rem;">DataTrust · Auditoría de calidad de datos · Airbnb Barcelona</span>
     <h1 style="color:white; font-size:2.7rem; font-weight:800; margin:0.7rem 0 1.1rem 0; line-height:1.18;">
     ¿Podemos confiar en los datos para tomar decisiones?</h1>
     <p style="color:#C7CDD3; font-size:1.15rem; max-width:760px; margin:0 0 1rem 0;">
@@ -109,12 +109,12 @@ with tab_zillow:
                 <span style="position:absolute; left:{_oct_frac:.1f}%; transform:translateX(-50%); white-space:nowrap;">${_precio_oct}</span>
                 <span style="position:absolute; left:{_nov_frac:.1f}%; transform:translateX(-50%); white-space:nowrap;">${_precio_nov}</span>
                 </div>
-                <div style="position:relative; height:28px; font-size:1.25rem; color:#A9B4BF; margin-top:0.4rem;">
+                <div style="position:relative; height:24px; font-size:1.25rem; color:#A9B4BF; margin-top:0.4rem;">
                 <span style="position:absolute; left:0;">Ene</span>
-                <span style="position:absolute; left:{_mid_frac:.1f}%; transform:translateX(-50%); color:{OCRE_DORADO};
-                             font-weight:700; white-space:nowrap;">Oct → Nov: anuncio de cierre</span>
                 <span style="position:absolute; right:0;">Dic</span>
                 </div>
+                <div style="text-align:center; font-size:1.05rem; color:{OCRE_DORADO}; font-weight:700;
+                             margin-top:0.3rem;">Oct → Nov: anuncio de cierre</div>
                 </div>
                 </div>
                 """,

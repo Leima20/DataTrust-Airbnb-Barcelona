@@ -72,7 +72,8 @@ def dispersion_muestra_simulada(diffs, diferencia_real, titulo="Distribucion de 
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=diffs, nbinsx=60, marker_color=AZUL_PETROLEO, name="Submuestras simuladas", opacity=0.85))
     fig.add_vline(x=diferencia_real, line_color=VIOLETA, line_width=2, line_dash="dash",
-                  annotation_text="Resultado real (426 filas)", annotation_position="top right")
+                  annotation_text=f"Resultado real (426 filas): {diferencia_real:.3f}".replace(".", ","),
+                  annotation_position="top right")
     fig.add_vline(x=0, line_color=GRIS_TEXTO, line_width=1, line_dash="dot")
     fig.update_layout(
         title=titulo, xaxis_title="Diferencia de R² (A - D)", yaxis_title="Frecuencia",
@@ -120,7 +121,7 @@ def intervalo_confianza(nombres, medias, los, his, titulo="Intervalos de confian
             name="No concluyente (toca el cero)",
         ))
     fig.add_vline(
-        x=0, line_color="#999999", line_width=1.5, line_dash="dot",
+        x=0, line_color="#999999", line_width=1.5, line_dash="dot", layer="below",
         annotation_text="cero = sin diferencia", annotation_position="top",
         annotation_font=dict(size=12, color="#777777"),
     )
@@ -128,7 +129,7 @@ def intervalo_confianza(nombres, medias, los, his, titulo="Intervalos de confian
     fig.update_layout(
         title=titulo, xaxis_title="Diferencia de R² (si la barra toca esta línea, no es concluyente)",
         xaxis_range=[min(los) - margen_x, max(his) + margen_x],
-        template="plotly_white", height=380, margin=dict(t=60, b=90, l=10),
+        template="plotly_white", height=410, margin=dict(t=90, b=90, l=10),
         font=FONT_BASE, title_font=FONT_TITULO,
         legend=dict(orientation="h", yanchor="top", y=-0.35, xanchor="left", x=0, font=dict(size=12)),
     )

@@ -303,7 +303,7 @@ with tab_resultados:
                     pob["B_propia_poblacion_limpia"]["r2"],
                 ],
                 [COLOR_CRUDO, COLOR_NEUTRO, COLOR_TRATADO],
-                titulo=f"R² de A y D en la muestra grande (n={fmt_num(n_muestra_grande)}), y de B en su propia población limpia",
+                titulo=f"R² de A y D en la muestra grande (n={fmt_num(n_muestra_grande)}), y de B (n={fmt_num(pob['B_propia_poblacion_limpia']['n_test'])}) en su propia población limpia",
             ),
             width="stretch",
         )
@@ -559,7 +559,7 @@ with tab_confianza:
 
     sub1, sub2 = st.columns(2)
     with sub1:
-        st.markdown("**A · ¿Es fiable que D gane a A en las 426 filas?**")
+        st.markdown("**A · ¿Se repite el resultado al cambiar los anuncios de la muestra?**")
         st.markdown(
             '<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; '
             'padding: 0.7rem 1rem; margin-bottom: 0.7rem; font-size: 0.85rem; color: #444;">'

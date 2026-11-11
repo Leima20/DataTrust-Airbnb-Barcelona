@@ -47,7 +47,7 @@ with col_h1:
     )
 with col_h2:
     _kpi_hipotesis(
-        TURQUESA, "Hipótesis 2 · Modelo",
+        TURQUESA, "Hipótesis 2 · Modelo (R²)",
         fmt_num(muestra_426.get("A_crudo", {}).get("r2", 0), 3),
         fmt_num(muestra_426.get("B_tratado_criterio_A", {}).get("r2", 0), 3),
         "El modelo tratado (B) mejora frente al crudo (A) en una comparación sobre 426 "
