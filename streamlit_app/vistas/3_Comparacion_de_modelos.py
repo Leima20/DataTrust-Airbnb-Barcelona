@@ -29,9 +29,8 @@ with col_r2:
         unsafe_allow_html=True
     )
     st.caption(
-        "Número entre 0 y 1 que mide cuánto explica el modelo de la variación del ingreso estimado (la "
-        "variable a predecir), a partir de las variables usadas para predecirlo -- no es un porcentaje "
-        "de aciertos."
+        "Número entre 0 y 1 que mide cuánta de la variación en la variable objetivo logra explicar el "
+        "modelo, usando las variables que tiene disponibles."
     )
 with col_mae:
     st.markdown(

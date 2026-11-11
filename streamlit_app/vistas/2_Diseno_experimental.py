@@ -84,62 +84,54 @@ st.markdown("### Las cuatro versiones de los modelos")
 st.markdown(
     f"""
     <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem 1.1rem;">
-      <svg width="100%" height="680" viewBox="0 0 1300 520" xmlns="http://www.w3.org/2000/svg">
+      <svg width="100%" height="350" viewBox="0 0 900 350" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="flecha_v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" fill="#aaa" />
           </marker>
         </defs>
-        <text x="110" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">1. FUENTES DE DATOS</text>
-        <rect x="20" y="101" width="190" height="90" rx="10" fill="#f4f4f4" stroke="{COLOR_CRUDO}" stroke-width="1.5" />
-        <text x="115" y="123" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_raw</text>
-        <text x="115" y="141" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">sin tratamiento</text>
-        <text x="115" y="157" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 90 cols</text>
-        <rect x="20" y="338" width="190" height="90" rx="10" fill="#f4f4f4" stroke="{COLOR_TRATADO}" stroke-width="1.5" />
-        <text x="115" y="360" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_curado</text>
-        <text x="115" y="378" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">tratado: L1, L2, L4, target</text>
-        <text x="115" y="394" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 91 cols</text>
-        <text x="415" y="20" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">2. CUATRO VERSIONES -- mismo Random Forest</text>
-        <line x1="210" y1="146" x2="295" y2="88" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
-        <line x1="210" y1="146" x2="295" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
-        <line x1="210" y1="383" x2="295" y2="325" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
-        <line x1="210" y1="383" x2="295" y2="442" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
-        <rect x="300" y="35" width="230" height="105" rx="10" fill="{COLOR_CRUDO}" />
-        <text x="415" y="57" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo A -- CRUDO</text>
-        <text x="415" y="75" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 13.355</text>
-        <text x="415" y="91" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables sin tratar</text>
-        <text x="415" y="107" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: -1</text>
-        <text x="415" y="123" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: proxy (texto)</text>
-        <rect x="300" y="152" width="230" height="105" rx="10" fill="{COLOR_D}" />
-        <text x="415" y="174" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo D</text>
-        <text x="415" y="192" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 13.355</text>
-        <text x="415" y="208" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">variables tratadas</text>
-        <text x="415" y="222" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
-        <text x="415" y="234" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por accommodates</text>
-        <text x="415" y="248" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
-        <rect x="300" y="272" width="230" height="105" rx="10" fill="{COLOR_TRATADO}" />
-        <text x="415" y="294" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Modelo B -- TRATADO-A</text>
-        <text x="415" y="312" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
-        <text x="415" y="328" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">población y variables tratadas</text>
-        <text x="415" y="342" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
-        <text x="415" y="354" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por accommodates</text>
-        <text x="415" y="368" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
-        <rect x="300" y="389" width="230" height="105" rx="10" fill="{COLOR_SENSIBILIDAD}" />
-        <text x="415" y="411" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
-        <text x="415" y="429" text-anchor="middle" fill="white" font-size="12" font-family="Helvetica">n = 10.669</text>
-        <text x="415" y="445" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">otro criterio de imputación</text>
-        <text x="415" y="459" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
-        <text x="415" y="471" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">mediana agrupada por barrio</text>
-        <text x="415" y="485" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
-        <text x="915" y="203" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">3. MUESTRA COMÚN SIN FUGA</text>
-        <line x1="530" y1="88" x2="645" y2="240" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
-        <line x1="530" y1="205" x2="645" y2="255" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
-        <line x1="530" y1="325" x2="645" y2="285" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
-        <line x1="530" y1="442" x2="645" y2="300" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#flecha_v)" />
-        <rect x="650" y="215" width="280" height="110" rx="12" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
-        <text x="790" y="250" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="14" font-weight="700" font-family="Helvetica">Muestra común segura</text>
-        <text x="790" y="275" text-anchor="middle" fill="#555" font-size="13" font-family="Helvetica">n = 426</text>
-        <text x="790" y="295" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">sin fuga de datos -- los 4 modelos</text>
+        <rect x="20" y="20" width="415" height="68" rx="10" fill="#f4f4f4" stroke="{COLOR_CRUDO}" stroke-width="1.5" />
+        <text x="227" y="42" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_raw</text>
+        <text x="227" y="59" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">sin tratamiento</text>
+        <text x="227" y="74" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 90 cols</text>
+        <rect x="470" y="20" width="415" height="68" rx="10" fill="#f4f4f4" stroke="{COLOR_TRATADO}" stroke-width="1.5" />
+        <text x="677" y="42" text-anchor="middle" fill="#444" font-size="13" font-weight="700" font-family="Helvetica">listings_curado</text>
+        <text x="677" y="59" text-anchor="middle" fill="#777" font-size="10" font-family="Helvetica">tratado: L1, L2, L4, target</text>
+        <text x="677" y="74" text-anchor="middle" fill="#999" font-size="9" font-family="Helvetica">15.293 filas, 91 cols</text>
+        <line x1="115" y1="88" x2="115" y2="158" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="340" y1="88" x2="340" y2="158" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="565" y1="88" x2="565" y2="158" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <line x1="790" y1="88" x2="790" y2="158" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_v)" />
+        <rect x="20" y="165" width="190" height="170" rx="10" fill="{COLOR_CRUDO}" />
+        <text x="115" y="190" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Helvetica">Modelo A -- CRUDO</text>
+        <text x="115" y="210" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">n = 13.355</text>
+        <text x="115" y="228" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">variables sin tratar</text>
+        <text x="115" y="246" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds: -1</text>
+        <text x="115" y="262" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">amenities_count: proxy (texto)</text>
+        <rect x="245" y="165" width="190" height="170" rx="10" fill="{COLOR_D}" />
+        <text x="340" y="190" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Helvetica">Modelo D</text>
+        <text x="340" y="210" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">n = 13.355</text>
+        <text x="340" y="228" text-anchor="middle" fill="white" font-size="9" font-family="Helvetica" opacity="0.85">variables tratadas</text>
+        <text x="340" y="246" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="340" y="261" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">mediana agrupada</text>
+        <text x="340" y="276" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">por accommodates</text>
+        <text x="340" y="294" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <rect x="470" y="165" width="190" height="170" rx="10" fill="{COLOR_TRATADO}" />
+        <text x="565" y="190" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Helvetica">Modelo B -- TRATADO-A</text>
+        <text x="565" y="210" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">n = 10.669</text>
+        <text x="565" y="228" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">población y variables tratadas</text>
+        <text x="565" y="246" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="565" y="261" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">mediana agrupada</text>
+        <text x="565" y="276" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">por accommodates</text>
+        <text x="565" y="294" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
+        <rect x="695" y="165" width="190" height="170" rx="10" fill="{COLOR_SENSIBILIDAD}" />
+        <text x="790" y="190" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="Helvetica">Chequeo de sensibilidad</text>
+        <text x="790" y="210" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">n = 10.669</text>
+        <text x="790" y="228" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">otro criterio de imputación</text>
+        <text x="790" y="246" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">bedrooms/bathrooms/beds:</text>
+        <text x="790" y="261" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">mediana agrupada</text>
+        <text x="790" y="276" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">por barrio</text>
+        <text x="790" y="294" text-anchor="middle" fill="white" font-size="8.5" font-family="Helvetica" opacity="0.85">amenities_count: extracción real</text>
       </svg>
     </div>
     """,
@@ -228,11 +220,10 @@ st.markdown(
         <rect x="980" y="150" width="240" height="80" rx="10" fill="white" stroke="{AZUL_OSCURO}" stroke-width="2" />
         <text x="1100" y="180" text-anchor="middle" fill="{AZUL_OSCURO}" font-size="13" font-weight="700" font-family="Helvetica">Transformaciones aprendidas</text>
         <text x="1100" y="200" text-anchor="middle" fill="#444" font-size="12" font-family="Helvetica">aplicadas al 20% de prueba</text>
-        <text x="1100" y="218" text-anchor="middle" fill="#999" font-size="10" font-family="Helvetica">(nunca visto al entrenar)</text>
         <text x="1385" y="115" text-anchor="middle" fill="#888" font-size="11" font-weight="600" letter-spacing="0.5" font-family="Helvetica">4. EVALUACIÓN</text>
         <line x1="1220" y1="190" x2="1285" y2="190" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_ev)" />
         <rect x="1290" y="150" width="200" height="80" rx="10" fill="{OCRE_DORADO_TEXTO}" />
-        <text x="1390" y="178" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">MAE · RMSE · R²</text>
+        <text x="1390" y="178" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Helvetica">MAE · R²</text>
         <text x="1390" y="198" text-anchor="middle" fill="white" font-size="11" font-family="Helvetica">sobre el 20% de prueba</text>
         <text x="1390" y="216" text-anchor="middle" fill="white" font-size="10" font-family="Helvetica" opacity="0.85">mismo criterio en las 4 versiones</text>
       </svg>
@@ -268,7 +259,7 @@ etiquetas = "".join(
     for cx, lbl in zip(arboles_x, arboles_label)
 )
 flechas = "".join(
-    f'<line x1="{cx}" y1="118" x2="750" y2="142" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rf)" />'
+    f'<line x1="{cx}" y1="118" x2="750" y2="128" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rf)" />'
     for cx in arboles_x
 )
 

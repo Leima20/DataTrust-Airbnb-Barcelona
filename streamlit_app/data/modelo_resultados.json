@@ -111,7 +111,7 @@
     "conclusion": "Solo A-B (el efecto combinado de población + variables) es estadísticamente distinguible de cero, incluso con una muestra de solo 426 filas -- B predice mejor que A. Los efectos parciales (A-D por separado, D-B por separado) son, individualmente, demasiado pequeños para distinguirse del ruido de muestreo en esta muestra: no se puede repartir con precisión cuánto de la mejora viene de la población y cuánto de la construcción de variables."
   },
   "conclusion_final": {
-    "observado": "Sobre las 426 filas sin fuga de datos (ninguna vista en el entrenamiento de los tres modelos), B predice mejor que A -- y el intervalo de confianza confirma que no es casualidad.",
+    "observado": "Sobre las 426 filas sin fuga de datos, B predice mejor que A, y el intervalo de confianza confirma que no es casualidad.",
     "interpretacion_razonable": "La mejora combinada de B frente a A probablemente viene tanto de la población evaluada (menos casos triviales de 0 EUR) como de la construcción de variables (amenities real, imputación por mediana) -- pero los datos no permiten decir en qué proporción exacta contribuye cada una.",
     "sin_resolver": "El reparto preciso entre efecto de población y efecto de construcción de variables queda como limitación abierta. Resolverlo exigiría una muestra común mucho mayor que las 426 filas disponibles.",
     "leccion_metodologica": "La fuga de datos detectada no vino de la calidad de los datos que se estaba auditando -- vino del diseño del propio experimento al intentar hacer la comparación 'más controlada'. Se documenta el error y la corrección, no solo el resultado final."

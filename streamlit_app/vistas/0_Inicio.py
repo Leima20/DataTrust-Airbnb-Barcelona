@@ -84,20 +84,20 @@ with tab_zillow:
 
             st.markdown(
                 f"""
-                <div style="background-color:#1A2733; border-radius:14px; box-shadow:0 8px 20px rgba(11,57,84,0.25);
-                            padding:2rem 1.4rem; text-align:center;">
-                <span style="font-size:0.85rem; color:{OCRE_DORADO}; font-weight:700; text-transform:uppercase;
+                <div style="background-color:#1A2733; border-radius:16px; box-shadow:0 8px 20px rgba(11,57,84,0.25);
+                            padding:3rem 2rem; text-align:center;">
+                <span style="font-size:1.25rem; color:{OCRE_DORADO}; font-weight:700; text-transform:uppercase;
                              letter-spacing:0.08em;">Pérdida en 2021</span><br>
-                <span style="font-size:3.5rem; color:#FFFFFF; font-weight:800; white-space:nowrap;">${perdida_fmt}M</span><br>
-                <span style="font-size:0.85rem; color:#C7CDD3;">Zillow Offers, división cerrada</span>
-                <div style="margin-top:1.4rem; border-top:1px solid #2C3A47; padding-top:0.7rem;">
-                <span style="font-size:0.72rem; color:#8A95A1; font-weight:700; text-transform:uppercase;
+                <span style="font-size:6rem; color:#FFFFFF; font-weight:800; white-space:nowrap;">${perdida_fmt}M</span><br>
+                <span style="font-size:1.25rem; color:#C7CDD3;">Zillow Offers, división cerrada</span>
+                <div style="margin-top:1.8rem; border-top:1px solid #2C3A47; padding-top:1rem;">
+                <span style="font-size:1rem; color:#8A95A1; font-weight:700; text-transform:uppercase;
                              letter-spacing:0.06em;">Cotización de la acción (Zillow Group, cierre mensual)</span>
                 </div>
-                <div style="margin-top:0.6rem; position:relative;">
-                <span style="position:absolute; left:{_mid_frac:.1f}%; top:{_oct_y - 28:.0f}px; transform:translateX(-50%);
-                             font-size:1.15rem; font-weight:800; color:{OCRE_DORADO}; white-space:nowrap;">{_caida_pct:.0f}%</span>
-                <svg viewBox="0 0 {_W} {_H}" width="100%" height="84" preserveAspectRatio="none">
+                <div style="margin-top:1rem; position:relative;">
+                <span style="position:absolute; left:{_mid_frac:.1f}%; top:{_oct_y - 36:.0f}px; transform:translateX(-50%);
+                             font-size:1.8rem; font-weight:800; color:{OCRE_DORADO}; white-space:nowrap;">{_caida_pct:.0f}%</span>
+                <svg viewBox="0 0 {_W} {_H}" width="100%" height="140" preserveAspectRatio="none">
                     <polyline points="{_polyline_pts}" fill="none" stroke="#C7CDD3" stroke-width="2"
                               stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
                     <polyline points="{_oct_x},{_oct_y} {_nov_x},{_nov_y}" fill="none" stroke="{OCRE_DORADO}"
@@ -105,11 +105,11 @@ with tab_zillow:
                     <circle cx="{_oct_x}" cy="{_oct_y}" r="3.5" fill="{OCRE_DORADO}"/>
                     <circle cx="{_nov_x}" cy="{_nov_y}" r="3.5" fill="{OCRE_DORADO}"/>
                 </svg>
-                <div style="position:relative; height:16px; font-size:0.72rem; color:{OCRE_DORADO}; margin-top:0.1rem;">
+                <div style="position:relative; height:24px; font-size:1.1rem; color:{OCRE_DORADO}; margin-top:0.2rem;">
                 <span style="position:absolute; left:{_oct_frac:.1f}%; transform:translateX(-50%); white-space:nowrap;">${_precio_oct}</span>
                 <span style="position:absolute; left:{_nov_frac:.1f}%; transform:translateX(-50%); white-space:nowrap;">${_precio_nov}</span>
                 </div>
-                <div style="position:relative; height:20px; font-size:0.9rem; color:#A9B4BF; margin-top:0.2rem;">
+                <div style="position:relative; height:28px; font-size:1.25rem; color:#A9B4BF; margin-top:0.4rem;">
                 <span style="position:absolute; left:0;">Ene</span>
                 <span style="position:absolute; left:{_mid_frac:.1f}%; transform:translateX(-50%); color:{OCRE_DORADO};
                              font-weight:700; white-space:nowrap;">Oct → Nov: anuncio de cierre</span>
@@ -124,7 +124,7 @@ with tab_zillow:
             st.markdown(
                 f"""
                 <div style="background-color:#EAF2F8; border-left:4px solid #0B3954; border-radius:8px;
-                            padding:0.9rem 1.1rem; font-size:0.92rem; color:#333; height:100%;
+                            padding:1.2rem 1.4rem; font-size:1.2rem; color:#333; height:100%;
                             box-sizing:border-box; display:flex; align-items:center;">
                 {zillow.get('cita_ceo', '')}
                 </div>

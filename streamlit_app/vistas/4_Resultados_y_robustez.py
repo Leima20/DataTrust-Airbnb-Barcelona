@@ -70,7 +70,7 @@ with tab_resultados:
             <rect x="870" y="170" width="240" height="110" rx="10" fill="#FBEED6" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
             <text x="990" y="220" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="14" font-weight="700" font-family="Helvetica">Muestra común</text>
             <text x="990" y="238" text-anchor="middle" fill="{OCRE_DORADO_TEXTO}" font-size="11" font-family="Helvetica">¿Qué ocurre en igualdad de condiciones?</text>
-            <text x="990" y="256" text-anchor="middle" fill="#806000" font-size="10" font-family="Helvetica" opacity="0.85">n = 426 -- comparación controlada</text>
+            <text x="990" y="256" text-anchor="middle" fill="#806000" font-size="10" font-family="Helvetica" opacity="0.85">comparación controlada</text>
           </svg>
         </div>
         """,
@@ -94,6 +94,27 @@ with tab_resultados:
     cx_contam = 70 + ancho_contam / 2
     cx_seguro = 70 + ancho_contam + ancho_seguro / 2
 
+    st.markdown(
+        f"""
+        <div style="display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:0.9rem; flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-size:0.78rem; color:#666;">Intento inicial</div>
+            <div style="font-size:1.05rem; font-weight:800; color:#31333F;">Test de B</div>
+          </div>
+          <div style="font-size:1.4rem; color:#aaa;">&rarr;</div>
+          <div style="text-align:center; background-color:#FBEED6; border:2px solid {AMBAR_PENDIENTE}; border-radius:10px; padding:0.35rem 0.9rem;">
+            <div style="font-size:0.78rem; color:#806000;">Resultado</div>
+            <div style="font-size:1.2rem; font-weight:800; color:{OCRE_DORADO_TEXTO};">R² ≈ 0,82 ⚠️</div>
+          </div>
+          <div style="font-size:1.4rem; color:#aaa;">&rarr;</div>
+          <div style="text-align:center;">
+            <div style="font-size:0.78rem; color:#666;">¿Por qué tan alto?</div>
+            <div style="font-size:1.05rem; font-weight:800; color:#31333F;">Investigo</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown(
         f"""
         <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.2rem 1.4rem;">
@@ -150,6 +171,7 @@ with tab_resultados:
         r2_d_426 = resultados_426["D_variables_tratadas_poblacion_cruda"]["r2"]
         r2_b_426 = resultados_426["B_tratado_criterio_A"]["r2"]
         diferencia_ab_426 = r2_b_426 - r2_a_426
+        diferencia_ad_426 = r2_d_426 - r2_a_426
         st.markdown(
             f"""
             <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.2rem 1.4rem; margin: 1rem 0;">
@@ -175,6 +197,11 @@ with tab_resultados:
               <div style="text-align: center; margin-top: 1rem;">
                 <span style="background-color: {AMBAR_PENDIENTE}1A; color: {AMBAR_PENDIENTE}; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.95rem; font-weight: 700;">
                   +{fmt_num(diferencia_ab_426, 3)} -- diferencia de R² entre A y B en la muestra común
+                </span>
+              </div>
+              <div style="text-align: center; margin-top: 0.6rem;">
+                <span style="background-color: {COLOR_D}1A; color: {COLOR_D}; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.95rem; font-weight: 700;">
+                  +{fmt_num(diferencia_ad_426, 3)} -- diferencia de R² entre A y D en la muestra común
                 </span>
               </div>
               <div style="font-size: 0.78rem; color: #888; border-top: 1px solid #eaeaeb; margin-top: 1rem; padding-top: 0.6rem; text-align: center;">
@@ -254,7 +281,7 @@ with tab_resultados:
     )
     st.markdown(
         f'<div style="font-size:0.8rem; font-weight:800; color:{OCRE_DORADO_TEXTO}; letter-spacing:0.4px; margin:0.9rem 0 0.5rem;">'
-        f'EFECTO DE LA POBLACIÓN &nbsp;·&nbsp; mismo modelo, quitando filas problemáticas</div>',
+        f'EFECTO DE LA POBLACIÓN &nbsp;·&nbsp; mismo modelo, sin los casos de ingreso no estimable</div>',
         unsafe_allow_html=True,
     )
     _fila_antes_despues(
@@ -385,7 +412,7 @@ with tab_resultados:
                     )
 
     st.markdown("---")
-    st.markdown("### 6 · Un modelo puede ganar globalmente y no en cada predicción")
+    st.markdown("### 6 · Caso ejemplo: un anuncio real")
     ejemplo = modelo.get("ejemplo_prediccion_individual", {})
     if ejemplo:
         preds = ejemplo.get("predicciones", [])
@@ -468,7 +495,6 @@ with tab_resultados:
                 f"también a {fmt_num(ejemplo.get('distancia_a_mediana_eur', 0), 1)} € -- se conserva el primero "
                 "según el criterio determinista del notebook."
             )
-            st.caption(ejemplo.get("nota_metodologica", ""))
 
         pred_c = next((p for p in preds if p["modelo"] == "C"), None)
         if pred_c:
@@ -512,12 +538,12 @@ with tab_confianza:
             <text x="200" y="65" text-anchor="middle" fill="#31333F" font-size="14" font-weight="700" font-family="Helvetica">Muestra grande -- 2.131 filas</text>
             <text x="200" y="88" text-anchor="middle" fill="#31333F" font-size="13" font-family="Helvetica">A: {fmt_num(r2_a_grande, 3)} -- D: {fmt_num(r2_d_grande, 3)}</text>
             <text x="200" y="108" text-anchor="middle" fill="#31333F" font-size="12" font-family="Helvetica">Δ R² (A-D) = {fmt_num(delta_grande, 3)}</text>
-            <text x="200" y="128" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">A ligeramente por delante</text>
+            <text x="200" y="128" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">A ligeramente por delante de D</text>
             <rect x="40" y="180" width="320" height="120" rx="10" fill="white" stroke="{AMBAR_PENDIENTE}" stroke-width="2" />
             <text x="200" y="205" text-anchor="middle" fill="#31333F" font-size="14" font-weight="700" font-family="Helvetica">Muestra pequeña -- 426 filas</text>
             <text x="200" y="228" text-anchor="middle" fill="#31333F" font-size="13" font-family="Helvetica">A: {fmt_num(r2_a_pequena, 3)} -- D: {fmt_num(r2_d_pequena, 3)}</text>
             <text x="200" y="248" text-anchor="middle" fill="#31333F" font-size="12" font-family="Helvetica">Δ R² (A-D) = {fmt_num(delta_pequena, 3)}</text>
-            <text x="200" y="268" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">D claramente por delante (signo invertido)</text>
+            <text x="200" y="268" text-anchor="middle" fill="#555" font-size="11" font-family="Helvetica">D claramente por delante de A (signo invertido)</text>
             <line x1="360" y1="100" x2="620" y2="160" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rompecabezas)" />
             <line x1="360" y1="240" x2="620" y2="205" stroke="#aaa" stroke-width="2" marker-end="url(#flecha_rompecabezas)" />
             <text x="490" y="172" text-anchor="middle" fill="#888" font-size="10" font-family="Helvetica">{fmt_num(delta_pequena, 3)} &divide; {fmt_num(delta_grande, 3)} &approx; {fmt_num(delta_pequena / delta_grande, 0)}&times;</text>
@@ -533,7 +559,7 @@ with tab_confianza:
 
     sub1, sub2 = st.columns(2)
     with sub1:
-        st.markdown("**A · ¿Se repite el resultado?**")
+        st.markdown("**A · ¿Es fiable que D gane a A en las 426 filas?**")
         st.markdown(
             '<div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; '
             'padding: 0.7rem 1rem; margin-bottom: 0.7rem; font-size: 0.85rem; color: #444;">'
@@ -569,7 +595,6 @@ with tab_confianza:
                   </div>
                   <div style="font-size: 0.95rem; color: #31333F; font-weight: 700; margin-bottom: 0.4rem;">La diferencia observada es poco habitual</div>
                   <div style="font-size: 0.85rem; color: #555;">Solo el {fmt_num(pct_real, 1)}% de las 5.000 submuestras dieron un resultado tan extremo como el real, o más.</div>
-                  <div style="font-size: 0.78rem; color: #888; border-top: 1px solid #eee; margin-top: 0.6rem; padding-top: 0.5rem;">Esto no demuestra por sí solo significación estadística -- es una medida de sensibilidad a qué filas se evalúan, no una prueba formal.</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -674,8 +699,8 @@ with tab_confianza:
 
     col_ev, col_int, col_lim = st.columns(3)
     with col_ev:
-        _tarjeta_conclusion(1, AZUL_PETROLEO, "Evidencia -- lo observado", concl.get('observado', ''))
+        _tarjeta_conclusion(1, AZUL_PETROLEO, "Evidencia: lo observado", concl.get('observado', ''))
     with col_int:
-        _tarjeta_conclusion(2, COLOR_NEUTRO, "Interpretación -- la lectura razonable", concl.get('interpretacion_razonable', ''))
+        _tarjeta_conclusion(2, COLOR_NEUTRO, "Interpretación: la lectura razonable", concl.get('interpretacion_razonable', ''))
     with col_lim:
-        _tarjeta_conclusion(3, AMBAR_PENDIENTE, "Limitación -- lo que sigue sin resolver", concl.get('sin_resolver', ''))
+        _tarjeta_conclusion(3, AMBAR_PENDIENTE, "Limitación: lo que sigue sin resolver", concl.get('sin_resolver', ''))
