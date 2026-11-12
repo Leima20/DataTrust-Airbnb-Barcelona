@@ -1,7 +1,7 @@
 # DataTrust
 
 Un estudio del impacto de la calidad y la gobernanza de datos en las
-conclusiones analíticas — de negocio y de un modelo predictivo — usando el
+conclusiones analíticas, de negocio y de un modelo predictivo, usando el
 mercado de alquiler turístico de Barcelona como caso de estudio real.
 
 **App interactiva en vivo (presentación del proyecto)**:
