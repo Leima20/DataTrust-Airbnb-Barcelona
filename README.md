@@ -38,11 +38,11 @@ tablas) que se auditan, documentan y tratan a lo largo del proyecto.
 ```
 Proyecto_Final/
 ├── README.md                    ← estás aquí
-├── 00_ficha_maestra.md          ← documento de trabajo interno (plan, decisiones)
 ├── data/airbnb_bcn/             ← datos originales de Inside Airbnb (NO en el repo, ver abajo)
 ├── data/airbnb_bcn_curado/      ← datos curados en CSV (NO en el repo, ver abajo)
 ├── database/construir_base_datos.py  ← script para regenerar la base SQLite
 ├── notebooks/
+│   ├── 00b_exploracion_interpretada.ipynb  ← exploración interpretada columna por columna (completado)
 │   ├── 01_auditoria_listings.ipynb       ← auditoría de alojamientos (completado)
 │   ├── 02_auditoria_reviews.ipynb        ← auditoría de reseñas (completado)
 │   ├── 03_auditoria_calendar.ipynb       ← auditoría de calendario (completado)
@@ -105,10 +105,8 @@ Ninguna corrección debilitó el hallazgo central del proyecto: comparando
 anfitriones profesionales y particulares (dos grupos que ya existen hoy,
 escalado solo como ayuda de intuición a un grupo ilustrativo de 50 anuncios),
 el impacto de auditar pasó de 124.605 €/año a **149.958 €/año**. Detalle
-completo en
-`notebooks/05_tratamiento_curacion.ipynb` (sección 1.2 y 1.6) y en la ficha
-maestra.
+completo en `notebooks/05_tratamiento_curacion.ipynb` (sección 1.2 y 1.6).
 
 ## Autora
 
-Leidy Pimentel · IT Academy, Barcelona Activa / Cibernarium
+Leidy Pimentel · Proyecto Final · IT Academy
