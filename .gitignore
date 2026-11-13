@@ -46,3 +46,17 @@ resumen_proyecto.ipynb
 # Power BI descartado del entregable final -- queda solo en local.
 powerbi/
 data/powerbi/
+
+# Notebook de exploracion automatica: paso previo mecanico sin interpretacion
+# propia, superado por el notebook 00b (que si es entregable) -- queda solo
+# en local, no se entrega.
+notebooks/00_exploracion_automatica.ipynb
+
+# Scripts de exploracion preliminar, superados por los notebooks 01-03 y sin
+# ninguna referencia desde los notebooks oficiales -- quedan solo en local.
+# (check_impacto_negocio_profesional.py, check_impacto_preliminar.py y
+# check_experimento_decision_inversor.py SI se quedan: los dos primeros se
+# citan como correccion metodologica en los notebooks 05/06, y el tercero es
+# la fuente explicita de un dato real usado en la app de Streamlit.)
+explore_airbnb_bcn.py
+explore_airbnb_calendar.py
