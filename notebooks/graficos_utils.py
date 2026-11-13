@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Funciones de generación automática de gráficos (una por columna, según su
 tipo). Módulo compartido entre 00_exploracion_automatica.ipynb y
 00b_exploracion_interpretada.ipynb, para no duplicar la lógica en los dos."""
@@ -13,12 +12,12 @@ COLOR_GRAFICO = "steelblue"
 
 def tipo_de_columna(serie: pd.Series, umbral_categorias: int = 10) -> str:
     """
-    Clasifica una columna en 'fecha', 'categorica' o 'numerica'.
+    Clasifica una columna en 'fecha', 'categórica' o 'numérica'.
 
     Args:
         serie (pd.Series): Columna a clasificar.
-        umbral_categorias (int): Maximo de valores distintos para tratar una
-            columna numerica como categorica.
+        umbral_categorias (int): Máximo de valores distintos para tratar una
+            columna numérica como categórica.
 
     Returns:
         str: Uno de 'fecha', 'categorica', 'numerica'.
@@ -35,7 +34,7 @@ def graficar_numerica(serie: pd.Series, nombre: str, carpeta: str) -> str:
     Genera y exporta un histograma con boxplot marginal.
 
     Args:
-        serie (pd.Series): Columna numerica a graficar.
+        serie (pd.Series): Columna numérica a graficar.
         nombre (str): Nombre de la columna.
         carpeta (str): Carpeta donde guardar la imagen.
 
@@ -60,13 +59,13 @@ def graficar_numerica(serie: pd.Series, nombre: str, carpeta: str) -> str:
 
 def graficar_categorica(serie: pd.Series, nombre: str, carpeta: str, top_n: int = 10) -> str:
     """
-    Genera y exporta un grafico de barras con las categorias mas frecuentes.
+    Genera y exporta un gráfico de barras con las categorías más frecuentes.
 
     Args:
-        serie (pd.Series): Columna categorica a graficar.
+        serie (pd.Series): Columna categórica a graficar.
         nombre (str): Nombre de la columna.
         carpeta (str): Carpeta donde guardar la imagen.
-        top_n (int): Categorias maximas a mostrar.
+        top_n (int): Categorías máximas a mostrar.
 
     Returns:
         str: Ruta del archivo exportado.
@@ -87,7 +86,7 @@ def graficar_categorica(serie: pd.Series, nombre: str, carpeta: str, top_n: int 
 
 def graficar_fecha(serie: pd.Series, nombre: str, carpeta: str) -> str:
     """
-    Genera y exporta un grafico de barras con los anios mas frecuentes.
+    Genera y exporta un gráfico de barras con los años más frecuentes.
 
     Args:
         serie (pd.Series): Columna de tipo fecha a graficar.
@@ -114,7 +113,7 @@ def graficar_fecha(serie: pd.Series, nombre: str, carpeta: str) -> str:
 
 def explorar_dataset(df: pd.DataFrame, carpeta_salida: str = "graficos_exploracion") -> dict:
     """
-    Genera y exporta un grafico por columna, eligiendo el tipo automaticamente.
+    Genera y exporta un gráfico por columna, eligiendo el tipo automáticamente.
 
     Args:
         df (pd.DataFrame): Dataset a explorar.
