@@ -4,6 +4,10 @@ Presentación interactiva del proyecto final "DataTrust" (auditoría de calidad 
 Inside Airbnb Barcelona), pensada para apoyar una defensa oral de 20-30 minutos ante un
 tribunal académico.
 
+**App ya desplegada, sin instalar nada**: [datatrust-bcn.streamlit.app](https://datatrust-bcn.streamlit.app/)
+
+Las instrucciones de abajo son solo para quien quiera ejecutarla en su propio ordenador.
+
 ## Instalación y ejecución local
 
 ```bash
