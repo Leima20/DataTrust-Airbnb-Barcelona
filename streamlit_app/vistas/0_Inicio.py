@@ -60,7 +60,6 @@ with tab_zillow:
         with col_cifra:
             perdida_fmt = fmt_num(zillow.get('perdida_anual_usd', 0) / 1_000_000)
 
-            # Accion ZG (Zillow Class A), cierre mensual 2021 -- fuente: Digrin.com (digrin.com/stocks/detail/ZG/price)
             precios_zg_2021 = [138.72, 169.82, 131.38, 133.35, 118.29, 122.53, 107.13, 95.60, 88.58, 105.72, 54.11, 62.22]
             _vmin, _vmax = min(precios_zg_2021), max(precios_zg_2021)
             _W, _H, _pad_top, _pad_bottom = 300, 84, 6, 14

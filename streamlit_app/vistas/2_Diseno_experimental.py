@@ -16,7 +16,6 @@ st.markdown(
 
 st.markdown("---")
 
-# --- BLOQUE 0b: Que variables entran en el modelo ---
 st.markdown("### ¿Qué variables entran en los modelos?")
 
 def _etiqueta(nombre, color):
@@ -78,7 +77,6 @@ st.caption(
 
 st.markdown("---")
 
-# --- BLOQUE 1: Las cuatro versiones -- infografia SVG unica (fuentes -> versiones -> muestra comun) ---
 st.markdown("### Las cuatro versiones de los modelos")
 
 st.markdown(
@@ -178,7 +176,6 @@ with st.expander("📋 Ficha técnica: variables e imputación por modelo"):
 
 st.markdown("---")
 
-# --- BLOQUE 1b: Cómo se entrena y evalúa cada versión -- infografía SVG unica ---
 st.markdown("### Cómo se entrena y evalúa cada versión")
 
 st.markdown(
@@ -234,7 +231,6 @@ st.markdown(
 
 st.markdown("---")
 
-# --- BLOQUE 0a: Algoritmo elegido, una vez que ya se sabe con qué datos trabaja ---
 st.markdown(
     "<div style='text-align:center; color:#666; font-size:1.15rem; font-style:italic; margin-bottom:0.5rem;'>"
     "¿Cómo consigue el modelo generar esa predicción?</div>",

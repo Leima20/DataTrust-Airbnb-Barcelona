@@ -15,7 +15,6 @@ st.title("El hallazgo crítico: un cero no siempre es un cero real")
 
 st.markdown("---")
 
-# --- BLOQUE 1: los 4.181 casos con HTML Flexbox seguro ---
 st.markdown("### 1. Los 4.181 casos")
 no_est = impacto.get("no_estimable", {})
 regla_original = impacto.get("experimento_decision", {}).get("regla_original", {})
@@ -41,7 +40,6 @@ st.markdown(html_punto_1, unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
 
-# --- BLOQUE 2: flujograma del calculo ---
 st.markdown("### 2. Cómo calcula Inside Airbnb los ingresos, y qué se hace con los ceros")
 t = modelo.get("target", {})
 dot_revenue = r"""
@@ -100,7 +98,6 @@ with st.expander("Ver fórmula completa, columnas usadas y definición exacta"):
 
 st.markdown("---")
 
-# --- BLOQUE 3: Impacto en el mercado ---
 st.markdown("### 3. Cómo cambia la interpretación: ceros auditados vs. sin auditar")
 naive = impacto.get("gap_naive", {})
 corregido = impacto.get("gap_corregido", {})
@@ -126,7 +123,6 @@ if naive and corregido:
 
 st.markdown("---")
 
-# --- BLOQUE 4: Simulación de decisión en tarjeta unificada de 3 columnas ---
 st.markdown("### 4. Simulación de decisión: ¿cuántos anuncios cambian de categoría?")
 exp = impacto.get("experimento_decision", {})
 if exp:
@@ -213,7 +209,6 @@ if exp:
 
 st.markdown("---")
 
-# --- BLOQUE 5: Cierre de la parte de negocio ---
 st.markdown("### 5. Conclusiones")
 st.markdown(
     f"""

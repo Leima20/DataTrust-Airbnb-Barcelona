@@ -1,4 +1,4 @@
-"""Paleta y CSS compartidos por todas las paginas de DataTrust."""
+"""Paleta y CSS compartidos por todas las páginas de DataTrust."""
 import re
 
 import streamlit as st
@@ -16,43 +16,33 @@ def fmt_num(valor, decimales: int = 0) -> str:
     texto = f"{valor:,.{decimales}f}"
     return texto.replace(",", "@").replace(".", ",").replace("@", ".")
 
-# Paleta DataTrust -- sin rojo ni verde: evita la lectura de "semaforo" (correcto/incorrecto),
-# que no corresponde a este proyecto -- las versiones de datos (crudo/tratado) no son
-# "mala/buena", son distintas.
-AZUL_NOCHE = "#172B3A"      # color principal de la identidad, titulares y fondos oscuros
-AZUL_ACERO = "#426A8C"      # azul secundario -- escenario A (crudo)
-VIOLETA = "#8064A2"         # acento -- escenario D (variables tratadas, población cruda)
-OCRE_DORADO = "#D5A64A"     # acento de atención/pendiente (sustituye al rojo de alerta)
-TURQUESA = "#268C87"        # acento -- escenario B (tratado) y kicker de paginas
-TURQUESA_TEXTO = "#1E6E69"  # variante oscura de TURQUESA -- usar en texto pequeño sobre fondo
-                             # blanco/claro (TURQUESA da 4.05:1, insuficiente para WCAG AA en
-                             # texto normal; esta variante da 6.02:1)
-TURQUESA_CLARO = "#4FADA8"  # variante clara de TURQUESA -- usar en texto pequeño sobre fondo
-                             # oscuro (TURQUESA da solo 3.59:1 sobre AZUL_NOCHE; esta da 5.46:1)
-OCRE_DORADO_TEXTO = "#8A6219"  # variante oscura de OCRE_DORADO -- OCRE_DORADO da solo 2.24:1
-                                # sobre blanco (insuficiente incluso para texto grande); esta da 5.47:1
-COLOR_SENSIBILIDAD_TEXTO = "#636C75"  # variante oscura de COLOR_SENSIBILIDAD -- el gris base da
-                                       # solo 3.05:1 sobre blanco; esta da 5.34:1
+AZUL_NOCHE = "#172B3A"
+AZUL_ACERO = "#426A8C"
+VIOLETA = "#8064A2"
+OCRE_DORADO = "#D5A64A"
+TURQUESA = "#268C87"
+TURQUESA_TEXTO = "#1E6E69"
+TURQUESA_CLARO = "#4FADA8"
+OCRE_DORADO_TEXTO = "#8A6219"
+COLOR_SENSIBILIDAD_TEXTO = "#636C75"
 GRIS_CLARO = "#E9EDF1"
 GRIS_HIELO = "#F4F6F8"
 BLANCO = "#FFFFFF"
 GRIS_OSCURO = "#263746"
 GRIS_TEXTO = "#333333"
-AZUL_PIZARRA = "#5C7A99"    # identidad de 'calendar' en el código de color por tabla
-AZUL_PIZARRA_CLARO = "#A4B8CC"  # variante clara de AZUL_PIZARRA -- par de contraste para
-                                 # comparaciones de 2 series sin usar un color de modelo
+AZUL_PIZARRA = "#5C7A99"
+AZUL_PIZARRA_CLARO = "#A4B8CC"
 
-# Alias retrocompatibles -- mismo rol semántico, ya sin hex rojo/verde detrás
 AZUL_OSCURO = AZUL_NOCHE
 AZUL_PETROLEO = AZUL_ACERO
 GRIS_FONDO = GRIS_HIELO
 AMBAR_PENDIENTE = OCRE_DORADO
-AMBAR_ALERTA = OCRE_DORADO  # antes ROJO_ALERTA -- mismo uso ("atención"), sin connotación de semáforo
+AMBAR_ALERTA = OCRE_DORADO
 
-COLOR_CRUDO = AZUL_ACERO       # Modelo A
-COLOR_D = VIOLETA              # Modelo D
-COLOR_TRATADO = TURQUESA       # Modelo B
-COLOR_SENSIBILIDAD = "#8A95A1"  # chequeo de sensibilidad -- gris neutro, ya cumplía la norma
+COLOR_CRUDO = AZUL_ACERO
+COLOR_D = VIOLETA
+COLOR_TRATADO = TURQUESA
+COLOR_SENSIBILIDAD = "#8A95A1"
 COLOR_NEUTRO = AZUL_NOCHE
 
 

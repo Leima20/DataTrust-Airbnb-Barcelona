@@ -65,7 +65,6 @@ st.markdown(
     "contra 3 preguntas."
 )
 
-# ---------- 1. Alcance de la auditoría ----------
 st.markdown("## 1. Alcance de la auditoría")
 tablas = calidad.get("tablas", {})
 with st.container(border=True):
@@ -78,8 +77,6 @@ tab2, tab4 = st.tabs([
     "3. Gobernanza y tratamiento",
 ])
 
-# ---------- 2. Dimensiones y resultados (fusionado: lo que aparecia en "Dimensiones" se
-# repetia en "Resultados", mejor ver el termino y su resultado juntos) ----------
 with tab2:
     st.markdown("#### Resultados principales")
     n_listings, n_reviews, n_calendar = len(hallazgos.get("listings", [])), len(hallazgos.get("reviews", [])), len(hallazgos.get("calendar", []))
@@ -287,7 +284,6 @@ with tab2:
     _tabla_hallazgos(hallazgos)
 
 
-# ---------- 4. Decisiones de gobernanza ----------
 with tab4:
     st.markdown("#### Gobernanza: la decisión")
     _tabla_hallazgos(hallazgos)
@@ -361,7 +357,6 @@ with tab4:
     st.markdown("---")
     st.markdown("#### Tratamiento: la ejecución")
 
-    # --- Ejemplo 1 en Desplegable ---
     ej1 = contexto.get("ejemplo_valores_ausentes", {})
     if ej1:
         titulo_ej1 = ej1.get("titulo", "Tratamiento de nulos (L2)")
@@ -392,7 +387,6 @@ with tab4:
                 st.markdown("---")
                 st.caption(ej1.get("justificacion", ""))
                 st.caption(ej1.get("limitacion_room_type", "")) 
-    # --- Ejemplo 2 en Desplegable (Sin estrellitas, con diseño limpio) ---
     ej2 = contexto.get("ejemplo_licencia", {})
     if ej2:
         with st.expander(ej2.get("titulo", "Ejemplo 2"), expanded=False):

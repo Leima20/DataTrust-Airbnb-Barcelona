@@ -1,4 +1,4 @@
-"""Constructores de graficos Plotly reutilizados entre paginas."""
+"""Constructores de gráficos Plotly reutilizados entre páginas."""
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -8,12 +8,11 @@ from src.styles import (
     AZUL_PIZARRA, AZUL_PIZARRA_CLARO, AZUL_ACERO, VIOLETA, GRIS_HIELO, fmt_num,
 )
 
-# Tamanos de fuente pensados para leerse desde el fondo de una sala en una presentacion en vivo.
 FONT_BASE = dict(size=14)
 FONT_TITULO = dict(size=20)
 
 
-def barras_r2_modelos(nombres, valores, colores=None, titulo="Comparacion de R²"):
+def barras_r2_modelos(nombres, valores, colores=None, titulo="Comparación de R²"):
     colores = colores or [AZUL_PETROLEO] * len(nombres)
     fig = go.Figure(
         go.Bar(
@@ -50,7 +49,7 @@ def completitud_por_columna(columnas, pct_nulo, titulo="% de valores nulos por c
     return fig
 
 
-def licencia_categorias(nombres, pcts, titulo="Distribucion del campo license"):
+def licencia_categorias(nombres, pcts, titulo="Distribución del campo license"):
     colores = [AMBAR_ALERTA if "sin dato" in n.lower() or "no clasificable" in n.lower() else AZUL_PETROLEO for n in nombres]
     fig = go.Figure(
         go.Bar(
@@ -68,7 +67,7 @@ def licencia_categorias(nombres, pcts, titulo="Distribucion del campo license"):
     return fig
 
 
-def dispersion_muestra_simulada(diffs, diferencia_real, titulo="Distribucion de 5.000 submuestras (A - D)"):
+def dispersion_muestra_simulada(diffs, diferencia_real, titulo="Distribución de 5.000 submuestras (A - D)"):
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=diffs, nbinsx=60, marker_color=AZUL_PETROLEO, name="Submuestras simuladas", opacity=0.85))
     fig.add_vline(x=diferencia_real, line_color=VIOLETA, line_width=2, line_dash="dash",
@@ -103,13 +102,11 @@ def intervalo_confianza(nombres, medias, los, his, titulo="Intervalos de confian
             text=[f"media: {media:.3f}"], textposition="top center",
             textfont=dict(color=color, size=12), hoverinfo="skip",
         ))
-        # Números del intervalo escritos sobre el gráfico, para no depender del hover.
         fig.add_trace(go.Scatter(
             x=[lo, hi], y=[nombre, nombre], mode="text",
             text=[f"{lo:.3f}", f"{hi:.3f}"], textposition=["middle left", "middle right"],
             textfont=dict(color=color, size=12), showlegend=False, hoverinfo="skip",
         ))
-    # Trazas invisibles solo para que la leyenda explique qué significa cada color.
     if hubo_real:
         fig.add_trace(go.Scatter(
             x=[None], y=[None], mode="lines", line=dict(color=TURQUESA, width=6),
@@ -145,7 +142,7 @@ def dispersion_real_vs_predicho(real, predicho, r2, nombre, color):
     ))
     lim = max(max(real, default=0), max(predicho, default=0))
     fig.add_trace(go.Scatter(x=[0, lim], y=[0, lim], mode="lines",
-                              line=dict(color="#333333", dash="dash"), name="Prediccion perfecta"))
+                              line=dict(color="#333333", dash="dash"), name="Predicción perfecta"))
     fig.update_layout(
         title=f"{nombre} (R² = {r2:.3f})", xaxis_title="Ingreso real (€)", yaxis_title="Ingreso predicho (€)",
         template="plotly_white", height=420, margin=dict(t=60, b=40),
